@@ -18,6 +18,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml;
 using Paragraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
 using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
+using DocumentFormat.OpenXml.Office2010.PowerPoint;
 
 namespace AutoserviceApp
 {
@@ -70,8 +71,10 @@ namespace AutoserviceApp
             { "Сотрудник", new List<string> { "Детали", "ДетальРаботы", "Работы", "Жалобы", "Пользователи" } }
         };
 
-        private void ApplyRoleRestrictions()
+        private async void ApplyRoleRestrictions()
         {
+            //await ShowWelcomeScreen();  // Показываем приветствие
+
             if (!roleTabs.ContainsKey(_currentUser.Role))
                 return;
 
@@ -82,7 +85,11 @@ namespace AutoserviceApp
                 item.Visibility = allowedTabs.Contains(item.Header.ToString()) ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            ShowWelcomeScreen();
+            ConfigWelcomeScreen();
+            WelcomeScreen.Visibility = Visibility.Visible;
+
+
+            //this.Visibility = Visibility.Visible;
         }
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -121,15 +128,13 @@ namespace AutoserviceApp
             var users = _userRepository.GetAllUsers();
             UsersGrid.ItemsSource = users;
         }
-        private void ShowWelcomeScreen_Click(object sender, RoutedEventArgs e)
+        private async void ShowWelcomeScreen_Click(object sender, RoutedEventArgs e)
         {
-            ShowWelcomeScreen();
+            ConfigWelcomeScreen();
         }
 
-        private void ShowWelcomeScreen()
+        private void ConfigWelcomeScreen()
         {
-            MainTabControl.Visibility = Visibility.Collapsed; // Скрываем вкладки
-            
             string roleDescription = _currentUser.Role switch
             {
                 "Гость" => "Вы можете просматривать список мастеров и последние выполненные работы.",
@@ -138,16 +143,14 @@ namespace AutoserviceApp
                 _ => "Неизвестная роль"
             };
 
-            WelcomeText.Text = $"Добро пожаловать в приложение нашего Автосервиса.\n\n" +
+            WelcomeText.Text = $"Добро пожаловать в приложение нашего Автосервиса!\n\n" +
                                $"Вы вошли как: {_currentUser.Role}.\n\n" +
                                $"Вам доступен следующий функционал:\n{roleDescription}";
-
-            WelcomeScreen.Visibility = Visibility.Visible;
-
         }
+
         private void CloseWelcomeScreen_Click(object sender, RoutedEventArgs e)
         {
-            WelcomeScreen.Visibility = Visibility.Collapsed;
+            WelcomeScreen.Visibility = Visibility.Hidden;
             MainTabControl.Visibility = Visibility.Visible;
 
             // Открываем первую доступную вкладку
@@ -161,6 +164,33 @@ namespace AutoserviceApp
                 }
             }
         }
+
+        private void Exit_Click(object sender, RoutedEventArgs e)
+        {
+            MainTabControl.Visibility = Visibility.Hidden;
+            WelcomeScreen.Visibility = Visibility.Hidden;
+
+            //this.Visibility = Visibility.Hidden;
+
+            var loginWindow = new LoginWindow();
+            if (loginWindow.ShowDialog() == true)
+            {
+                _currentUser = loginWindow.CurrentUser;
+                
+                LoadDetails();
+                LoadWorkDetails();
+                LoadWorks();
+                LoadComplaints();
+                LoadUsers();
+
+                ApplyRoleRestrictions();
+            }
+            else
+            {
+                Application.Current.Shutdown();
+            }
+        }
+
 
 
         private void ShowAbout_Click(object sender, RoutedEventArgs e)
@@ -244,36 +274,6 @@ namespace AutoserviceApp
             }
 
             MessageBox.Show("Отчет по группировке деталей успешно создан!", "Отчет");
-        }
-
-
-        private void Exit_Click(object sender, RoutedEventArgs e)
-        {
-            ShowWelcomeScreen();
-            // Закрываем текущее окно (главное)
-            this.Hide();
-
-
-            // Создаём и показываем окно входа
-            var loginWindow = new LoginWindow();
-            if (loginWindow.ShowDialog() == true)
-            {
-                // Получаем нового пользователя и обновляем главное окно
-                _currentUser = loginWindow.CurrentUser;
-                ApplyRoleRestrictions();
-                LoadDetails();
-                LoadWorkDetails();
-                LoadWorks();
-                LoadComplaints();
-            }
-            else
-            {
-                // Если пользователь закрыл окно входа, завершаем приложение
-                Application.Current.Shutdown();
-            }
-
-            // Показываем главное окно снова
-            this.Show();
         }
 
         private void CloseApp_Click(object sender, RoutedEventArgs e)

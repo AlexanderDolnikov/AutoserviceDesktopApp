@@ -13,20 +13,37 @@
             <Setter Property="Background" Value="#abd512"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="FontWeight" Value="Normal"/>
-        </Style>        
+        </Style>
 
         <Style x:Key="SidebarButtonStyle" TargetType="TabItem">
             <Setter Property="Height" Value="60"/>
             <Setter Property="Margin" Value="1,5,5,5"/>
             <Setter Property="Padding" Value="15"/>
-
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Background" Value="#aad413"/>
-            <Setter Property="Foreground" Value="Black"/>
-
-            <Setter Property="FontWeight" Value="Bold"/>
-
             <Setter Property="BorderThickness" Value="0"/>
+
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                     To="0.9" Duration="0:0:0.1" AutoReverse="True"/>
+                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                     To="0.9" Duration="0:0:0.1" AutoReverse="True"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
     </Application.Resources>

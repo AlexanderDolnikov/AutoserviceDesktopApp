@@ -5,12 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AutoserviceApp"
         mc:Ignorable="d"
-        Title="Вход в систему" 
+        Title="Вход в систему" 0
         Background="#2c4055"
         WindowStartupLocation="CenterScreen"
         Foreground="#ecf0f1"
         Height="270" Width="300"
-        ResizeMode="NoResize" SizeToContent="Manual">
+        ResizeMode="CanMinimize" SizeToContent="Manual"
+        WindowStyle="SingleBorderWindow">
 
     <Window.Resources>
         <Style x:Key="LoginButtonStyle" TargetType="Button">

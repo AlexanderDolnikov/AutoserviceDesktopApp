@@ -5,16 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AutoserviceApp"
         mc:Ignorable="d"
-        WindowStyle="None" 
+        WindowStyle="None"
         AllowsTransparency="True" 
         Background="#3f5a75"
         Title="AUTOSERVICE APP" Height="500" Width="800"
-        WindowStartupLocation="CenterScreen"
-        ResizeMode="CanResize">
+        WindowStartupLocation="CenterScreen">
 
 
     <Grid>
-        <Grid x:Name="WelcomeScreen" Background="#2c4055" Visibility="Visible">
+        <Grid x:Name="WelcomeScreen" Background="#2c4055" Visibility="Hidden" Margin="0, 60, 0, 0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
@@ -22,12 +21,12 @@
             </Grid.RowDefinitions>
 
             <TextBlock x:Name="WelcomeText" Foreground="White" Grid.Row="0" FontSize="16" TextAlignment="Center" 
-                VerticalAlignment="Center" HorizontalAlignment="Center"
-                TextWrapping="Wrap" Margin="20,0,0,0"/>
+                            VerticalAlignment="Center" HorizontalAlignment="Center"
+                            TextWrapping="Wrap" Margin="20,0,0,0"/>
 
             <Button Grid.Row="1" Content="Перейти к приложению" Click="CloseWelcomeScreen_Click" 
-                VerticalAlignment="Center" HorizontalAlignment="Center"
-                    Width="200" Height="40" Margin="20" FontWeight="Bold"/>
+                        VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Width="200" Height="40" Margin="20" FontWeight="Bold"/>
         </Grid>
 
         <DockPanel>
@@ -55,6 +54,7 @@
                 <MenuItem Header="Выход" Click="Exit_Click"/>
             </Menu>
 
+            
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -63,12 +63,12 @@
                 
                 <!-- Список вкладок -->
                 <TabControl x:Name="MainTabControl" Grid.Column="0" TabStripPlacement="Left"
-                            Background="#2c4055" Foreground="White"
+                            Background="#3f5a75" Foreground="White"
                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                            Visibility="Hidden"
                             ItemContainerStyle="{StaticResource SidebarButtonStyle}">
 
                     <TabItem Header="Детали">
-                        
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -135,7 +135,7 @@
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Grid.Row="5" Margin="5">
-                                <TextBlock>Queries:</TextBlock>
+                                <TextBlock Foreground="white">Queries:</TextBlock>
                             </StackPanel>
 
                             <!-- Кнопка для: Популярные детали (> 1 заказа)-->
