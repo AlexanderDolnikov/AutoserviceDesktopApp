@@ -63,34 +63,38 @@ namespace AutoserviceApp
             } 
         }
 
-
         private readonly Dictionary<string, List<string>> roleTabs = new Dictionary<string, List<string>>
         {
-            { "Гость", new List<string> { "Детали" } },
-            { "Клиент", new List<string> { "Детали", "Жалобы", "Работы" } },
-            { "Сотрудник", new List<string> { "Детали", "ДетальРаботы", "Работы", "Жалобы", "Пользователи" } }
+            { "Сотрудник", new List<string> { "Клиенты", "Автомобили", "Модели", "Мастера", "Виды работ", "Детали", "Заказы" } },
+            { "Администратор", new List<string> { "Клиенты", "Автомобили", "Модели", "Мастера", "Виды работ", "Детали", "Заказы", "Пользователи" } }
         };
 
-        private async void ApplyRoleRestrictions()
+        private void ApplyRoleRestrictions()
         {
-            //await ShowWelcomeScreen();  // Показываем приветствие
-
             if (!roleTabs.ContainsKey(_currentUser.Role))
                 return;
 
             List<string> allowedTabs = roleTabs[_currentUser.Role];
 
+            // Убираем недоступные вкладки
             foreach (TabItem item in MainTabControl.Items)
             {
                 item.Visibility = allowedTabs.Contains(item.Header.ToString()) ? Visibility.Visible : Visibility.Collapsed;
             }
 
+            // Дополнительно скрываем кнопки редактирования мастеров для сотрудников
+            if (_currentUser.Role == "Сотрудник")
+            {
+                UsersTab.Visibility = Visibility.Collapsed;
+                AddMasterButton.IsEnabled = false;
+                EditMasterButton.IsEnabled = false;
+                DeleteMasterButton.IsEnabled = false;
+            }
+
             ConfigWelcomeScreen();
             WelcomeScreen.Visibility = Visibility.Visible;
-
-
-            //this.Visibility = Visibility.Visible;
         }
+
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -100,34 +104,6 @@ namespace AutoserviceApp
             }
         }
 
-        private void LoadDetails()
-        {
-            var details = _detailRepository.GetAllDetails();
-            DetailsGrid.ItemsSource = details;
-        }
-
-        private void LoadWorkDetails()
-        {
-            var workDetails = _workDetailRepository.GetAllWorkDetails();
-            WorkDetailsGrid.ItemsSource = workDetails;
-        }
-
-        private void LoadWorks()
-        {
-            var works = _workRepository.GetAllWorks();
-            WorksGrid.ItemsSource = works;
-        }
-
-        private void LoadComplaints()
-        {
-            var complaints = _complaintRepository.GetAllComplaints();
-            ComplaintsGrid.ItemsSource = complaints;
-        }
-        private void LoadUsers()
-        {
-            var users = _userRepository.GetAllUsers();
-            UsersGrid.ItemsSource = users;
-        }
         private async void ShowWelcomeScreen_Click(object sender, RoutedEventArgs e)
         {
             ConfigWelcomeScreen();
@@ -137,9 +113,9 @@ namespace AutoserviceApp
         {
             string roleDescription = _currentUser.Role switch
             {
-                "Гость" => "Вы можете просматривать список мастеров и последние выполненные работы.",
-                "Клиент" => "Вы можете просматривать свои заказы и работы, а также оставлять жалобы.",
-                "Сотрудник" => "Вы имеете полный доступ ко всем данным, включая управление пользователями.",
+                //"Гость" => "Вы можете просматривать список мастеров и последние выполненные работы.",
+                "Сотрудник" => "Вы имеете полный доступ ко всем данным, за исключением Мастеров и Пользователей.",
+                "Администратор" => "Вы имеете полный доступ ко всем данным, включая управление пользователями.",
                 _ => "Неизвестная роль"
             };
 
@@ -154,23 +130,21 @@ namespace AutoserviceApp
             MainTabControl.Visibility = Visibility.Visible;
 
             // Открываем первую доступную вкладку
-            var allowedTabs = roleTabs[_currentUser.Role];
-            foreach (TabItem item in MainTabControl.Items)
-            {
-                if (allowedTabs.Contains(item.Header.ToString()))
-                {
-                    MainTabControl.SelectedItem = item;
-                    break;
-                }
-            }
+            //var allowedTabs = roleTabs[_currentUser.Role];
+            //foreach (TabItem item in MainTabControl.Items)
+            //{
+            //    if (allowedTabs.Contains(item.Header.ToString()))
+            //    {
+            //        MainTabControl.SelectedItem = item;
+            //        break;
+            //    }
+            //}
         }
 
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
             MainTabControl.Visibility = Visibility.Hidden;
             WelcomeScreen.Visibility = Visibility.Hidden;
-
-            //this.Visibility = Visibility.Hidden;
 
             var loginWindow = new LoginWindow();
             if (loginWindow.ShowDialog() == true)
@@ -190,8 +164,6 @@ namespace AutoserviceApp
                 Application.Current.Shutdown();
             }
         }
-
-
 
         private void ShowAbout_Click(object sender, RoutedEventArgs e)
         {
@@ -291,32 +263,33 @@ namespace AutoserviceApp
             this.WindowState = this.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
         }
 
-
-        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void LoadDetails()
         {
-            if (e.Source is TabControl)
-            {
-                WelcomeScreen.Visibility = Visibility.Collapsed;
-                MainTabControl.Visibility = Visibility.Visible;
+            var details = _detailRepository.GetAllDetails();
+            DetailsGrid.ItemsSource = details;
+        }
 
-                var selectedTab = (sender as TabControl)?.SelectedIndex;
+        private void LoadWorkDetails()
+        {
+            var workDetails = _workDetailRepository.GetAllWorkDetails();
+            WorkDetailsGrid.ItemsSource = workDetails;
+        }
 
-                switch (selectedTab)
-                {
-                    case 0: // Вкладка "Детали"
-                        LoadDetails();
-                        break;
-                    case 1: // Вкладка "ДетальРаботы"
-                        LoadWorkDetails();
-                        break;
-                    case 2: // Вкладка "Работа"
-                        LoadWorks();
-                        break;
-                    case 3: // Вкладка "Жалобы"
-                        LoadComplaints();
-                        break;
-                }
-            }
+        private void LoadWorks()
+        {
+            var works = _workRepository.GetAllWorks();
+            WorksGrid.ItemsSource = works;
+        }
+
+        private void LoadComplaints()
+        {
+            var complaints = _complaintRepository.GetAllComplaints();
+            ComplaintsGrid.ItemsSource = complaints;
+        }
+        private void LoadUsers()
+        {
+            var users = _userRepository.GetAllUsers();
+            UsersGrid.ItemsSource = users;
         }
 
         private void NumericOnlyTextBox_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
@@ -357,7 +330,7 @@ namespace AutoserviceApp
 
         private void AddUser_Click(object sender, RoutedEventArgs e)
         {
-            if (_currentUser.Role != "Сотрудник")
+            if (_currentUser.Role != "Администратор")
             {
                 MessageBox.Show("Вы не можете добавлять пользователей!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -927,5 +900,10 @@ namespace AutoserviceApp
         }
 
 
+        /* - - - - - - MASTERS: - - - - - - */
+
+        private void AddMaster_Click(object sender, RoutedEventArgs e) { }
+        private void EditMaster_Click(object sender, RoutedEventArgs e) { }
+        private void DeleteMaster_Click(object sender, RoutedEventArgs e) { }
     }
 }

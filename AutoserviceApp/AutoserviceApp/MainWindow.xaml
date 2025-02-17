@@ -9,6 +9,7 @@
         AllowsTransparency="True" 
         Background="#3f5a75"
         Title="AUTOSERVICE APP" Height="500" Width="800"
+        ResizeMode="CanResizeWithGrip"
         WindowStartupLocation="CenterScreen">
 
 
@@ -158,31 +159,6 @@
                         </Grid>
                     </TabItem>
 
-                    <TabItem Header="ДетальРаботы">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-
-                            <!-- Панель для кнопок и ввода данных -->
-                            <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="5">
-                                <TextBox x:Name="WorkDetailWorkIdInput" Width="50" ToolTip="Введите Код работы" Margin="0,0,5,0"/>
-                                <TextBox x:Name="WorkDetailDetailIdInput" Width="50" ToolTip="Введите Код детали" Margin="0,0,5,0"/>
-                                <TextBox x:Name="WorkDetailQuantityInput" Width="50" ToolTip="Введите количество" Margin="0,0,5,0"/>
-                                <Button Content="Добавить" Click="AddWorkDetail_Click" Width="100" Margin="0,0,5,0"/>
-                                <Button Content="Изменить" Click="EditWorkDetail_Click" Width="100" Margin="0,0,5,0"/>
-                                <Button Content="Удалить" Click="DeleteWorkDetail_Click" Width="100"/>
-                            </StackPanel>
-
-                            <!-- Таблица для отображения данных -->
-                            <DataGrid x:Name="WorkDetailsGrid" AutoGenerateColumns="True" Grid.Row="1"
-                                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                        IsReadOnly="True" SelectionMode="Single"
-                                        SelectionChanged="WorkDetailsGrid_SelectionChanged"/>
-                        </Grid>
-                    </TabItem>
-
                     <TabItem Header="Работы">
                         <Grid>
                             <Grid.RowDefinitions>
@@ -230,28 +206,27 @@
                         </Grid>
                     </TabItem>
 
-                    <TabItem Header="Жалобы">
+                    <TabItem Header="Мастера" x:Name="MastersTab">
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <!-- Панель для кнопок и ввода данных -->
+                            <!-- Панель для редактирования мастеров -->
                             <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="5">
-                                <TextBox x:Name="ComplaintWorkIdInput" Width="50" ToolTip="Введите Код работы" Margin="0,0,5,0"/>
-                                <TextBox x:Name="ComplaintDescriptionInput" Width="200" ToolTip="Введите описание" Margin="0,0,5,0"/>
-                                <TextBox x:Name="ComplaintDateInput" Width="150" ToolTip="Введите дату (гггг-мм-дд)" Margin="0,0,5,0"/>
-                                <Button Content="Добавить" Click="AddComplaint_Click" Width="100" Margin="0,0,5,0"/>
-                                <Button Content="Изменить" Click="EditComplaint_Click" Width="100" Margin="0,0,5,0"/>
-                                <Button Content="Удалить" Click="DeleteComplaint_Click" Width="100"/>
+                                <TextBox x:Name="MasterNameInput" Width="150" ToolTip="Введите имя мастера" Margin="0,0,5,0"/>
+                                <TextBox x:Name="MasterSurnameInput" Width="150" ToolTip="Введите фамилию мастера" Margin="0,0,5,0"/>
+                                <TextBox x:Name="MasterSpecializationInput" Width="200" ToolTip="Введите специализацию" Margin="0,0,5,0"/>
+                                <Button x:Name="AddMasterButton" Content="Добавить" Click="AddMaster_Click" Width="100" Margin="0,0,5,0"/>
+                                <Button x:Name="EditMasterButton" Content="Изменить" Click="EditMaster_Click" Width="100" Margin="0,0,5,0"/>
+                                <Button x:Name="DeleteMasterButton" Content="Удалить" Click="DeleteMaster_Click" Width="100"/>
                             </StackPanel>
 
-                            <!-- Таблица для отображения данных -->
-                            <DataGrid x:Name="ComplaintsGrid" AutoGenerateColumns="True" Grid.Row="1"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                IsReadOnly="True" SelectionMode="Single"
-                SelectionChanged="ComplaintsGrid_SelectionChanged"/>
+                            <!-- Таблица с мастерами -->
+                            <DataGrid x:Name="MastersGrid" AutoGenerateColumns="True" Grid.Row="1"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                      IsReadOnly="True" SelectionMode="Single"/>
                         </Grid>
                     </TabItem>
 
@@ -266,18 +241,17 @@
                             <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="5">
                                 <TextBox x:Name="UserLoginInput" Width="150" ToolTip="Введите логин" Margin="0,0,5,0"/>
                                 <PasswordBox x:Name="UserPasswordInput" Width="150" ToolTip="Введите пароль" Margin="0,0,5,0"/>
-                                <ComboBox x:Name="UserRoleInput" Width="120" ToolTip="Выберите роль">
-                                    <ComboBoxItem Content="Гость"/>
-                                    <ComboBoxItem Content="Клиент"/>
+                                <ComboBox x:Name="UserRoleInput" Width="130" ToolTip="Выберите роль">
                                     <ComboBoxItem Content="Сотрудник"/>
+                                    <ComboBoxItem Content="Администратор"/>
                                 </ComboBox>
                                 <Button Content="Добавить пользователя" Click="AddUser_Click" Width="150" Margin="5,0,0,0"/>
                             </StackPanel>
 
                             <!-- Таблица с пользователями -->
                             <DataGrid x:Name="UsersGrid" AutoGenerateColumns="True" Grid.Row="1"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                    IsReadOnly="True" SelectionMode="Single"/>
+                                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                        IsReadOnly="True" SelectionMode="Single"/>
                         </Grid>
                     </TabItem>
                 </TabControl>

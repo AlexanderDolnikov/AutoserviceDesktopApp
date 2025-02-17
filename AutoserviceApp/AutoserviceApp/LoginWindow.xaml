@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AutoserviceApp"
         mc:Ignorable="d"
-        Title="Вход в систему" 0
+        Title="Вход в систему"
         Background="#2c4055"
         WindowStartupLocation="CenterScreen"
         Foreground="#ecf0f1"
@@ -34,6 +34,6 @@
         <PasswordBox x:Name="PasswordInput" KeyDown="PasswordInput_KeyDown" Padding="2" Password="admina"/>
 
         <Button Content="Войти" Click="Login_Click" Padding="7" Margin="0,15,0,0" Style="{StaticResource LoginButtonStyle}"/>
-        <Button Content="Войти как гость" Click="GuestLogin_Click" Padding="8" Margin="0,15,0,0" Style="{StaticResource LoginButtonStyle}"/>
+        <Button Content="Войти как сотрудник***" Click="WorkerLogin_Click" Padding="8" Margin="0,15,0,0" Style="{StaticResource LoginButtonStyle}"/>
     </StackPanel>
 </Window>

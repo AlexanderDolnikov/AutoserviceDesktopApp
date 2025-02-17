@@ -68,13 +68,13 @@ namespace AutoserviceApp
             }
         }
 
-        private void GuestLogin_Click(object sender, RoutedEventArgs e)
+        private void WorkerLogin_Click(object sender, RoutedEventArgs e)
         {
             CurrentUser = new User
             {
-                Id = 0, // Гости не хранятся в БД
-                Login = "guest",
-                Role = "Гость"
+                Id = 0,
+                Login = "worker",
+                Role = "Сотрудник"
             };
 
             DialogResult = true;
