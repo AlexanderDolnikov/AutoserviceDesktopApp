@@ -8,19 +8,14 @@
              d:DesignHeight="450" d:DesignWidth="800"
              Height="Auto" Width="Auto">
     <Grid>
-        <ListView x:Name="OrdersList" ItemsSource="{Binding Orders}">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Border BorderBrush="Gray" BorderThickness="1" Padding="5">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                            <TextBlock Text="{Binding ДатаНачала}" Width="120"/>
-                            <TextBlock Text="{Binding ДатаОкончания}" Width="120"/>
-                            <TextBlock Text="{Binding Клиент}" Width="150"/>
-                            <Button Content="Подробнее" Click="ShowOrderDetails_Click" Tag="{Binding Код}" Width="80"/>
-                        </StackPanel>
-                    </Border>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Основной список заказов -->
+        <StackPanel x:Name="OrdersListPanel" Grid.Row="0" Margin="10">
+            <!-- Сюда динамически добавляются заказы -->
+        </StackPanel>
     </Grid>
 </UserControl>
