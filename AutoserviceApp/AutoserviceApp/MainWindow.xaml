@@ -3,260 +3,78 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AutoserviceApp"
+        xmlns:local="clr-namespace:AutoserviceApp" 
+        xmlns:viewModels="clr-namespace:AutoserviceApp.ViewModels"
         mc:Ignorable="d"
         WindowStyle="None"
-        AllowsTransparency="True" 
+        AllowsTransparency="True"
         Background="#3f5a75"
         Title="AUTOSERVICE APP" Height="500" Width="800"
         ResizeMode="CanResizeWithGrip"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
 
+    <Window.Resources>
+        <viewModels:MainViewModel x:Key="MainVM"></viewModels:MainViewModel>
+    </Window.Resources>
 
     <Grid>
-        <Grid x:Name="WelcomeScreen" Background="#2c4055" Visibility="Hidden" Margin="0, 60, 0, 0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="24" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        
+        <!-- Верхняя панель с кнопками управления -->
+        <DockPanel DockPanel.Dock="Top" Background="#34495e" Height="40" MouseLeftButtonDown="Window_MouseLeftButtonDown" Grid.Row="0">
+            <TextBlock Text="AUTOSERVICE APP" Foreground="White" VerticalAlignment="Center" FontSize="16" Margin="10,0,0,0"/>
 
-            <TextBlock x:Name="WelcomeText" Foreground="White" Grid.Row="0" FontSize="16" TextAlignment="Center" 
-                            VerticalAlignment="Center" HorizontalAlignment="Center"
-                            TextWrapping="Wrap" Margin="20,0,0,0"/>
-
-            <Button Grid.Row="1" Content="Перейти к приложению" Click="CloseWelcomeScreen_Click" 
-                        VerticalAlignment="Center" HorizontalAlignment="Center"
-                        Width="200" Height="40" Margin="20" FontWeight="Bold"/>
-        </Grid>
-
-        <DockPanel>
-            <!-- Верхняя панель с кнопками управления -->
-            <DockPanel DockPanel.Dock="Top" Background="#34495e" Height="40" MouseLeftButtonDown="Window_MouseLeftButtonDown">
-                <TextBlock Text="AUTOSERVICE APP" Foreground="White" VerticalAlignment="Center" FontSize="16"
-                       Margin="10,0,0,0"/>
-
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="-" Click="Minimize_Click" Background="Transparent" Foreground="White" Width="40" FontWeight="Bold"/>
-                    <Button Content="❏" Click="Maximize_Click" Background="Transparent" Foreground="White" Width="40" FontWeight="Bold"/>
-                    <Button Content="✕" Click="CloseApp_Click" Background="Transparent" Foreground="White" Width="40" FontWeight="Bold"/>
-                </StackPanel>
-            </DockPanel>
-
-            <!-- Главное меню -->
-            <Menu DockPanel.Dock="Top" Background="#2c4055" Foreground="White" Padding="3">
-                <MenuItem Header="Справка" Foreground="White" Click="ShowWelcomeScreen_Click"/>
-                <MenuItem Header="Отчеты" Foreground="White">
-                    <MenuItem Header="Отчет по таблице 'Деталь'" Click="GenerateReport1_Click"/>
-                    <MenuItem Header="Отчет по популярным деталям" Click="GenerateReport2_Click"/>
-                    <MenuItem Header="Отчет по группировке деталей" Click="GenerateReport3_Click"/>
-                </MenuItem>
-                <MenuItem Header="О программе" Click="ShowAbout_Click"/>
-                <MenuItem Header="Выход" Click="Exit_Click"/>
-            </Menu>
-
-            
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                
-                <!-- Список вкладок -->
-                <TabControl x:Name="MainTabControl" Grid.Column="0" TabStripPlacement="Left"
-                            Background="#3f5a75" Foreground="White"
-                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                            Visibility="Hidden"
-                            ItemContainerStyle="{StaticResource SidebarButtonStyle}">
-
-                    <TabItem Header="Детали">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <!-- ввод данных -->
-                                <RowDefinition Height="Auto" />
-                                <!--  -->
-                                <RowDefinition Height="Auto" />
-                                <!-- фильтр -->
-                                <RowDefinition Height="Auto" />
-                                <!-- поиск -->
-                                <RowDefinition Height="Auto" />
-                                <!-- сортировка -->
-                                <RowDefinition Height="Auto" />
-                                <!-- Queries: -->
-                                <RowDefinition Height="Auto" />
-                                <!-- Query 1 -->
-                                <RowDefinition Height="Auto" />
-                                <!-- Query 2 -->
-                                <RowDefinition Height="Auto" />
-                                <!--  -->
-                                <RowDefinition Height="Auto" />
-                                <!-- Сброс фильтров -->
-                                <RowDefinition Height="Auto" />
-                                <!-- ТАБЛИЦА -->
-                                <RowDefinition Height="Auto" />
-                                <!-- ТАБЛИЦА -->
-                            </Grid.RowDefinitions>
-
-                            <!-- Панель для кнопок и ввода данных -->
-                            <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="5">
-                                <TextBox x:Name="DetailNameInput" Width="150" ToolTip="Введите название детали" Margin="0,0,5,0"/>
-                                <TextBox x:Name="DetailPriceInput" Width="50" ToolTip="Введите стоимость" Margin="0,0,5,0"/>
-                                <TextBox x:Name="DetailManufacturerInput" Width="120" ToolTip="Введите производителя" Margin="0,0,5,0"/>
-                                <Button Content="Добавить" Click="AddDetail_Click" Width="100" Margin="0,0,5,0"/>
-                                <Button Content="Изменить" Click="EditDetail_Click" Width="100" Margin="0,0,5,0"/>
-                                <Button Content="Удалить" Click="DeleteDetail_Click" Width="100"/>
-                            </StackPanel>
-
-                            <Separator Grid.Row="1" Margin="5"/>
-
-                            <!-- Панель для фильтрации -->
-                            <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="5">
-                                <TextBox x:Name="FilterPriceFromInput" Width="100" ToolTip="Введите минимальную стоимость" TextChanged="DetailFilterPriceFromInput_TextChanged" Margin="0,0,5,0" Text="0"/>
-
-                                <TextBox x:Name="FilterKeywordInput" Width="150" ToolTip="Введите слово для поиска" Margin="0,0,5,0"/>
-
-                                <Button Content="Цена от" Click="FilterPriceFrom_Click" Width="100" Margin="5,0,0,0"/>
-
-                                <Button Content="Цена от + поиск по названию" Click="FilterPriceFromAndWord_Click" Width="200" Margin="5,0,0,0"/>
-                            </StackPanel>
-
-                            <!-- Панель для Поиска -->
-                            <StackPanel Orientation="Horizontal" Grid.Row="3" Margin="5">
-                                <TextBox x:Name="DetailSearchInput" Width="150" ToolTip="Введите значение для поиска" Margin="0,0,5,0"/>
-                                <Button Content="Поиск по названию" Click="SearchDetailByName_Click" Width="150" Margin="5,0,0,0"/>
-                                <Button Content="Поиск по стоимости" Click="SearchDetailByPrice_Click" Width="150" Margin="5,0,0,0"/>
-                                <Button Content="Поиск по производителю" Click="SearchDetailByManufacturer_Click" Width="150" Margin="5,0,0,0"/>
-                            </StackPanel>
-
-                            <!-- Панель для Сортировки -->
-                            <StackPanel Orientation="Horizontal" Grid.Row="4" Margin="5">
-                                <Button Content="Сортировка - Стоимость ↑" Click="SortDetailsAscending_Click" Width="170"/>
-                                <Button Content="Сортировка - Стоимость ↓" Click="SortDetailsDescending_Click" Width="170" Margin="5,0,0,0"/>
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal" Grid.Row="5" Margin="5">
-                                <TextBlock Foreground="white">Queries:</TextBlock>
-                            </StackPanel>
-
-                            <!-- Кнопка для: Популярные детали (> 1 заказа)-->
-                            <StackPanel Orientation="Horizontal" Grid.Row="6" Margin="5">
-                                <Button Content="Query 1: Популярные детали (> 1 заказа)" Click="ShowPopularDetails_Click" Width="240"/>
-                                <Button Content="Query 2: Группировать детали" Click="GroupDetails_Click" Width="200" Margin="5,0,0,0"/>
-                            </StackPanel>
-
-                            <Separator Grid.Row="7" Margin="5"/>
-
-                            <StackPanel Orientation="Horizontal" Grid.Row="8">
-                                <Button Content="Сбросить все фильтры" Margin="5,5,0,15" Click="ResetFilters_Click"/>
-                            </StackPanel>
-
-                            <!-- Таблица для отображения данных -->
-                            <DataGrid x:Name="DetailsGrid" AutoGenerateColumns="True" Grid.Row="9"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                    IsReadOnly="True" SelectionMode="Single"
-                    SelectionChanged="DetailsGrid_SelectionChanged"/>
-                        </Grid>
-                    </TabItem>
-
-                    <TabItem Header="Работы">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-
-                            <!-- Панель для кнопок и ввода данных -->
-                            <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="5">
-                                <TextBox x:Name="WorkOrderIdInput" Width="50" ToolTip="Введите Код заказа" Margin="0,0,5,0"/>
-                                <TextBox x:Name="WorkMasterIdInput" Width="50" ToolTip="Введите Код мастера" Margin="0,0,5,0"/>
-                                <TextBox x:Name="WorkDescriptionInput" Width="200" ToolTip="Введите описание" Margin="0,0,5,0"/>
-                                <TextBox x:Name="WorkCostInput" Width="50" ToolTip="Введите стоимость" Margin="0,0,5,0"/>
-                                <TextBox x:Name="WorkTypeIdInput" Width="50" ToolTip="Введите Код вида работы" Margin="0,0,5,0"/>
-                                <Button Content="Добавить" Click="AddWork_Click" Width="100" Margin="0,0,5,0"/>
-                                <Button Content="Изменить" Click="EditWork_Click" Width="100" Margin="0,0,5,0"/>
-                                <Button Content="Удалить" Click="DeleteWork_Click" Width="100"/>
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="5">
-                                <TextBlock>Введите ID работы:</TextBlock>
-                                <TextBox x:Name="WorkComplaintInput" Width="150" ToolTip="Введите ID работы" Margin="5,0,10,0"/>
-                                <Button Content="Показать жалобы" Click="ShowComplaintsByWork_Click" Width="150"/>
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="5">
-                                <Button Content="Список работ и стоимость деталей" Click="ShowWorkDetailsCost_Click" Width="250" Margin="0,3,0,0"/>
-                            </StackPanel>
-
-                            <Separator Grid.Row="3" Margin="5"/>
-
-                            <StackPanel Orientation="Horizontal" Grid.Row="4">
-                                <Button Content="Сбросить все фильтры" Margin="5,5,0,15" Click="ResetFilters_Click"/>
-                            </StackPanel>
-
-                            <!-- Таблица для отображения данных -->
-                            <DataGrid x:Name="WorksGrid" AutoGenerateColumns="True" Grid.Row="5"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                    IsReadOnly="True" SelectionMode="Single"
-                    SelectionChanged="WorksGrid_SelectionChanged"/>
-                        </Grid>
-                    </TabItem>
-
-                    <TabItem Header="Мастера" x:Name="MastersTab">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-
-                            <!-- Панель для редактирования мастеров -->
-                            <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="5">
-                                <TextBox x:Name="MasterNameInput" Width="150" ToolTip="Введите имя мастера" Margin="0,0,5,0"/>
-                                <TextBox x:Name="MasterSurnameInput" Width="150" ToolTip="Введите фамилию мастера" Margin="0,0,5,0"/>
-                                <TextBox x:Name="MasterSpecializationInput" Width="200" ToolTip="Введите специализацию" Margin="0,0,5,0"/>
-                                <Button x:Name="AddMasterButton" Content="Добавить" Click="AddMaster_Click" Width="100" Margin="0,0,5,0"/>
-                                <Button x:Name="EditMasterButton" Content="Изменить" Click="EditMaster_Click" Width="100" Margin="0,0,5,0"/>
-                                <Button x:Name="DeleteMasterButton" Content="Удалить" Click="DeleteMaster_Click" Width="100"/>
-                            </StackPanel>
-
-                            <!-- Таблица с мастерами -->
-                            <DataGrid x:Name="MastersGrid" AutoGenerateColumns="True" Grid.Row="1"
-                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                      IsReadOnly="True" SelectionMode="Single"/>
-                        </Grid>
-                    </TabItem>
-
-                    <TabItem Header="Пользователи" x:Name="UsersTab">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-
-                            <!-- Панель для ввода данных -->
-                            <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="5">
-                                <TextBox x:Name="UserLoginInput" Width="150" ToolTip="Введите логин" Margin="0,0,5,0"/>
-                                <PasswordBox x:Name="UserPasswordInput" Width="150" ToolTip="Введите пароль" Margin="0,0,5,0"/>
-                                <ComboBox x:Name="UserRoleInput" Width="130" ToolTip="Выберите роль">
-                                    <ComboBoxItem Content="Сотрудник"/>
-                                    <ComboBoxItem Content="Администратор"/>
-                                </ComboBox>
-                                <Button Content="Добавить пользователя" Click="AddUser_Click" Width="150" Margin="5,0,0,0"/>
-                            </StackPanel>
-
-                            <!-- Таблица с пользователями -->
-                            <DataGrid x:Name="UsersGrid" AutoGenerateColumns="True" Grid.Row="1"
-                                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                        IsReadOnly="True" SelectionMode="Single"/>
-                        </Grid>
-                    </TabItem>
-                </TabControl>
-            </Grid>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="-" Click="Minimize_Click" Background="Transparent" Foreground="White" Width="40" FontWeight="Bold"/>
+                <Button Content="❏" Click="Maximize_Click" Background="Transparent" Foreground="White" Width="40" FontWeight="Bold"/>
+                <Button Content="✕" Click="CloseApp_Click" Background="Transparent" Foreground="White" Width="40" FontWeight="Bold"/>
+            </StackPanel>
         </DockPanel>
 
+        <!-- Главное меню -->
+        <Menu DockPanel.Dock="Top" Background="#2c4055" Foreground="White" Padding="3" Grid.Row="1">
+            <MenuItem Header="Справка" Foreground="White" Click="ShowWelcomeScreen"/>
+            <MenuItem Header="Отчеты" Foreground="White">
+                <MenuItem Header="Отчет по таблице 'Деталь'" Click="GenerateReport1_Click"/>
+                <MenuItem Header="Отчет по популярным деталям" Click="GenerateReport2_Click"/>
+                <MenuItem Header="Отчет по группировке деталей" Click="GenerateReport3_Click"/>
+            </MenuItem>
+            <MenuItem Header="О программе" Click="ShowAbout_Click"/>
+            <MenuItem Header="Выход" Click="Exit_Click"/>
+        </Menu>
+
+        <Grid x:Name="WelcomeScreen" Background="#2c4055" Visibility="Visible" Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock x:Name="WelcomeText" Padding="0, 50, 0, 0" Foreground="White" Grid.Row="0" FontSize="16" TextAlignment="Center" 
+                       VerticalAlignment="Center" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="20,0,0,0"/>
+
+            <Button Grid.Row="1" Content="Перейти к приложению" Click="CloseWelcomeScreen_Click" 
+                    VerticalAlignment="Center" HorizontalAlignment="Center" 
+                    Width="200" Height="40" Margin="40" FontWeight="Bold"/>
+        </Grid>
+
+        <DockPanel x:Name="MainContent" Visibility="Collapsed" Grid.Row="2">
+            <!-- Левое меню -->
+            <StackPanel Name="MenuPanel" DockPanel.Dock="Left" Background="#2c4055" Width="200">
+                <Button Content="Заказы" Click="ShowOrders_Click"/>
+                <Button Content="Работы" Click="ShowWorks_Click"/>
+                <Button Content="Жалобы" Click="ShowComplaints_Click"/>
+                <Button Content="Мастера" Click="ShowMasters_Click"/>
+                <Button Content="Детали" Click="ShowDetails_Click"/>
+                <Button Name="ShowUsersButton" Content="Пользователи" Click="ShowUsers_Click"/>
+            </StackPanel>
+
+            <!-- Динамическое отображение таблиц -->
+            <ContentControl Content="{Binding CurrentView}" DockPanel.Dock="Right"/>
+        </DockPanel
     </Grid>
 </Window>

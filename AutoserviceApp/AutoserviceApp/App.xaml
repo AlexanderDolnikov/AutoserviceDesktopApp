@@ -1,7 +1,8 @@
 ﻿<Application x:Class="AutoserviceApp.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:AutoserviceApp"
+             xmlns:local="clr-namespace:AutoserviceApp"        
+             xmlns:viewModels="clr-namespace:AutoserviceApp.ViewModels"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <Style TargetType="Window">

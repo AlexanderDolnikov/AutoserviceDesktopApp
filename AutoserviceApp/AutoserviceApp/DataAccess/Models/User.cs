@@ -13,7 +13,7 @@ namespace AutoserviceApp.Models
         public string PasswordHash { get; set; }
         public string Salt { get; set; }
 
-        public string Role { get; set; } // "Гость", "Клиент", "Сотрудник"
+        public string Role { get; set; } // "Сотрудник", "Администратор"
     }
 }
 

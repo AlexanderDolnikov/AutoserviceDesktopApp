@@ -19,6 +19,7 @@ using DocumentFormat.OpenXml;
 using Paragraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
 using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
 using DocumentFormat.OpenXml.Office2010.PowerPoint;
+using AutoserviceApp.ViewModels;
 
 namespace AutoserviceApp
 {
@@ -32,6 +33,8 @@ namespace AutoserviceApp
 
         private User _currentUser;
 
+        private readonly MainViewModel _viewModel;
+
         public MainWindow()
         {
             var loginWindow = new LoginWindow();
@@ -39,6 +42,10 @@ namespace AutoserviceApp
             if (loginWindow.ShowDialog() == true)
             {
                 InitializeComponent();
+
+                _viewModel = new MainViewModel();
+                _viewModel.CurrentUser = loginWindow.CurrentUser;
+                DataContext = _viewModel;
 
                 _currentUser = loginWindow.CurrentUser;
                 var context = new DatabaseContext();
@@ -49,11 +56,11 @@ namespace AutoserviceApp
                 _complaintRepository = new ComplaintRepository(context);
                 _userRepository = new UserRepository(context);
 
-                LoadDetails();
-                LoadWorkDetails();
-                LoadWorks();
-                LoadComplaints();
-                LoadUsers();
+                //LoadDetails();
+                //LoadWorkDetails();
+                //LoadWorks();
+                //LoadComplaints();
+                //LoadUsers();
 
                 ApplyRoleRestrictions();
             }
@@ -62,6 +69,15 @@ namespace AutoserviceApp
                 Application.Current.Shutdown();
             } 
         }
+
+        private void ShowOrders_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Заказы");
+        private void ShowWorks_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Работы");
+        private void ShowComplaints_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Жалобы");
+        private void ShowMasters_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Мастера");
+        private void ShowDetails_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Детали");
+        private void ShowUsers_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Пользователи");
+
+
 
         private readonly Dictionary<string, List<string>> roleTabs = new Dictionary<string, List<string>>
         {
@@ -76,25 +92,20 @@ namespace AutoserviceApp
 
             List<string> allowedTabs = roleTabs[_currentUser.Role];
 
-            // Убираем недоступные вкладки
-            foreach (TabItem item in MainTabControl.Items)
+            // Очищаем меню (или скрываем кнопки, если они заранее созданы)
+            foreach (var button in MenuPanel.Children.OfType<Button>())
             {
-                item.Visibility = allowedTabs.Contains(item.Header.ToString()) ? Visibility.Visible : Visibility.Collapsed;
+                button.Visibility = allowedTabs.Contains(button.Content.ToString()) ? Visibility.Visible : Visibility.Collapsed;
             }
 
             // Дополнительно скрываем кнопки редактирования мастеров для сотрудников
             if (_currentUser.Role == "Сотрудник")
             {
-                UsersTab.Visibility = Visibility.Collapsed;
-                AddMasterButton.IsEnabled = false;
-                EditMasterButton.IsEnabled = false;
-                DeleteMasterButton.IsEnabled = false;
+                ShowUsersButton.Visibility = Visibility.Collapsed; // Прячем кнопку "Пользователи"
             }
 
-            ConfigWelcomeScreen();
-            WelcomeScreen.Visibility = Visibility.Visible;
+            ShowWelcomeScreen(this, null);
         }
-
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -103,12 +114,6 @@ namespace AutoserviceApp
                 this.DragMove();
             }
         }
-
-        private async void ShowWelcomeScreen_Click(object sender, RoutedEventArgs e)
-        {
-            ConfigWelcomeScreen();
-        }
-
         private void ConfigWelcomeScreen()
         {
             string roleDescription = _currentUser.Role switch
@@ -124,38 +129,30 @@ namespace AutoserviceApp
                                $"Вам доступен следующий функционал:\n{roleDescription}";
         }
 
+        private void ShowWelcomeScreen(object sender, RoutedEventArgs e)
+        {
+            ConfigWelcomeScreen();
+            MainContent.Visibility = Visibility.Collapsed;
+            WelcomeScreen.Visibility = Visibility.Visible;
+        }
+
+
         private void CloseWelcomeScreen_Click(object sender, RoutedEventArgs e)
         {
-            WelcomeScreen.Visibility = Visibility.Hidden;
-            MainTabControl.Visibility = Visibility.Visible;
-
-            // Открываем первую доступную вкладку
-            //var allowedTabs = roleTabs[_currentUser.Role];
-            //foreach (TabItem item in MainTabControl.Items)
-            //{
-            //    if (allowedTabs.Contains(item.Header.ToString()))
-            //    {
-            //        MainTabControl.SelectedItem = item;
-            //        break;
-            //    }
-            //}
+            WelcomeScreen.Visibility = Visibility.Collapsed;
+            MainContent.Visibility = Visibility.Visible;
         }
 
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
-            MainTabControl.Visibility = Visibility.Hidden;
+            MainContent.Visibility = Visibility.Collapsed;
             WelcomeScreen.Visibility = Visibility.Hidden;
 
             var loginWindow = new LoginWindow();
+
             if (loginWindow.ShowDialog() == true)
             {
                 _currentUser = loginWindow.CurrentUser;
-                
-                LoadDetails();
-                LoadWorkDetails();
-                LoadWorks();
-                LoadComplaints();
-                LoadUsers();
 
                 ApplyRoleRestrictions();
             }
@@ -263,7 +260,7 @@ namespace AutoserviceApp
             this.WindowState = this.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
         }
 
-        private void LoadDetails()
+        /*private void LoadDetails()
         {
             var details = _detailRepository.GetAllDetails();
             DetailsGrid.ItemsSource = details;
@@ -290,7 +287,7 @@ namespace AutoserviceApp
         {
             var users = _userRepository.GetAllUsers();
             UsersGrid.ItemsSource = users;
-        }
+        }*/
 
         private void NumericOnlyTextBox_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
@@ -318,17 +315,17 @@ namespace AutoserviceApp
             return true;
         }
 
-        private void DetailFilterPriceInput_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(FilterPriceFromInput.Text))
-            {
-                FilterPriceFromInput.Text = "0";
-            }
-        }
+        //private void DetailFilterPriceInput_TextChanged(object sender, TextChangedEventArgs e)
+        //{
+        //    if (string.IsNullOrWhiteSpace(FilterPriceFromInput.Text))
+        //    {
+        //        FilterPriceFromInput.Text = "0";
+        //    }
+        //}
 
         /* - - - - - - Users: - - - - - - */
 
-        private void AddUser_Click(object sender, RoutedEventArgs e)
+        /*private void AddUser_Click(object sender, RoutedEventArgs e)
         {
             if (_currentUser.Role != "Администратор")
             {
@@ -358,11 +355,11 @@ namespace AutoserviceApp
             {
                 MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
+        }*/
 
 
         /* - - - - - - Details: - - - - - - */
-        private void DetailsGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        /*private void DetailsGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (DetailsGrid.SelectedItem is Detail selectedDetail)
             {
@@ -574,7 +571,7 @@ namespace AutoserviceApp
 
 
 
-        /* - - - - - - WorkDetail: - - - - - - */
+        *//* - - - - - - WorkDetail: - - - - - - *//*
         private void WorkDetailsGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (WorkDetailsGrid.SelectedItem is WorkDetail selectedWorkDetail)
@@ -669,7 +666,7 @@ namespace AutoserviceApp
         }
 
 
-        /* - - - - - - Work: - - - - - - */
+        *//* - - - - - - Work: - - - - - - *//*
         private void WorksGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (WorksGrid.SelectedItem is Work selectedWork)
@@ -801,7 +798,7 @@ namespace AutoserviceApp
         }
 
 
-        /* - - - - - - Complaints: - - - - - - */
+        *//* - - - - - - Complaints: - - - - - - *//*
         private void ComplaintsGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ComplaintsGrid.SelectedItem is Complaint selectedComplaint)
@@ -897,7 +894,7 @@ namespace AutoserviceApp
                     MessageBox.Show($"Произошла ошибка: {ex.Message}");
                 }
             }
-        }
+        }*/
 
 
         /* - - - - - - MASTERS: - - - - - - */
