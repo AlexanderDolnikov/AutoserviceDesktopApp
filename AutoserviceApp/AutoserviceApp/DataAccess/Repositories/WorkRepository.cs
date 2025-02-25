@@ -19,6 +19,32 @@ namespace AutoserviceApp.DataAccess.Repositories
             _context = context;
         }
 
+        public List<Work> GetWorksByOrderId(int orderId)
+        {
+            var works = new List<Work>();
+
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+
+                var command = new SqlCommand("SELECT * FROM Работа WHERE КодЗаказа = @orderId", connection);
+                command.Parameters.AddWithValue("@orderId", orderId);
+                var reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    works.Add(new Work
+                    {
+                        Код = (int)reader["Код"],
+                        Описание = reader["Описание"].ToString(),
+                        Стоимость = (decimal)reader["Стоимость"],
+                    });
+                }
+            }
+
+            return works;
+        }
+
         public List<Work> GetAllWorks()
         {
             var works = new List<Work>();

@@ -7,15 +7,144 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              Height="Auto" Width="Auto">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <Grid Background="#2c4055">
+        <!-- Список заказов -->
+        <Grid x:Name="OrdersListPanel" Visibility="Visible">
+            <StackPanel Margin="10">
+                <TextBlock Text="Список заказов" Foreground="White" FontSize="20" FontWeight="Bold" Margin="10"/>
 
-        <!-- Основной список заказов -->
-        <StackPanel x:Name="OrdersListPanel" Grid.Row="0" Margin="10">
-            <!-- Сюда динамически добавляются заказы -->
-        </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="10">
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Дата начала:" Foreground="White" Width="100"/>
+                        <DatePicker x:Name="StartDatePicker" Width="120"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Дата окончания:" Foreground="White" Width="100"/>
+                        <DatePicker x:Name="EndDatePicker" Width="120"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Клиент:" Foreground="White" Width="100"/>
+                        <ComboBox x:Name="ClientDropdown" DisplayMemberPath="Фамилия" SelectedValuePath="Код" Width="120"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Автомобиль:" Foreground="White" Width="100"/>
+                        <ComboBox x:Name="CarDropdown" DisplayMemberPath="НомернойЗнак" SelectedValuePath="Код" Width="120"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <Button x:Name="AddOrderButton" Content="Новый заказ" Click="AddOrder_Click"
+                        Background="#aad413" Padding="10" Margin="5"/>
+
+                <ListBox x:Name="OrdersList" Background="#2c4055" SelectionMode="Single"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Детали заказа - список работ по заказу -->
+        <Grid x:Name="OrderDetailsPanel" Visibility="Collapsed">
+            <StackPanel Margin="10">
+                <TextBlock Text="Детали заказа" Foreground="White" FontSize="20" FontWeight="Bold" Margin="10"/>
+
+                <StackPanel Orientation="Vertical" Margin="10">
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Дата начала:" Foreground="White" Width="100"/>
+                        <DatePicker x:Name="EditStartDatePicker" Width="120"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Дата окончания:" Foreground="White" Width="100"/>
+                        <DatePicker x:Name="EditEndDatePicker" Width="120"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Клиент:" Foreground="White" Width="100"/>
+                        <ComboBox x:Name="EditClientDropdown" DisplayMemberPath="Фамилия" SelectedValuePath="Код" Width="120"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Автомобиль:" Foreground="White" Width="100"/>
+                        <ComboBox x:Name="EditCarDropdown" DisplayMemberPath="НомернойЗнак" SelectedValuePath="Код" Width="120"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Кнопки на одной строке -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="10">
+                    <Button x:Name="SaveChangesButton" Content="Сохранить изменения"
+                            Click="SaveChanges_Click" Background="#aad413" Padding="10"
+                            Margin="5" FontWeight="Bold" Width="180" Visibility="Collapsed"/>
+
+                    <Button Content="Назад" Click="BackToOrders_Click"
+                            Background="#aad413" Padding="10" Margin="5" Width="180" FontWeight="Bold"/>
+                </StackPanel>
+
+                <!-- Таблица работ по заказу -->
+                <ListBox x:Name="WorksListBox" Background="#2c4055" SelectionMode="Single">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="White" Padding="10, 2, 4, 2" Margin="5">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Описание}" Width="200" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Стоимость, StringFormat=C}" Width="100" VerticalAlignment="Center"/>
+
+                                    <Button Content="Детали" Background="#aad413" Width="70" Padding="10,7,10,7"
+                                            Click="ShowWorkDetails_Click"/>
+                                    <Button Content="Жалобы" Background="#ff4136" Width="70"  Padding="10,7,10,7" Margin="5,0,0,0" 
+                                            Click="ShowComplaint_Click"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
+        </Grid>
+
+        <!-- ДетальРаботы  - список деталей работ в работе -->
+        <Grid x:Name="WorkDetailsPanel" Visibility="Collapsed">
+            <StackPanel Margin="10">
+                <TextBlock Text="Детали работы" Foreground="White" FontSize="20" FontWeight="Bold" Margin="10"/>
+
+                <StackPanel Orientation="Vertical" Margin="10">
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Описание:" Foreground="White" Width="100"/>
+                        <TextBox x:Name="WorkDescriptionTextBox" Width="200"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Стоимость:" Foreground="White" Width="100"/>
+                        <TextBox x:Name="WorkCostTextBox" Width="100"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="10">
+                    <Button x:Name="SaveWorkChangesButton" Content="Сохранить изменения"
+                    Click="SaveWorkChanges_Click" Background="#aad413" Padding="10"
+                    Margin="5" FontWeight="Bold" Width="180"/>
+
+                    <Button Content="Назад" Click="BackToOrderDetails_Click"
+                    Background="#aad413" Padding="10" Margin="5" Width="180" FontWeight="Bold"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <!-- Жалоба - список жалоб по работе -->
+        <Grid x:Name="ComplaintDetailsPanel" Visibility="Collapsed">
+            <StackPanel Margin="10">
+                <TextBlock Text="Жалобы по работе" Foreground="White" FontSize="20" FontWeight="Bold" Margin="10"/>
+
+                <ListBox x:Name="ComplaintsListBox" Background="#2c4055" SelectionMode="Single"/>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="10">
+                    <Button Content="Добавить жалобу" Click="AddComplaint_Click"
+                    Background="#ff4136" Padding="10" Margin="5" FontWeight="Bold"/>
+
+                    <Button Content="Назад" Click="BackToOrderDetails_Click"
+                    Background="#aad413" Padding="10" Margin="5" FontWeight="Bold"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+    
     </Grid>
 </UserControl>
