@@ -124,7 +124,6 @@ namespace AutoserviceApp.DataAccess.Repositories
                 command.ExecuteNonQuery();
             }
         }
-
     }
 }
 

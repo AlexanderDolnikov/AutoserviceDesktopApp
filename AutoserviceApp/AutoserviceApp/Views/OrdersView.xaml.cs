@@ -17,6 +17,8 @@ namespace AutoserviceApp.Views
         private readonly ClientRepository _clientRepository;
         private readonly ComplaintRepository _complaintRepository;
         private readonly CarRepository _carRepository;
+        private readonly DetailRepository _detailRepository;
+        private readonly WorkDetailRepository _workDetailRepository;
         private readonly DatabaseContext _context;
         private List<Order> _orders;
         private Order _selectedOrder;
@@ -30,12 +32,17 @@ namespace AutoserviceApp.Views
             _workRepository = new WorkRepository(_context);
             _clientRepository = new ClientRepository(_context);
             _complaintRepository = new ComplaintRepository(_context);
+            _detailRepository = new DetailRepository(_context);
             _carRepository = new CarRepository(_context);
+            _workDetailRepository = new WorkDetailRepository(_context);
 
             LoadOrders();
             LoadClients();
             LoadCars();
+            LoadDetails();
         }
+
+        /* - - - Заказы - - - */
 
         private void LoadOrders()
         {
@@ -45,7 +52,10 @@ namespace AutoserviceApp.Views
             foreach (var order in _orders)
             {
                 var client = _clientRepository.GetClientById(order.КодКлиента);
+                var car = _carRepository.GetCarById(order.КодАвтомобиля);
+
                 string clientName = client != null ? client.Фамилия : "Неизвестный";
+                string carNumber = car != null ? car.НомернойЗнак : "Неизвестно";
 
                 StackPanel orderPanel = new StackPanel
                 {
@@ -56,8 +66,8 @@ namespace AutoserviceApp.Views
 
                 TextBlock orderInfo = new TextBlock
                 {
-                    Text = $"Клиент: {clientName}, Даты: {order.ДатаНачала:dd.MM.yyyy} - {order.ДатаОкончания:dd.MM.yyyy}",
-                    Width = 300,
+                    Text = $"Клиент: {clientName}, Авто: {carNumber}, Даты: {order.ДатаНачала:dd.MM.yyyy} - {order.ДатаОкончания:dd.MM.yyyy}",
+                    Width = 400,
                     VerticalAlignment = VerticalAlignment.Center,
                     Padding = new Thickness(7),
                 };
@@ -78,53 +88,13 @@ namespace AutoserviceApp.Views
             }
         }
 
-        private void AddOrder_Click(object sender, RoutedEventArgs e)
+        private void ShowOrderDetails_Click(object sender, RoutedEventArgs e)
         {
-            if (StartDatePicker.SelectedDate == null || EndDatePicker.SelectedDate == null)
+            if (((Button)sender).DataContext is Order selectedOrder)
             {
-                MessageBox.Show("Выберите даты начала и окончания.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (ClientDropdown.SelectedItem == null || CarDropdown.SelectedItem == null)
-            {
-                MessageBox.Show("Выберите клиента и автомобиль.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            var newOrder = new Order
-            {
-                ДатаНачала = StartDatePicker.SelectedDate.Value,
-                ДатаОкончания = EndDatePicker.SelectedDate.Value,
-                КодКлиента = (int)ClientDropdown.SelectedValue,
-                КодАвтомобиля = (int)CarDropdown.SelectedValue
-            };
-
-            _orderRepository.AddOrder(newOrder);
-            LoadOrders();
-        }
-
-
-        private void DeleteOrder_Click(object sender, RoutedEventArgs e)
-        {
-            if (OrdersList.SelectedItem is Order selectedOrder)
-            {
-                var result = MessageBox.Show($"Вы уверены, что хотите удалить заказ {selectedOrder.Код}?",
-                                             "Подтверждение удаления",
-                                             MessageBoxButton.YesNo, MessageBoxImage.Warning);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    _orderRepository.DeleteOrder(selectedOrder.Код);
-                    LoadOrders();
-                }
-            }
-            else
-            {
-                MessageBox.Show("Выберите заказ для удаления.");
+                ShowOrderDetails(selectedOrder.Код);
             }
         }
-
 
         private void ShowOrderDetails(int orderId)
         {
@@ -154,7 +124,57 @@ namespace AutoserviceApp.Views
             OrderDetailsPanel.Visibility = Visibility.Visible;
         }
 
-        private void SaveChanges_Click(object sender, RoutedEventArgs e)
+        private void AddOrder_Click(object sender, RoutedEventArgs e)
+        {
+            if (StartDatePicker.SelectedDate == null || EndDatePicker.SelectedDate == null)
+            {
+                MessageBox.Show("Выберите даты начала и окончания.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (ClientDropdown.SelectedItem == null || CarDropdown.SelectedItem == null)
+            {
+                MessageBox.Show("Выберите клиента и автомобиль.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var newOrder = new Order
+            {
+                ДатаНачала = StartDatePicker.SelectedDate.Value,
+                ДатаОкончания = EndDatePicker.SelectedDate.Value,
+                КодКлиента = (int)ClientDropdown.SelectedValue,
+                КодАвтомобиля = (int)CarDropdown.SelectedValue
+            };
+
+            _orderRepository.AddOrder(newOrder);
+            LoadOrders();
+        }
+
+        private void DeleteOrder_Click(object sender, RoutedEventArgs e)
+        {
+            if (((Button)sender).DataContext is Order selectedOrder)
+            {
+                var result = MessageBox.Show($"Вы уверены, что хотите удалить заказ {selectedOrder.Код}?",
+                                             "Подтверждение удаления",
+                                             MessageBoxButton.YesNo,
+                                             MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        _orderRepository.DeleteOrder(selectedOrder.Код);
+                        LoadOrders();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+
+        private void SaveOrder_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedOrder == null)
             {
@@ -205,41 +225,176 @@ namespace AutoserviceApp.Views
             EditCarDropdown.ItemsSource = cars; // Добавляем для редактирования
         }
 
-        // Открыть детали работы
+        private void WorksListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (WorksListBox.SelectedItem is Work selectedWork)
+            {
+                WorkNameTextBox.Text = selectedWork.Описание;
+                WorkCostTextBox.Text = selectedWork.Стоимость.ToString();
+            }
+        }
+
+        private void WorkDetailsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (WorkDetailsListBox.SelectedItem is WorkDetail selectedDetail)
+            {
+                DetailDropdown.SelectedValue = selectedDetail.КодДетали;
+                WorkQuantityTextBox.Text = selectedDetail.Количество.ToString();
+            }
+        }
+
+        private void ComplaintsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ComplaintsListBox.SelectedItem is Complaint selectedComplaint)
+            {
+                ComplaintTextBox.Text = selectedComplaint.Описание;
+                ComplaintDatePicker.SelectedDate = selectedComplaint.Дата;
+            }
+        }
+
+        /* - - - Работы - - - */
+        private void LoadWorks(int orderId)
+        {
+            WorksListBox.ItemsSource = _workRepository.GetWorksByOrderId(orderId);
+        }
+
+        private void AddWork_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedOrder == null) return;
+
+            var newWork = new Work
+            {
+                КодЗаказа = _selectedOrder.Код,
+                Описание = WorkNameTextBox.Text.Trim(),
+                Стоимость = decimal.Parse(WorkCostTextBox.Text)
+            };
+
+            _workRepository.AddWork(newWork);
+            LoadWorks(_selectedOrder.Код);
+        }
+
+        private void EditWork_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedOrder == null) return;
+
+            if (WorksListBox.SelectedItem is Work selectedWork)
+            {
+                selectedWork.Описание = WorkNameTextBox.Text.Trim();
+                selectedWork.Стоимость = decimal.Parse(WorkCostTextBox.Text);
+
+                _workRepository.UpdateWork(selectedWork);
+                LoadWorks(_selectedOrder.Код);
+            }
+        }
+
+        private void DeleteWork_Click(object sender, RoutedEventArgs e)
+        {
+            if (((Button)sender).DataContext is Work selectedWork)
+            {
+                // Подтверждение удаления
+                var result = MessageBox.Show($"Вы уверены, что хотите удалить работу '{selectedWork.Описание}'?",
+                                             "Подтверждение удаления",
+                                             MessageBoxButton.YesNo,
+                                             MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        _workRepository.DeleteWork(selectedWork.Код);
+                        LoadWorks(_selectedOrder.Код);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+
+        /* - - - ДетальРаботы - - - */
         private void ShowWorkDetails_Click(object sender, RoutedEventArgs e)
         {
             if (((Button)sender).DataContext is Work selectedWork)
             {
                 _selectedWork = selectedWork;
 
-                // Заполняем поля
-                WorkDescriptionTextBox.Text = selectedWork.Описание;
-                WorkCostTextBox.Text = selectedWork.Стоимость.ToString();
+                // Загружаем детали работы
+                LoadWorkDetails(selectedWork.Код);
 
-                // Скрываем детали заказа, показываем детали работы
+                // Показываем вкладку "Детали работы"
                 OrderDetailsPanel.Visibility = Visibility.Collapsed;
                 WorkDetailsPanel.Visibility = Visibility.Visible;
             }
         }
 
-        // Сохранение изменений в работе
-        private void SaveWorkChanges_Click(object sender, RoutedEventArgs e)
+        private void LoadWorkDetails(int workId)
         {
-            if (_selectedWork == null) return;
+            var details = _workDetailRepository.GetAllWorkDetails()
+                .Where(detail => detail.КодРаботы == workId)
+                .Select(detail => new
+                {
+                    НазваниеДетали = _detailRepository.GetDetailNameById(detail.КодДетали),
+                    Количество = detail.Количество
+                })
+                .ToList();
 
-            _selectedWork.Описание = WorkDescriptionTextBox.Text;
-            if (decimal.TryParse(WorkCostTextBox.Text, out decimal newCost))
-            {
-                _selectedWork.Стоимость = newCost;
-                _workRepository.UpdateWork(_selectedWork);
-            }
-
-            // Возвращаемся к деталям заказа
-            WorkDetailsPanel.Visibility = Visibility.Collapsed;
-            OrderDetailsPanel.Visibility = Visibility.Visible;
+            WorkDetailsListBox.ItemsSource = details;
         }
 
-        // Открыть жалобы по работе
+        private void AddWorkDetail_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedWork == null || DetailDropdown.SelectedValue == null) return;
+
+            var newWorkDetail = new WorkDetail
+            {
+                КодРаботы = _selectedWork.Код,
+                КодДетали = (int)DetailDropdown.SelectedValue,
+                Количество = int.Parse(WorkQuantityTextBox.Text)
+            };
+
+            _workDetailRepository.AddWorkDetail(newWorkDetail);
+            LoadWorkDetails(_selectedWork.Код);
+        }
+
+        private void EditWorkDetail_Click(object sender, RoutedEventArgs e)
+        {
+            if (WorkDetailsListBox.SelectedItem is WorkDetail selectedDetail)
+            {
+                selectedDetail.КодДетали = (int)DetailDropdown.SelectedValue;
+                selectedDetail.Количество = int.Parse(WorkQuantityTextBox.Text);
+
+                _workDetailRepository.UpdateWorkDetail(selectedDetail);
+                LoadWorkDetails(_selectedWork.Код);
+            }
+        }
+
+        private void DeleteWorkDetail_Click(object sender, RoutedEventArgs e)
+        {
+            if (((Button)sender).DataContext is WorkDetail selectedDetail)
+            {
+                var result = MessageBox.Show($"Вы уверены, что хотите удалить деталь '{_detailRepository.GetDetailNameById(selectedDetail.КодДетали)}'?",
+                                             "Подтверждение удаления",
+                                             MessageBoxButton.YesNo,
+                                             MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        _workDetailRepository.DeleteWorkDetail(selectedDetail.Код);
+                        LoadWorkDetails(_selectedWork.Код);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+
+
+        /* - - - Жалобы - - -*/
         private void ShowComplaint_Click(object sender, RoutedEventArgs e)
         {
             if (((Button)sender).DataContext is Work selectedWork)
@@ -247,39 +402,72 @@ namespace AutoserviceApp.Views
                 _selectedWork = selectedWork;
 
                 // Загружаем жалобы по работе
-                ComplaintsListBox.ItemsSource = _complaintRepository.GetComplaintsByWorkId(selectedWork.Код);
+                LoadComplaints(selectedWork.Код);
 
-                // Скрываем детали заказа, показываем жалобы
+                // Показываем вкладку "Жалобы по работе"
                 OrderDetailsPanel.Visibility = Visibility.Collapsed;
                 ComplaintDetailsPanel.Visibility = Visibility.Visible;
             }
         }
 
-        // Вернуться из деталей работы / жалобы к деталям заказа
-        private void BackToOrderDetails_Click(object sender, RoutedEventArgs e)
+        private void LoadComplaints(int workId)
         {
-            WorkDetailsPanel.Visibility = Visibility.Collapsed;
-            ComplaintDetailsPanel.Visibility = Visibility.Collapsed;
-            OrderDetailsPanel.Visibility = Visibility.Visible;
+            ComplaintsListBox.ItemsSource = _complaintRepository.GetComplaintsByWorkId(workId);
         }
 
-        // Добавление новой жалобы
         private void AddComplaint_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedWork == null) return;
 
-            //var addComplaintWindow = new AddComplaintWindow(_selectedWork.Код);
-            //if (addComplaintWindow.ShowDialog() == true)
-            //{
-            //    // Перезагружаем список жалоб
-            //    ComplaintsListBox.ItemsSource = _complaintRepository.GetComplaintsByWorkId(_selectedWork.Код);
-            //}
+            var newComplaint = new Complaint
+            {
+                КодРаботы = _selectedWork.Код,
+                Описание = ComplaintTextBox.Text,
+                Дата = ComplaintDatePicker.SelectedDate ?? DateTime.Now
+            };
 
-            MessageBox.Show("Загрушка 1");
+            _complaintRepository.AddComplaint(newComplaint);
+            LoadComplaints(_selectedWork.Код);
+        }
+
+        private void EditComplaint_Click(object sender, RoutedEventArgs e)
+        {
+            if (ComplaintsListBox.SelectedItem is Complaint selectedComplaint)
+            {
+                selectedComplaint.Описание = ComplaintTextBox.Text;
+                selectedComplaint.Дата = ComplaintDatePicker.SelectedDate ?? DateTime.Now;
+
+                _complaintRepository.UpdateComplaint(selectedComplaint);
+                LoadComplaints(_selectedWork.Код);
+            }
+        }
+
+        private void DeleteComplaint_Click(object sender, RoutedEventArgs e)
+        {
+            if (((Button)sender).DataContext is Complaint selectedComplaint)
+            {
+                _complaintRepository.DeleteComplaint(selectedComplaint.Код);
+                LoadComplaints(_selectedWork.Код);
+            }
         }
 
 
+        /* - - - Детали - - -*/
+        private void LoadDetails()
+        {
+            DetailDropdown.ItemsSource = _detailRepository.GetAllDetails();
+        }
 
+
+        /* - - - - - - - */
+
+        private void BackToOrderDetails_Click(object sender, RoutedEventArgs e)
+        {
+            // Возвращаемся к списку ДеталейРаботы
+            WorkDetailsPanel.Visibility = Visibility.Collapsed;
+            ComplaintDetailsPanel.Visibility = Visibility.Collapsed;
+            OrderDetailsPanel.Visibility = Visibility.Visible;
+        }
         private void BackToOrders_Click(object sender, RoutedEventArgs e)
         {
             // Возвращаемся к списку заказов

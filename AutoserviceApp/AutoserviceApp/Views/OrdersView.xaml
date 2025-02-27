@@ -33,65 +33,88 @@
                         <TextBlock Text="Автомобиль:" Foreground="White" Width="100"/>
                         <ComboBox x:Name="CarDropdown" DisplayMemberPath="НомернойЗнак" SelectedValuePath="Код" Width="120"/>
                     </StackPanel>
-                </StackPanel>
 
-                <Button x:Name="AddOrderButton" Content="Новый заказ" Click="AddOrder_Click"
-                        Background="#aad413" Padding="10" Margin="5"/>
+                    <Button x:Name="AddOrderButton" Content="Создать заказ" Click="AddOrder_Click"
+                               Background="#aad413" Width="220" FontWeight="Bold" HorizontalAlignment="Left" Padding="10" Margin="0, 15, 0, 10"/>
+                </StackPanel>
 
                 <ListBox x:Name="OrdersList" Background="#2c4055" SelectionMode="Single"/>
             </StackPanel>
         </Grid>
 
+
         <!-- Детали заказа - список работ по заказу -->
         <Grid x:Name="OrderDetailsPanel" Visibility="Collapsed">
             <StackPanel Margin="10">
-                <TextBlock Text="Детали заказа" Foreground="White" FontSize="20" FontWeight="Bold" Margin="10"/>
+                <!-- Заголовок с кнопкой "Назад" -->
+                <DockPanel LastChildFill="False" Margin="10">
+                    <TextBlock Text="Детали заказа" Foreground="White" FontSize="20" FontWeight="Bold" DockPanel.Dock="Left"/>
+                    <Button Content="Назад" Click="BackToOrders_Click" Style="{StaticResource BackButton}" DockPanel.Dock="Right"/>
+                </DockPanel>
 
-                <StackPanel Orientation="Vertical" Margin="10">
-                    <StackPanel Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="Дата начала:" Foreground="White" Width="100"/>
-                        <DatePicker x:Name="EditStartDatePicker" Width="120"/>
+                <!-- Блок информации о заказе -->
+                <Border BorderBrush="White" BorderThickness="1" Padding="10" Margin="5">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="Дата начала:" Foreground="White" Width="110"/>
+                            <DatePicker x:Name="EditStartDatePicker" Width="120"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="Дата окончания:" Foreground="White" Width="110"/>
+                            <DatePicker x:Name="EditEndDatePicker" Width="120"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="Клиент:" Foreground="White" Width="110"/>
+                            <ComboBox x:Name="EditClientDropdown" DisplayMemberPath="Фамилия" SelectedValuePath="Код" Width="120"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="Автомобиль:" Foreground="White" Width="110"/>
+                            <ComboBox x:Name="EditCarDropdown" DisplayMemberPath="НомернойЗнак" SelectedValuePath="Код" Width="120"/>
+                        </StackPanel>
+
+                        <!-- Кнопка "Сохранить изменения" -->
+                        <Button x:Name="SaveChangesButton" Content="Сохранить изменения" Click="SaveOrder_Click" 
+                                Style="{StaticResource EditButton}" Width="180" Visibility="Collapsed" Margin="0, 10, 0, 0" HorizontalAlignment="Left" />
                     </StackPanel>
+                </Border>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="Дата окончания:" Foreground="White" Width="100"/>
-                        <DatePicker x:Name="EditEndDatePicker" Width="120"/>
+                <!-- Блок управления работами -->
+                <Border BorderBrush="White" BorderThickness="1" Padding="10" Margin="5">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="Название работы:" Foreground="White" Width="110"/>
+                            <TextBox x:Name="WorkNameTextBox" Width="200"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="Стоимость:" Foreground="White" Width="110"/>
+                            <TextBox x:Name="WorkCostTextBox" Width="100"/>
+                        </StackPanel>
+
+                        <!-- Кнопки управления работами -->
+                        <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
+                            <Button Content="Добавить" Click="AddWork_Click" Style="{StaticResource AddButton}"/>
+                            <Button Content="Изменить" Click="EditWork_Click" Style="{StaticResource EditButton}"/>
+                        </StackPanel>
                     </StackPanel>
-
-                    <StackPanel Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="Клиент:" Foreground="White" Width="100"/>
-                        <ComboBox x:Name="EditClientDropdown" DisplayMemberPath="Фамилия" SelectedValuePath="Код" Width="120"/>
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="Автомобиль:" Foreground="White" Width="100"/>
-                        <ComboBox x:Name="EditCarDropdown" DisplayMemberPath="НомернойЗнак" SelectedValuePath="Код" Width="120"/>
-                    </StackPanel>
-                </StackPanel>
-
-                <!-- Кнопки на одной строке -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="10">
-                    <Button x:Name="SaveChangesButton" Content="Сохранить изменения"
-                            Click="SaveChanges_Click" Background="#aad413" Padding="10"
-                            Margin="5" FontWeight="Bold" Width="180" Visibility="Collapsed"/>
-
-                    <Button Content="Назад" Click="BackToOrders_Click"
-                            Background="#aad413" Padding="10" Margin="5" Width="180" FontWeight="Bold"/>
-                </StackPanel>
+                </Border>
 
                 <!-- Таблица работ по заказу -->
-                <ListBox x:Name="WorksListBox" Background="#2c4055" SelectionMode="Single">
+                <ListBox x:Name="WorksListBox" Background="#2c4055" SelectionMode="Single"
+                        SelectionChanged="WorksListBox_SelectionChanged" Margin="5, 3, 5, 0">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Border Background="White" Padding="10, 2, 4, 2" Margin="5">
+                            <Border Background="White" Padding="8, 3, 0, 3" Margin="5">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Описание}" Width="200" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding Стоимость, StringFormat=C}" Width="100" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Описание}" Width="210" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Стоимость, StringFormat=C}" Width="75" VerticalAlignment="Center"/>
 
-                                    <Button Content="Детали" Background="#aad413" Width="70" Padding="10,7,10,7"
-                                            Click="ShowWorkDetails_Click"/>
-                                    <Button Content="Жалобы" Background="#ff4136" Width="70"  Padding="10,7,10,7" Margin="5,0,0,0" 
-                                            Click="ShowComplaint_Click"/>
+                                    <Button Content="Детали" Style="{StaticResource AddButton}" Click="ShowWorkDetails_Click"/>
+                                    <Button Content="Жалобы" Style="{StaticResource EditButton}" Click="ShowComplaint_Click"/>
+                                    <Button Content="Удалить" Style="{StaticResource DeleteButton}" Click="DeleteWork_Click"/>
                                 </StackPanel>
                             </Border>
                         </DataTemplate>
@@ -100,51 +123,117 @@
             </StackPanel>
         </Grid>
 
-        <!-- ДетальРаботы  - список деталей работ в работе -->
+
+
+
+        <!-- Деталь работы -->
         <Grid x:Name="WorkDetailsPanel" Visibility="Collapsed">
-            <StackPanel Margin="10">
-                <TextBlock Text="Детали работы" Foreground="White" FontSize="20" FontWeight="Bold" Margin="10"/>
-
-                <StackPanel Orientation="Vertical" Margin="10">
-                    <StackPanel Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="Описание:" Foreground="White" Width="100"/>
-                        <TextBox x:Name="WorkDescriptionTextBox" Width="200"/>
+            <StackPanel Margin="2">
+                <DockPanel LastChildFill="False" Margin="10">
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                        <TextBlock Text="Детали работы" Foreground="White" FontSize="20" FontWeight="Bold" Margin="10"/>
                     </StackPanel>
+                    <Button Content="Назад" Click="BackToOrderDetails_Click" Style="{StaticResource BackButton}"
+                    DockPanel.Dock="Right"/>
+                </DockPanel>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="Стоимость:" Foreground="White" Width="100"/>
-                        <TextBox x:Name="WorkCostTextBox" Width="100"/>
+                <Border BorderBrush="White" BorderThickness="1" Margin="10">
+                    <StackPanel Orientation="Vertical" Margin="10">
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="Название детали:" Foreground="White" Width="100"/>
+                            <ComboBox x:Name="DetailDropdown" DisplayMemberPath="Название" SelectedValuePath="Код" Width="200"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="Количество:" Foreground="White" Width="100"/>
+                            <TextBox x:Name="WorkQuantityTextBox" Width="100"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
+                            <Button Content="Добавить" Click="AddWorkDetail_Click"
+                                Style="{StaticResource AddButton}" Width="180"/>
+
+                            <Button Content="Сохранить изменения" Click="EditWorkDetail_Click"
+                                Style="{StaticResource EditButton}" Width="180"/>
+                        </StackPanel>
                     </StackPanel>
-                </StackPanel>
+                </Border>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="10">
-                    <Button x:Name="SaveWorkChangesButton" Content="Сохранить изменения"
-                    Click="SaveWorkChanges_Click" Background="#aad413" Padding="10"
-                    Margin="5" FontWeight="Bold" Width="180"/>
-
-                    <Button Content="Назад" Click="BackToOrderDetails_Click"
-                    Background="#aad413" Padding="10" Margin="5" Width="180" FontWeight="Bold"/>
-                </StackPanel>
+                <!-- Таблица деталей работы -->
+                <Border BorderBrush="White" BorderThickness="1" Margin="10">
+                    <ListBox x:Name="WorkDetailsListBox" SelectionChanged="WorkDetailsListBox_SelectionChanged"
+                             Background="#2c4055" SelectionMode="Single" Height="200">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" Padding="10, 2, 4, 2" Margin="5">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding НазваниеДетали}" Width="200" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Количество}" Width="100" VerticalAlignment="Center"/>
+                                        <Button Content="Удалить" Style="{StaticResource DeleteButton}"
+                                        Click="DeleteWorkDetail_Click" Margin="5,0,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
             </StackPanel>
         </Grid>
 
-        <!-- Жалоба - список жалоб по работе -->
+        <!-- Жалобы по работе -->
         <Grid x:Name="ComplaintDetailsPanel" Visibility="Collapsed">
-            <StackPanel Margin="10">
-                <TextBlock Text="Жалобы по работе" Foreground="White" FontSize="20" FontWeight="Bold" Margin="10"/>
+            <StackPanel Margin="2">
+                <DockPanel LastChildFill="False" Margin="10">
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                        <TextBlock Text="Жалобы по работе" Foreground="White" FontSize="20" FontWeight="Bold" Margin="10"/>
+                    </StackPanel>
+                    <Button Content="Назад" Click="BackToOrderDetails_Click" Style="{StaticResource BackButton}"
+                    DockPanel.Dock="Right"/>
+                </DockPanel>
 
-                <ListBox x:Name="ComplaintsListBox" Background="#2c4055" SelectionMode="Single"/>
+                <Border BorderBrush="White" BorderThickness="1" Margin="10">
+                    <StackPanel Orientation="Vertical" Margin="10">
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="Текст жалобы:" Foreground="White" Width="100"/>
+                            <TextBox x:Name="ComplaintTextBox" Width="300"/>
+                        </StackPanel>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="10">
-                    <Button Content="Добавить жалобу" Click="AddComplaint_Click"
-                    Background="#ff4136" Padding="10" Margin="5" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="Дата:" Foreground="White" Width="100"/>
+                            <DatePicker x:Name="ComplaintDatePicker" Width="200"/>
+                        </StackPanel>
 
-                    <Button Content="Назад" Click="BackToOrderDetails_Click"
-                    Background="#aad413" Padding="10" Margin="5" FontWeight="Bold"/>
-                </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
+                            <Button Content="Добавить" Click="AddComplaint_Click"
+                                    Style="{StaticResource AddButton}" Width="180"/>
+
+                            <Button Content="Сохранить изменения" Click="EditComplaint_Click"
+                                    Style="{StaticResource EditButton}" Width="180"/>
+                        </StackPanel>
+
+                    </StackPanel>
+                </Border>
+
+                <!-- Таблица жалоб -->
+                <Border BorderBrush="White" BorderThickness="1" Margin="10">
+                    <ListBox x:Name="ComplaintsListBox" SelectionChanged="ComplaintsListBox_SelectionChanged"
+                     Background="#2c4055" SelectionMode="Single" Height="200">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" Padding="10, 2, 4, 2" Margin="5">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Описание}" Width="300" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Дата, StringFormat=d}" Width="150" VerticalAlignment="Center"/>
+                                        <Button Content="Удалить" Style="{StaticResource DeleteButton}"
+                                        Click="DeleteComplaint_Click" Margin="5,0,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
             </StackPanel>
         </Grid>
 
-    
     </Grid>
 </UserControl>

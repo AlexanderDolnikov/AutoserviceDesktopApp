@@ -374,6 +374,19 @@ namespace AutoserviceApp.DataAccess.Repositories
             return results;
         }
 
+        public string GetDetailNameById(int detailId)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+
+                var command = new SqlCommand("SELECT Название FROM Деталь WHERE Код = @Код", connection);
+                command.Parameters.AddWithValue("@Код", detailId);
+
+                var result = command.ExecuteScalar();
+                return result?.ToString() ?? "Неизвестно";
+            }
+        }
 
     }
 }

@@ -9,7 +9,7 @@
         WindowStyle="None"
         AllowsTransparency="True"
         Background="#3f5a75"
-        Title="My Autoservice" Height="700" Width="750"
+        Title="My Autoservice" Height="700" Width="800"
         ResizeMode="CanResizeWithGrip"
         WindowStartupLocation="CenterScreen"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
@@ -30,7 +30,7 @@
             <TextBlock Text="AUTOSERVICE APP" Foreground="White" VerticalAlignment="Center" FontSize="16" Margin="10,0,0,0"/>
                
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="-" Click="Minimize_Click" Background="Transparent" Foreground="White" Width="40" FontWeight="Bold"/>
+                <Button Content="––" Click="Minimize_Click" Background="Transparent" Foreground="White" Width="40" FontWeight="Bold"/>
                 <Button Content="❏" Click="Maximize_Click" Background="Transparent" Foreground="White" Width="40" FontWeight="Bold"/>
                 <Button Content="✕" Click="CloseApp_Click" Background="Transparent" Foreground="White" Width="40" FontWeight="Bold"/>
             </StackPanel>
@@ -54,12 +54,12 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <TextBlock x:Name="WelcomeText" Padding="0, 50, 0, 0" Foreground="White" Grid.Row="0" FontSize="16" TextAlignment="Center" 
+            <TextBlock x:Name="WelcomeText" Padding="0, 70, 0, 0" Foreground="White" Grid.Row="0" FontSize="16" TextAlignment="Center" 
                        VerticalAlignment="Center" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="20,0,0,0"/>
 
             <Button Grid.Row="1" Content="Перейти к приложению" Click="CloseWelcomeScreen_Click" 
                     VerticalAlignment="Center" HorizontalAlignment="Center" 
-                    Width="200" Height="40" Margin="40" FontWeight="Bold"/>
+                    Width="200" Height="40" Margin="30, 50, 0, 0" FontWeight="Bold"/>
         </Grid>
 
         <DockPanel x:Name="MainContent" Visibility="Collapsed" Grid.Row="2">

@@ -33,9 +33,9 @@
                     <BeginStoryboard>
                         <Storyboard>
                             <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX"
-                         To="0.95" Duration="0:0:0.1" />
+                                             To="0.95" Duration="0:0:0.1" />
                             <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY"
-                         To="0.95" Duration="0:0:0.1" />
+                                             To="0.95" Duration="0:0:0.1" />
                         </Storyboard>
                     </BeginStoryboard>
                 </EventTrigger>
@@ -134,5 +134,31 @@
         </Style>
 
 
+        <Style x:Key="ListsControlButton" TargetType="Button">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Width" Value="90"/>
+            <Setter Property="Margin" Value="0, 0, 10, 0"/>
+            <Setter Property="Width" Value="90"/>
+        </Style>
+        
+        <Style x:Key="AddButton" TargetType="Button" BasedOn="{StaticResource ListsControlButton}">
+            <Setter Property="Background" Value="#aad413"/>
+        </Style>
+
+        <Style x:Key="EditButton" TargetType="Button" BasedOn="{StaticResource ListsControlButton}">
+            <Setter Property="Background" Value="#ffd211"/>
+        </Style>
+
+        <Style x:Key="DeleteButton" TargetType="Button" BasedOn="{StaticResource ListsControlButton}">
+            <Setter Property="Background" Value="#e74c3c"/>
+        </Style>
+
+        <Style x:Key="BackButton" TargetType="Button" BasedOn="{StaticResource ListsControlButton}">
+            <Setter Property="Background" Value="#aad413"/>
+            <Setter Property="Width" Value="120"/>
+        </Style>
+
+        
     </Application.Resources>
 </Application>

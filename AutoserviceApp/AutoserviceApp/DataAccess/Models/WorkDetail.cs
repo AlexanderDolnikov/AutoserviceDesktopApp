@@ -14,4 +14,3 @@ namespace AutoserviceApp.Models
         public int Количество { get; set; }
     }
 }
-
