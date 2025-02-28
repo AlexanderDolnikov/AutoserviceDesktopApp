@@ -9,7 +9,7 @@
         WindowStyle="None"
         AllowsTransparency="True"
         Background="#3f5a75"
-        Title="My Autoservice" Height="700" Width="800"
+        Title="My Autoservice" Height="750" Width="850"
         ResizeMode="CanResizeWithGrip"
         WindowStartupLocation="CenterScreen"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">

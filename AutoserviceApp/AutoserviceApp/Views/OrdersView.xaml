@@ -42,8 +42,7 @@
             </StackPanel>
         </Grid>
 
-
-        <!-- Детали заказа - список работ по заказу -->
+        <!-- Список работ по заказу -->
         <Grid x:Name="OrderDetailsPanel" Visibility="Collapsed">
             <StackPanel Margin="10">
                 <!-- Заголовок с кнопкой "Назад" -->
@@ -94,6 +93,17 @@
                             <TextBox x:Name="WorkCostTextBox" Width="100"/>
                         </StackPanel>
 
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="Мастер:" Foreground="White" Width="110"/>
+                            <ComboBox x:Name="MasterDropdown" DisplayMemberPath="Фамилия" SelectedValuePath="Код" Width="200"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,5">
+                            <TextBlock Text="Вид работы:" Foreground="White" Width="110"/>
+                            <ComboBox x:Name="WorkTypeDropdown" DisplayMemberPath="Название" SelectedValuePath="Код" Width="200"/>
+                        </StackPanel>
+
+
                         <!-- Кнопки управления работами -->
                         <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
                             <Button Content="Добавить" Click="AddWork_Click" Style="{StaticResource AddButton}"/>
@@ -103,30 +113,29 @@
                 </Border>
 
                 <!-- Таблица работ по заказу -->
-                <ListBox x:Name="WorksListBox" Background="#2c4055" SelectionMode="Single"
+                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="200">
+                    <ListBox x:Name="WorksListBox" Background="#2c4055" SelectionMode="Single"
                         SelectionChanged="WorksListBox_SelectionChanged" Margin="5, 3, 5, 0">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Border Background="White" Padding="8, 3, 0, 3" Margin="5">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Описание}" Width="210" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding Стоимость, StringFormat=C}" Width="75" VerticalAlignment="Center"/>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" Padding="8, 3, 0, 3" Margin="5">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Описание}" Width="210" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Стоимость, StringFormat=C}" Width="75" VerticalAlignment="Center"/>
 
-                                    <Button Content="Детали" Style="{StaticResource AddButton}" Click="ShowWorkDetails_Click"/>
-                                    <Button Content="Жалобы" Style="{StaticResource EditButton}" Click="ShowComplaint_Click"/>
-                                    <Button Content="Удалить" Style="{StaticResource DeleteButton}" Click="DeleteWork_Click"/>
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                                        <Button Content="Детали" Style="{StaticResource AddButton}" Click="ShowWorkDetails_Click"/>
+                                        <Button Content="Жалобы" Style="{StaticResource EditButton}" Click="ShowComplaint_Click"/>
+                                        <Button Content="Удалить" Style="{StaticResource DeleteButton}" Click="DeleteWork_Click"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </ScrollViewer>
             </StackPanel>
         </Grid>
 
-
-
-
-        <!-- Деталь работы -->
+        <!-- Детали работы -->
         <Grid x:Name="WorkDetailsPanel" Visibility="Collapsed">
             <StackPanel Margin="2">
                 <DockPanel LastChildFill="False" Margin="10">
@@ -162,15 +171,16 @@
                 <!-- Таблица деталей работы -->
                 <Border BorderBrush="White" BorderThickness="1" Margin="10">
                     <ListBox x:Name="WorkDetailsListBox" SelectionChanged="WorkDetailsListBox_SelectionChanged"
-                             Background="#2c4055" SelectionMode="Single" Height="200">
+                             Background="#2c4055" SelectionMode="Single" Height="400">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border Background="White" Padding="10, 2, 4, 2" Margin="5">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{Binding НазваниеДетали}" Width="200" VerticalAlignment="Center"/>
                                         <TextBlock Text="{Binding Количество}" Width="100" VerticalAlignment="Center"/>
+                                        
                                         <Button Content="Удалить" Style="{StaticResource DeleteButton}"
-                                        Click="DeleteWorkDetail_Click" Margin="5,0,0,0"/>
+                                                Click="DeleteWorkDetail_Click" Margin="5,0,0,0"/>
                                     </StackPanel>
                                 </Border>
                             </DataTemplate>

@@ -19,6 +19,8 @@ namespace AutoserviceApp.Views
         private readonly CarRepository _carRepository;
         private readonly DetailRepository _detailRepository;
         private readonly WorkDetailRepository _workDetailRepository;
+        private readonly MasterRepository _masterRepository;
+        private readonly WorkTypeRepository _workTypeRepository;
         private readonly DatabaseContext _context;
         private List<Order> _orders;
         private Order _selectedOrder;
@@ -35,12 +37,43 @@ namespace AutoserviceApp.Views
             _detailRepository = new DetailRepository(_context);
             _carRepository = new CarRepository(_context);
             _workDetailRepository = new WorkDetailRepository(_context);
+            _masterRepository = new MasterRepository(_context);
+            _workTypeRepository = new WorkTypeRepository(_context);
 
             LoadOrders();
             LoadClients();
             LoadCars();
             LoadDetails();
+            LoadMasters();
+            LoadWorkTypes();
         }
+
+        private void LoadClients()
+        {
+            var clients = _clientRepository.GetAllClients();
+            ClientDropdown.ItemsSource = clients;
+            EditClientDropdown.ItemsSource = clients; // Добавляем для редактирования
+        }
+
+        private void LoadCars()
+        {
+            var cars = _carRepository.GetAllCars();
+            CarDropdown.ItemsSource = cars;
+            EditCarDropdown.ItemsSource = cars; // Добавляем для редактирования
+        }
+
+        private void LoadMasters()
+        {
+            var masters = _masterRepository.GetAllMasters();
+            MasterDropdown.ItemsSource = masters;
+        }
+
+        private void LoadWorkTypes()
+        {
+            var workTypes = _workTypeRepository.GetAllWorkTypes();
+            WorkTypeDropdown.ItemsSource = workTypes;
+        }
+
 
         /* - - - Заказы - - - */
 
@@ -211,48 +244,22 @@ namespace AutoserviceApp.Views
             LoadOrders();
         }
 
-        private void LoadClients()
-        {
-            var clients = _clientRepository.GetAllClients();
-            ClientDropdown.ItemsSource = clients;
-            EditClientDropdown.ItemsSource = clients; // Добавляем для редактирования
-        }
 
-        private void LoadCars()
-        {
-            var cars = _carRepository.GetAllCars();
-            CarDropdown.ItemsSource = cars;
-            EditCarDropdown.ItemsSource = cars; // Добавляем для редактирования
-        }
-
+        /* - - - Работы - - - */
         private void WorksListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (WorksListBox.SelectedItem is Work selectedWork)
             {
                 WorkNameTextBox.Text = selectedWork.Описание;
                 WorkCostTextBox.Text = selectedWork.Стоимость.ToString();
+
+                MasterDropdown.Text = selectedWork.КодМастера.ToString();
+                WorkTypeDropdown.SelectedValue = selectedWork.КодВидаРаботы;
+
+                MessageBox.Show($"{selectedWork.КодМастера.ToString()} - {selectedWork.КодВидаРаботы}");
             }
         }
 
-        private void WorkDetailsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (WorkDetailsListBox.SelectedItem is WorkDetail selectedDetail)
-            {
-                DetailDropdown.SelectedValue = selectedDetail.КодДетали;
-                WorkQuantityTextBox.Text = selectedDetail.Количество.ToString();
-            }
-        }
-
-        private void ComplaintsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ComplaintsListBox.SelectedItem is Complaint selectedComplaint)
-            {
-                ComplaintTextBox.Text = selectedComplaint.Описание;
-                ComplaintDatePicker.SelectedDate = selectedComplaint.Дата;
-            }
-        }
-
-        /* - - - Работы - - - */
         private void LoadWorks(int orderId)
         {
             WorksListBox.ItemsSource = _workRepository.GetWorksByOrderId(orderId);
@@ -261,10 +268,17 @@ namespace AutoserviceApp.Views
         private void AddWork_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedOrder == null) return;
+            if (MasterDropdown.SelectedValue == null || WorkTypeDropdown.SelectedValue == null)
+            {
+                MessageBox.Show("Выберите мастера и вид работы!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             var newWork = new Work
             {
                 КодЗаказа = _selectedOrder.Код,
+                КодМастера = (int)MasterDropdown.SelectedValue,
+                КодВидаРаботы = (int)WorkTypeDropdown.SelectedValue,
                 Описание = WorkNameTextBox.Text.Trim(),
                 Стоимость = decimal.Parse(WorkCostTextBox.Text)
             };
@@ -275,17 +289,32 @@ namespace AutoserviceApp.Views
 
         private void EditWork_Click(object sender, RoutedEventArgs e)
         {
-            if (_selectedOrder == null) return;
+            if (_selectedOrder == null || WorksListBox.SelectedItem == null) return;
+
+            if (MasterDropdown.SelectedValue == null || WorkTypeDropdown.SelectedValue == null)
+            {
+                MessageBox.Show("Выберите мастера и вид работы!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!decimal.TryParse(WorkCostTextBox.Text, out decimal cost))
+            {
+                MessageBox.Show("Некорректное значение стоимости!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             if (WorksListBox.SelectedItem is Work selectedWork)
             {
+                selectedWork.КодМастера = (int)MasterDropdown.SelectedValue;
+                selectedWork.КодВидаРаботы = (int)WorkTypeDropdown.SelectedValue;
                 selectedWork.Описание = WorkNameTextBox.Text.Trim();
-                selectedWork.Стоимость = decimal.Parse(WorkCostTextBox.Text);
+                selectedWork.Стоимость = cost;
 
                 _workRepository.UpdateWork(selectedWork);
                 LoadWorks(_selectedOrder.Код);
             }
         }
+
 
         private void DeleteWork_Click(object sender, RoutedEventArgs e)
         {
@@ -312,7 +341,17 @@ namespace AutoserviceApp.Views
             }
         }
 
+
         /* - - - ДетальРаботы - - - */
+        private void WorkDetailsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (WorkDetailsListBox.SelectedItem is WorkDetail selectedDetail)
+            {
+                DetailDropdown.SelectedValue = selectedDetail.КодДетали;
+                WorkQuantityTextBox.Text = selectedDetail.Количество.ToString();
+            }
+        }
+
         private void ShowWorkDetails_Click(object sender, RoutedEventArgs e)
         {
             if (((Button)sender).DataContext is Work selectedWork)
@@ -395,6 +434,15 @@ namespace AutoserviceApp.Views
 
 
         /* - - - Жалобы - - -*/
+        private void ComplaintsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ComplaintsListBox.SelectedItem is Complaint selectedComplaint)
+            {
+                ComplaintTextBox.Text = selectedComplaint.Описание;
+                ComplaintDatePicker.SelectedDate = selectedComplaint.Дата;
+            }
+        }
+
         private void ShowComplaint_Click(object sender, RoutedEventArgs e)
         {
             if (((Button)sender).DataContext is Work selectedWork)
@@ -460,7 +508,6 @@ namespace AutoserviceApp.Views
 
 
         /* - - - - - - - */
-
         private void BackToOrderDetails_Click(object sender, RoutedEventArgs e)
         {
             // Возвращаемся к списку ДеталейРаботы
