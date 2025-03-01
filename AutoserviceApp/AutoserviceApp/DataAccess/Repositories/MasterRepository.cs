@@ -50,6 +50,19 @@ namespace AutoserviceApp.DataAccess.Repositories
             return masters;
         }
 
+        public string GetMasterNameById(int detailId)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+
+                var command = new SqlCommand("SELECT Фамилия FROM Мастер WHERE Код = @Код", connection);
+                command.Parameters.AddWithValue("@Код", detailId);
+
+                var result = command.ExecuteScalar();
+                return result?.ToString() ?? "Неизвестно";
+            }
+        }
 
     }
 }

@@ -4,28 +4,21 @@ using System.Windows.Controls;
 using AutoserviceApp.Models;
 using AutoserviceApp.ViewModels;
 using AutoserviceApp.DataAccess;
+using AutoserviceApp.Interfaces;
 
 namespace AutoserviceApp.Views
 {
-    public partial class UsersView : UserControl
+    public partial class UsersView : UserControl, IRefreshable
     {
         public UsersView()
         {
             InitializeComponent();
             //LoadUsers();
         }
-
-        //private void LoadUsers()
-        //{
-        //    List<User> users = new List<User>
-        //    {
-        //        new User { Id = 1, Login = "admin", Role = "Администратор" },
-        //        new User { Id = 2, Login = "employee1", Role = "Сотрудник" }
-        //    };
-
-        //    UsersList.ItemsSource = users;
-        //}
-
+        public void RefreshData()
+        {
+            //LoadUsers();
+        }
         private void AddUser_Click(object sender, RoutedEventArgs e)
         {
             if (DataContext is not MainViewModel viewModel)

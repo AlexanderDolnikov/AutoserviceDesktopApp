@@ -1,17 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Controls;
+using AutoserviceApp.Interfaces;
 using AutoserviceApp.Models;
 
 namespace AutoserviceApp.Views
 {
-    public partial class MastersView : UserControl
+    public partial class MastersView : UserControl, IRefreshable
     {
         public MastersView()
         {
             InitializeComponent();
             LoadMasters();
         }
-
+        public void RefreshData()
+        {
+            LoadMasters();
+        }
         private void LoadMasters()
         {
             List<Master> masters = new List<Master>

@@ -7,10 +7,13 @@ using AutoserviceApp.DataAccess.Repositories;
 using AutoserviceApp.Models;
 using AutoserviceApp.DataAccess;
 using System.Data.SqlClient;
+using AutoserviceApp.Interfaces;
+using AutoserviceApp.DataAccess.Models;
+using DocumentFormat.OpenXml.ExtendedProperties;
 
 namespace AutoserviceApp.Views
 {
-    public partial class OrdersView : UserControl
+    public partial class OrdersView : UserControl, IRefreshable
     {
         private readonly OrderRepository _orderRepository;
         private readonly WorkRepository _workRepository;
@@ -24,7 +27,7 @@ namespace AutoserviceApp.Views
         private readonly DatabaseContext _context;
         private List<Order> _orders;
         private Order _selectedOrder;
-        private Work _selectedWork;
+        private WorkWithInfo _selectedWork;
 
         public OrdersView()
         {
@@ -46,6 +49,10 @@ namespace AutoserviceApp.Views
             LoadDetails();
             LoadMasters();
             LoadWorkTypes();
+        }
+        public void RefreshData()
+        {
+            LoadOrders();
         }
 
         private void LoadClients()
@@ -140,11 +147,11 @@ namespace AutoserviceApp.Views
             EditClientDropdown.SelectedValue = order.КодКлиента;
             EditCarDropdown.SelectedValue = order.КодАвтомобиля;
 
-            // Загружаем работы по заказу
-            WorksListBox.ItemsSource = _workRepository.GetWorksByOrderId(orderId);
-
             // Сохраняем текущий заказ
             _selectedOrder = order;
+            
+            // Загружаем работы по заказу
+            WorksListBox.ItemsSource = GetWorksByOrderId(orderId);
 
             // Прячем кнопку добавления
             AddOrderButton.Visibility = Visibility.Collapsed;
@@ -248,21 +255,38 @@ namespace AutoserviceApp.Views
         /* - - - Работы - - - */
         private void WorksListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (WorksListBox.SelectedItem is Work selectedWork)
+            if (WorksListBox.SelectedItem is WorkWithInfo selectedWork)
             {
                 WorkNameTextBox.Text = selectedWork.Описание;
                 WorkCostTextBox.Text = selectedWork.Стоимость.ToString();
 
-                MasterDropdown.Text = selectedWork.КодМастера.ToString();
+                MasterDropdown.SelectedValue = selectedWork.КодМастера;
                 WorkTypeDropdown.SelectedValue = selectedWork.КодВидаРаботы;
-
-                MessageBox.Show($"{selectedWork.КодМастера.ToString()} - {selectedWork.КодВидаРаботы}");
             }
         }
 
         private void LoadWorks(int orderId)
         {
-            WorksListBox.ItemsSource = _workRepository.GetWorksByOrderId(orderId);
+            WorksListBox.ItemsSource = GetWorksByOrderId(orderId);
+        }
+        private List<WorkWithInfo> GetWorksByOrderId(int orderId)
+        {
+            var works = _workRepository.GetAllWorks()
+                .Where(works => works.КодЗаказа == _selectedOrder.Код)
+                .Select(works => new WorkWithInfo
+                {
+                    Код = works.Код,
+                    КодЗаказа = _selectedOrder.Код,
+                    Описание = works.Описание,
+                    Стоимость = works.Стоимость,
+                    КодМастера = works.КодМастера,
+                    ФамилияМастера = _masterRepository.GetMasterNameById(works.КодМастера),
+                    КодВидаРаботы = works.КодВидаРаботы,
+                    НазваниеВидаРаботы = _workTypeRepository.GetWorkTypeNameById(works.КодВидаРаботы)
+                })
+                .ToList();
+
+            return works;
         }
 
         private void AddWork_Click(object sender, RoutedEventArgs e)
@@ -303,22 +327,27 @@ namespace AutoserviceApp.Views
                 return;
             }
 
-            if (WorksListBox.SelectedItem is Work selectedWork)
+            if (WorksListBox.SelectedItem is WorkWithInfo selectedWorkWithInfo)
             {
-                selectedWork.КодМастера = (int)MasterDropdown.SelectedValue;
-                selectedWork.КодВидаРаботы = (int)WorkTypeDropdown.SelectedValue;
-                selectedWork.Описание = WorkNameTextBox.Text.Trim();
-                selectedWork.Стоимость = cost;
+                Work updatedWork = new Work
+                {
+                    Код = selectedWorkWithInfo.Код,
+                    КодЗаказа = selectedWorkWithInfo.КодЗаказа,
+                    Описание = WorkNameTextBox.Text.Trim(),
+                    Стоимость = cost,
+                    КодМастера = (int)MasterDropdown.SelectedValue,
+                    КодВидаРаботы = (int)WorkTypeDropdown.SelectedValue
+                };
 
-                _workRepository.UpdateWork(selectedWork);
+                // Обновляем и загружаем работы
+                _workRepository.UpdateWork(updatedWork);
                 LoadWorks(_selectedOrder.Код);
             }
         }
 
-
         private void DeleteWork_Click(object sender, RoutedEventArgs e)
         {
-            if (((Button)sender).DataContext is Work selectedWork)
+            if (((Button)sender).DataContext is WorkWithInfo selectedWork)
             {
                 // Подтверждение удаления
                 var result = MessageBox.Show($"Вы уверены, что хотите удалить работу '{selectedWork.Описание}'?",
@@ -345,16 +374,16 @@ namespace AutoserviceApp.Views
         /* - - - ДетальРаботы - - - */
         private void WorkDetailsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (WorkDetailsListBox.SelectedItem is WorkDetail selectedDetail)
+            if (WorkDetailsListBox.SelectedItem is WorkDetailsWithDetailAmount selectedWorkDetailsWithDetailAmount)
             {
-                DetailDropdown.SelectedValue = selectedDetail.КодДетали;
-                WorkQuantityTextBox.Text = selectedDetail.Количество.ToString();
+                DetailDropdown.Text = selectedWorkDetailsWithDetailAmount.НазваниеДетали.ToString();
+                WorkQuantityTextBox.Text = selectedWorkDetailsWithDetailAmount.Количество.ToString();
             }
         }
 
         private void ShowWorkDetails_Click(object sender, RoutedEventArgs e)
         {
-            if (((Button)sender).DataContext is Work selectedWork)
+            if (((Button)sender).DataContext is WorkWithInfo selectedWork)
             {
                 _selectedWork = selectedWork;
 
@@ -371,8 +400,9 @@ namespace AutoserviceApp.Views
         {
             var details = _workDetailRepository.GetAllWorkDetails()
                 .Where(detail => detail.КодРаботы == workId)
-                .Select(detail => new
+                .Select(detail => new WorkDetailsWithDetailAmount
                 {
+                    Код = detail.Код,
                     НазваниеДетали = _detailRepository.GetDetailNameById(detail.КодДетали),
                     Количество = detail.Количество
                 })
@@ -398,39 +428,34 @@ namespace AutoserviceApp.Views
 
         private void EditWorkDetail_Click(object sender, RoutedEventArgs e)
         {
-            if (WorkDetailsListBox.SelectedItem is WorkDetail selectedDetail)
+            if (WorkDetailsListBox.SelectedItem is WorkDetailsWithDetailAmount selectedDetail)
             {
-                selectedDetail.КодДетали = (int)DetailDropdown.SelectedValue;
-                selectedDetail.Количество = int.Parse(WorkQuantityTextBox.Text);
+                WorkDetail updatedDetail = new WorkDetail
+                {
+                    Код = selectedDetail.Код,
+                    КодРаботы = _selectedWork.Код,
+                    КодДетали = (int)DetailDropdown.SelectedValue,
+                    Количество = int.Parse(WorkQuantityTextBox.Text)
+                };
 
-                _workDetailRepository.UpdateWorkDetail(selectedDetail);
+                _workDetailRepository.UpdateWorkDetail(updatedDetail);
                 LoadWorkDetails(_selectedWork.Код);
             }
         }
 
         private void DeleteWorkDetail_Click(object sender, RoutedEventArgs e)
         {
-            if (((Button)sender).DataContext is WorkDetail selectedDetail)
+            if (((Button)sender).DataContext is WorkDetailsWithDetailAmount selectedWorkDetailWithDetailAmount)
             {
-                var result = MessageBox.Show($"Вы уверены, что хотите удалить деталь '{_detailRepository.GetDetailNameById(selectedDetail.КодДетали)}'?",
-                                             "Подтверждение удаления",
-                                             MessageBoxButton.YesNo,
-                                             MessageBoxImage.Warning);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    try
-                    {
-                        _workDetailRepository.DeleteWorkDetail(selectedDetail.Код);
-                        LoadWorkDetails(_selectedWork.Код);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
+                _workDetailRepository.DeleteWorkDetail(selectedWorkDetailWithDetailAmount.Код);
+                LoadWorkDetails(_selectedWork.Код);
+            }
+            else
+            {
+                MessageBox.Show($"работа: {_selectedWork.Код}, выбрано: ???");
             }
         }
+
 
 
         /* - - - Жалобы - - -*/
@@ -445,7 +470,7 @@ namespace AutoserviceApp.Views
 
         private void ShowComplaint_Click(object sender, RoutedEventArgs e)
         {
-            if (((Button)sender).DataContext is Work selectedWork)
+            if (((Button)sender).DataContext is WorkWithInfo selectedWork)
             {
                 _selectedWork = selectedWork;
 

@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Controls;
+using AutoserviceApp.Interfaces;
 using AutoserviceApp.Models;
 
 namespace AutoserviceApp.Views
 {
-    public partial class ComplaintsView : UserControl
+    public partial class ComplaintsView : UserControl, IRefreshable
     {
         public ComplaintsView()
         {
             InitializeComponent();
+            LoadComplaints();
+        }
+        public void RefreshData()
+        {
             LoadComplaints();
         }
 

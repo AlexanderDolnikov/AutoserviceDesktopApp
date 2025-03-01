@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Windows.Controls;
 using AutoserviceApp.Models;
 using System.Windows.Markup;
+using AutoserviceApp.Interfaces;
 
 namespace AutoserviceApp.ViewModels
 {
@@ -65,6 +66,12 @@ namespace AutoserviceApp.ViewModels
             if (ViewMappings.ContainsKey(viewName))
             {
                 CurrentView = ViewMappings[viewName]();
+
+                // Принудительная загрузка данных при переключении вкладки
+                if (CurrentView is IRefreshable refreshable)
+                {
+                    refreshable.RefreshData();
+                }
             }
         }
 

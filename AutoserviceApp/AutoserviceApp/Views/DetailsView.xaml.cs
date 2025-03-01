@@ -1,14 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Controls;
+using AutoserviceApp.Interfaces;
 using AutoserviceApp.Models;
 
 namespace AutoserviceApp.Views
 {
-    public partial class DetailsView : UserControl
+    public partial class DetailsView : UserControl, IRefreshable
     {
         public DetailsView()
         {
             InitializeComponent();
+            LoadDetails();
+        }
+
+        public void RefreshData()
+        {
             LoadDetails();
         }
 

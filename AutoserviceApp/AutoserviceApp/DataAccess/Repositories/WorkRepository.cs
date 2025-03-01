@@ -94,6 +94,9 @@ namespace AutoserviceApp.DataAccess.Repositories
 
         public void UpdateWork(Work work)
         {
+            if (work.Код == 0)
+                throw new Exception("Ошибка: Работа должна иметь корректный Код.");
+
             using (var connection = _context.GetConnection())
             {
                 connection.Open();
@@ -105,7 +108,7 @@ namespace AutoserviceApp.DataAccess.Repositories
 
                 var checkOrderCommand = new SqlCommand("SELECT COUNT(*) FROM Заказ WHERE Код = @КодЗаказа", connection);
                 checkOrderCommand.Parameters.AddWithValue("@КодЗаказа", work.КодЗаказа);
-                int orderCount = (int)checkOrderCommand.ExecuteScalar();
+                int orderCount = (int)(checkOrderCommand.ExecuteScalar() ?? 0);
 
                 if (orderCount == 0)
                 {
@@ -126,6 +129,7 @@ namespace AutoserviceApp.DataAccess.Repositories
                 command.ExecuteNonQuery();
             }
         }
+
 
 
 

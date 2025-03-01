@@ -2,15 +2,21 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using AutoserviceApp.Interfaces;
 using AutoserviceApp.Models;
 
 namespace AutoserviceApp.Views
 {
-    public partial class WorksView : UserControl
+    public partial class WorksView : UserControl, IRefreshable
     {
         public WorksView()
         {
             InitializeComponent();
+            LoadWorks();
+        }
+
+        public void RefreshData()
+        {
             LoadWorks();
         }
 

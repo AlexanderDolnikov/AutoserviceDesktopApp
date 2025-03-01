@@ -120,8 +120,10 @@
                             <DataTemplate>
                                 <Border Background="White" Padding="8, 3, 0, 3" Margin="5">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Описание}" Width="210" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Описание}" Width="220" VerticalAlignment="Center"/>
                                         <TextBlock Text="{Binding Стоимость, StringFormat=C}" Width="75" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding ФамилияМастера}" Width="75" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding НазваниеВидаРаботы}" Width="150" VerticalAlignment="Center"/>
 
                                         <Button Content="Детали" Style="{StaticResource AddButton}" Click="ShowWorkDetails_Click"/>
                                         <Button Content="Жалобы" Style="{StaticResource EditButton}" Click="ShowComplaint_Click"/>

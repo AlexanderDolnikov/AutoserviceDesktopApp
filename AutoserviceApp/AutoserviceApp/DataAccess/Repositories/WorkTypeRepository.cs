@@ -45,5 +45,20 @@ namespace AutoserviceApp.DataAccess.Repositories
             return workTypes;
         }
 
+
+        public string GetWorkTypeNameById(int detailId)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+
+                var command = new SqlCommand("SELECT Название FROM ВидРаботы WHERE Код = @Код", connection);
+                command.Parameters.AddWithValue("@Код", detailId);
+
+                var result = command.ExecuteScalar();
+                return result?.ToString() ?? "Неизвестно";
+            }
+        }
+
     }
 }
