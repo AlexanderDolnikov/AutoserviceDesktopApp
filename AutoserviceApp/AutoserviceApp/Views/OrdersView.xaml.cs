@@ -10,6 +10,9 @@ using System.Data.SqlClient;
 using AutoserviceApp.Interfaces;
 using AutoserviceApp.DataAccess.Models;
 using DocumentFormat.OpenXml.ExtendedProperties;
+using DocumentFormat.OpenXml.Bibliography;
+using System.Reflection.PortableExecutable;
+using System.Windows.Input;
 
 namespace AutoserviceApp.Views
 {
@@ -26,7 +29,7 @@ namespace AutoserviceApp.Views
         private readonly WorkTypeRepository _workTypeRepository;
         private readonly DatabaseContext _context;
         private List<Order> _orders;
-        private Order _selectedOrder;
+        private OrderWithInfo _selectedOrder;
         private WorkWithInfo _selectedWork;
 
         public OrdersView()
@@ -59,14 +62,12 @@ namespace AutoserviceApp.Views
         {
             var clients = _clientRepository.GetAllClients();
             ClientDropdown.ItemsSource = clients;
-            EditClientDropdown.ItemsSource = clients; // Добавляем для редактирования
         }
 
         private void LoadCars()
         {
             var cars = _carRepository.GetAllCars();
             CarDropdown.ItemsSource = cars;
-            EditCarDropdown.ItemsSource = cars; // Добавляем для редактирования
         }
 
         private void LoadMasters()
@@ -81,94 +82,54 @@ namespace AutoserviceApp.Views
             WorkTypeDropdown.ItemsSource = workTypes;
         }
 
+        private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            ScrollViewer scrollViewer = sender as ScrollViewer;
+            if (scrollViewer != null)
+            {
+                scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta / 3);
+                e.Handled = true;
+            }
+        }
+
+
 
         /* - - - Заказы - - - */
-
         private void LoadOrders()
         {
-            _orders = _orderRepository.GetAllOrders();
-            OrdersList.Items.Clear();
-
-            foreach (var order in _orders)
-            {
-                var client = _clientRepository.GetClientById(order.КодКлиента);
-                var car = _carRepository.GetCarById(order.КодАвтомобиля);
-
-                string clientName = client != null ? client.Фамилия : "Неизвестный";
-                string carNumber = car != null ? car.НомернойЗнак : "Неизвестно";
-
-                StackPanel orderPanel = new StackPanel
+            var orders = _orderRepository.GetAllOrders()
+                .Select(order => new OrderWithInfo
                 {
-                    Orientation = Orientation.Horizontal,
-                    Background = new SolidColorBrush(Colors.GhostWhite),
-                    Margin = new Thickness(5),
-                };
+                    Код = order.Код,
+                    ДатаНачала = order.ДатаНачала,
+                    ДатаОкончания = order.ДатаОкончания ?? default(DateTime),
+                    КодКлиента = order.КодКлиента,
+                    ФамилияКлиента = _clientRepository.GetClientById(order.КодКлиента)?.Фамилия ?? "Неизвестно",
+                    КодАвтомобиля = order.КодАвтомобиля,
+                    НомернойЗнакАвтомобиля = _carRepository.GetCarById(order.КодАвтомобиля)?.НомернойЗнак ?? "Неизвестно",
+                })
+                .ToList();
 
-                TextBlock orderInfo = new TextBlock
-                {
-                    Text = $"Клиент: {clientName}, Авто: {carNumber}, Даты: {order.ДатаНачала:dd.MM.yyyy} - {order.ДатаОкончания:dd.MM.yyyy}",
-                    Width = 400,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Padding = new Thickness(7),
-                };
-
-                Button detailsButton = new Button
-                {
-                    Content = "Подробнее",
-                    Background = new SolidColorBrush(Color.FromRgb(170, 212, 19)),
-                    Foreground = new SolidColorBrush(Colors.Black),
-                    Padding = new Thickness(5),
-                    FontWeight = FontWeights.Bold
-                };
-                detailsButton.Click += (sender, e) => ShowOrderDetails(order.Код);
-
-                orderPanel.Children.Add(orderInfo);
-                orderPanel.Children.Add(detailsButton);
-                OrdersList.Items.Add(orderPanel);
-            }
+            OrdersListBox.ItemsSource = orders;
         }
 
-        private void ShowOrderDetails_Click(object sender, RoutedEventArgs e)
+        private void OrdersListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (((Button)sender).DataContext is Order selectedOrder)
+            if (OrdersListBox.SelectedItem is OrderWithInfo selectedOrder)
             {
-                ShowOrderDetails(selectedOrder.Код);
+                StartDatePicker.SelectedDate = selectedOrder.ДатаНачала;
+                EndDatePicker.SelectedDate = selectedOrder.ДатаОкончания;
+
+                ClientDropdown.SelectedValue = selectedOrder.КодКлиента;
+                CarDropdown.SelectedValue = selectedOrder.КодАвтомобиля;
             }
-        }
-
-        private void ShowOrderDetails(int orderId)
-        {
-            var order = _orderRepository.GetOrderById(orderId);
-            if (order == null) return;
-
-            // Заполняем поля заказа
-            EditStartDatePicker.SelectedDate = order.ДатаНачала;
-            EditEndDatePicker.SelectedDate = order.ДатаОкончания;
-            EditClientDropdown.SelectedValue = order.КодКлиента;
-            EditCarDropdown.SelectedValue = order.КодАвтомобиля;
-
-            // Сохраняем текущий заказ
-            _selectedOrder = order;
-            
-            // Загружаем работы по заказу
-            WorksListBox.ItemsSource = GetWorksByOrderId(orderId);
-
-            // Прячем кнопку добавления
-            AddOrderButton.Visibility = Visibility.Collapsed;
-
-            // Показываем кнопку сохранения изменений
-            SaveChangesButton.Visibility = Visibility.Visible;
-
-            // Переключаемся на детали заказа
-            OrdersListPanel.Visibility = Visibility.Collapsed;
-            OrderDetailsPanel.Visibility = Visibility.Visible;
         }
 
         private void AddOrder_Click(object sender, RoutedEventArgs e)
         {
-            if (StartDatePicker.SelectedDate == null || EndDatePicker.SelectedDate == null)
+            if (StartDatePicker.SelectedDate == null)
             {
-                MessageBox.Show("Выберите даты начала и окончания.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Выберите дату начала заказа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -180,8 +141,8 @@ namespace AutoserviceApp.Views
 
             var newOrder = new Order
             {
-                ДатаНачала = StartDatePicker.SelectedDate.Value,
-                ДатаОкончания = EndDatePicker.SelectedDate.Value,
+                ДатаНачала = (DateTime)StartDatePicker.SelectedDate,
+                ДатаОкончания = EndDatePicker.SelectedDate.HasValue ? (DateTime)EndDatePicker.SelectedDate.Value : (DateTime?)null,
                 КодКлиента = (int)ClientDropdown.SelectedValue,
                 КодАвтомобиля = (int)CarDropdown.SelectedValue
             };
@@ -190,69 +151,89 @@ namespace AutoserviceApp.Views
             LoadOrders();
         }
 
+        private void EditOrder_Click(object sender, RoutedEventArgs e)
+        {
+            if (OrdersListBox.SelectedItem == null) return;
+
+            if (StartDatePicker.SelectedDate == null)
+            {
+                MessageBox.Show("Выберите Дату начала заказа!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (ClientDropdown.SelectedValue == null || CarDropdown.SelectedValue == null)
+            {
+                MessageBox.Show("Выберите клиента и мастера!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (OrdersListBox.SelectedItem is OrderWithInfo selectedOrderWithInfo)
+            {
+                Order updatedOrder = new Order
+                {
+                    Код = selectedOrderWithInfo.Код,
+                    ДатаНачала = (DateTime)StartDatePicker.SelectedDate,
+                    ДатаОкончания = EndDatePicker.SelectedDate.HasValue ? (DateTime)EndDatePicker.SelectedDate.Value : (DateTime?)null,
+                    КодКлиента = (int)ClientDropdown.SelectedValue,
+                    КодАвтомобиля = (int)CarDropdown.SelectedValue
+                };
+
+                _orderRepository.UpdateOrder(updatedOrder);
+                LoadOrders();
+            }
+        }
+
         private void DeleteOrder_Click(object sender, RoutedEventArgs e)
         {
-            if (((Button)sender).DataContext is Order selectedOrder)
+            if (((Button)sender).DataContext is OrderWithInfo selectedOrder)
             {
-                var result = MessageBox.Show($"Вы уверены, что хотите удалить заказ {selectedOrder.Код}?",
-                                             "Подтверждение удаления",
-                                             MessageBoxButton.YesNo,
-                                             MessageBoxImage.Warning);
+                // Проверяем, есть ли у заказа работы
+                bool hasWorks = _workRepository.GetAllWorks().Any(w => w.КодЗаказа == selectedOrder.Код);
 
-                if (result == MessageBoxResult.Yes)
+                if (hasWorks)
                 {
-                    try
-                    {
-                        _orderRepository.DeleteOrder(selectedOrder.Код);
-                        LoadOrders();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
+                    var result = MessageBox.Show(
+                        "Этот заказ содержит работы. Все связанные данные будут удалены.\nВы уверены, что хотите удалить его?",
+                        "Подтверждение удаления",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning);
+
+                    if (result != MessageBoxResult.Yes) return;
+                }
+
+                try
+                {
+                    _orderRepository.DeleteOrder(selectedOrder.Код);
+                    MessageBox.Show("Заказ успешно удален!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LoadOrders();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
 
-        private void SaveOrder_Click(object sender, RoutedEventArgs e)
-        {
-            if (_selectedOrder == null)
-            {
-                MessageBox.Show("Нет заказа для редактирования.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            if (EditStartDatePicker.SelectedDate == null || EditEndDatePicker.SelectedDate == null)
-            {
-                MessageBox.Show("Выберите даты начала и окончания.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            if (EditClientDropdown.SelectedItem == null || EditCarDropdown.SelectedItem == null)
-            {
-                MessageBox.Show("Выберите клиента и автомобиль.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // Обновляем данные заказа
-            _selectedOrder.ДатаНачала = EditStartDatePicker.SelectedDate.Value;
-            _selectedOrder.ДатаОкончания = EditEndDatePicker.SelectedDate.Value;
-            _selectedOrder.КодКлиента = (int)EditClientDropdown.SelectedValue;
-            _selectedOrder.КодАвтомобиля = (int)EditCarDropdown.SelectedValue;
-
-            // Обновляем заказ в БД
-            _orderRepository.UpdateOrder(_selectedOrder);
-
-            // Переключаемся обратно на список заказов
-            OrderDetailsPanel.Visibility = Visibility.Collapsed;
-            OrdersListPanel.Visibility = Visibility.Visible;
-
-            // Обновляем список заказов
-            LoadOrders();
-        }
 
 
         /* - - - Работы - - - */
+        private void ShowWorks_Click(object sender, RoutedEventArgs e)
+        {
+            if (((Button)sender).DataContext is OrderWithInfo selectedOrder)
+            {
+                // Сохраняем текущий заказ
+                _selectedOrder = selectedOrder;
+
+                // Загружаем работы по заказу
+                LoadWorks(selectedOrder.Код);
+
+                WorkHeader.Text = $"Работы по заказу: \nКлиент: {selectedOrder.ФамилияКлиента}, \nАвто: {selectedOrder.НомернойЗнакАвтомобиля}, \nДаты: {selectedOrder.ДатаНачала:dd.MM.yyyy} - {selectedOrder.ДатаОкончания:dd.MM.yyyy}";
+
+                OrdersPanel.Visibility = Visibility.Collapsed;
+                WorksPanel.Visibility = Visibility.Visible;
+            }
+        }
+
         private void WorksListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (WorksListBox.SelectedItem is WorkWithInfo selectedWork)
@@ -349,26 +330,34 @@ namespace AutoserviceApp.Views
         {
             if (((Button)sender).DataContext is WorkWithInfo selectedWork)
             {
-                // Подтверждение удаления
-                var result = MessageBox.Show($"Вы уверены, что хотите удалить работу '{selectedWork.Описание}'?",
-                                             "Подтверждение удаления",
-                                             MessageBoxButton.YesNo,
-                                             MessageBoxImage.Warning);
+                // Проверяем, есть ли у работы жалобы или детали
+                bool hasComplaints = _complaintRepository.GetComplaintsByWorkId(selectedWork.Код).Any();
+                bool hasWorkDetails = _workDetailRepository.GetAllWorkDetails().Any(d => d.КодРаботы == selectedWork.Код);
 
-                if (result == MessageBoxResult.Yes)
+                if (hasComplaints || hasWorkDetails)
                 {
-                    try
-                    {
-                        _workRepository.DeleteWork(selectedWork.Код);
-                        LoadWorks(_selectedOrder.Код);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
+                    var result = MessageBox.Show(
+                        "Эта работа содержит жалобы или детали. Все связанные данные будут удалены.\nВы уверены, что хотите удалить её?",
+                        "Подтверждение удаления",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning);
+
+                    if (result != MessageBoxResult.Yes) return;
+                }
+
+                try
+                {
+                    _workRepository.DeleteWork(selectedWork.Код);
+                    MessageBox.Show("Работа успешно удалена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LoadWorks(_selectedOrder.Код);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
+
 
 
         /* - - - ДетальРаботы - - - */
@@ -390,8 +379,10 @@ namespace AutoserviceApp.Views
                 // Загружаем детали работы
                 LoadWorkDetails(selectedWork.Код);
 
+                WorkDetailsHeader.Text = $"Детали работы: \nОписание: {selectedWork.Описание} \nАвто: {_selectedOrder.НомернойЗнакАвтомобиля}, \nКлиент: {_selectedOrder.ФамилияКлиента}";
+
                 // Показываем вкладку "Детали работы"
-                OrderDetailsPanel.Visibility = Visibility.Collapsed;
+                WorksPanel.Visibility = Visibility.Collapsed;
                 WorkDetailsPanel.Visibility = Visibility.Visible;
             }
         }
@@ -450,10 +441,6 @@ namespace AutoserviceApp.Views
                 _workDetailRepository.DeleteWorkDetail(selectedWorkDetailWithDetailAmount.Код);
                 LoadWorkDetails(_selectedWork.Код);
             }
-            else
-            {
-                MessageBox.Show($"работа: {_selectedWork.Код}, выбрано: ???");
-            }
         }
 
 
@@ -477,9 +464,11 @@ namespace AutoserviceApp.Views
                 // Загружаем жалобы по работе
                 LoadComplaints(selectedWork.Код);
 
+                ComplaintsHeader.Text = $"Жалобы по работе: \n{selectedWork.Описание} \nКлиент: {_selectedOrder.ФамилияКлиента}";
+
                 // Показываем вкладку "Жалобы по работе"
-                OrderDetailsPanel.Visibility = Visibility.Collapsed;
-                ComplaintDetailsPanel.Visibility = Visibility.Visible;
+                WorksPanel.Visibility = Visibility.Collapsed;
+                ComplaintsPanel.Visibility = Visibility.Visible;
             }
         }
 
@@ -533,18 +522,19 @@ namespace AutoserviceApp.Views
 
 
         /* - - - - - - - */
-        private void BackToOrderDetails_Click(object sender, RoutedEventArgs e)
+        private void BackToWorks_Click(object sender, RoutedEventArgs e)
         {
-            // Возвращаемся к списку ДеталейРаботы
+            OrdersPanel.Visibility = Visibility.Collapsed;
             WorkDetailsPanel.Visibility = Visibility.Collapsed;
-            ComplaintDetailsPanel.Visibility = Visibility.Collapsed;
-            OrderDetailsPanel.Visibility = Visibility.Visible;
+            ComplaintsPanel.Visibility = Visibility.Collapsed;
+            WorksPanel.Visibility = Visibility.Visible;
         }
         private void BackToOrders_Click(object sender, RoutedEventArgs e)
         {
-            // Возвращаемся к списку заказов
-            OrderDetailsPanel.Visibility = Visibility.Collapsed;
-            OrdersListPanel.Visibility = Visibility.Visible;
+            WorksPanel.Visibility = Visibility.Collapsed;
+            WorkDetailsPanel.Visibility = Visibility.Collapsed;
+            ComplaintsPanel.Visibility = Visibility.Collapsed;
+            OrdersPanel.Visibility = Visibility.Visible;
         }
     }
 }

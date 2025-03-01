@@ -120,7 +120,6 @@ namespace AutoserviceApp.DataAccess.Repositories
                     });
                 }
 
-                //MessageBox.Show($"Found {complaints.Count} complaints for WorkId {workId}");
             }
 
             return complaints;
