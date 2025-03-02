@@ -1,0 +1,72 @@
+﻿<UserControl x:Class="AutoserviceApp.Views.ClientsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AutoserviceApp.Views"
+             mc:Ignorable="d"
+             Height="Auto" Width="Auto">
+
+        <Grid Background="#2c4055">
+            <StackPanel Margin="10">
+                <TextBlock Text="Список клиентов" Foreground="White" FontSize="20" FontWeight="Bold" Margin="10"/>
+
+                <StackPanel Orientation="Vertical" Margin="10">
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Имя:" Foreground="White" Width="100"/>
+                        <TextBox x:Name="ClientNameTextBox" Width="200"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Фамилия:" Foreground="White" Width="100"/>
+                        <TextBox x:Name="ClientSurnameTextBox" Width="200"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Телефон:" Foreground="White" Width="100"/>
+                        <TextBox x:Name="ClientPhoneTextBox" Width="200"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Адрес:" Foreground="White" Width="100"/>
+                        <TextBox x:Name="ClientAddressTextBox" Width="200"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,15,0,5">
+                        <Button Content="Добавить" Click="AddClient_Click" Style="{StaticResource AddButton}" Width="150"/>
+                        <Button Content="Изменить" Click="EditClient_Click" Style="{StaticResource EditButton}" Width="150"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Таблица клиентов -->
+                <Border Background="#aad413" Padding="5" Margin="5, 0, 5, 0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="    Имя:" Width="132" FontWeight="Bold" Foreground="Black"/>
+                        <TextBlock Text="Фамилия:" Width="120" FontWeight="Bold" Foreground="Black"/>
+                        <TextBlock Text="Телефон:" Width="140" FontWeight="Bold" Foreground="Black"/>
+                        <TextBlock Text="Адрес:" Width="250" FontWeight="Bold" Foreground="Black"/>
+                        <TextBlock Text="Действия:" Width="120" FontWeight="Bold" Foreground="Black"/>
+                    </StackPanel>
+                </Border>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="410" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+                    <ListBox x:Name="ClientsListBox" Background="#2c4055" SelectionMode="Single"
+                         SelectionChanged="ClientsListBox_SelectionChanged" Margin="5, 0, 5, 0"
+                         MinWidth="350">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" Padding="8, 3, 0, 3" Margin="5">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Имя}" Width="120" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Фамилия}" Width="120" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Телефон}" Width="140" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Адрес}" Width="250" VerticalAlignment="Center"/>
+                                        <Button Content="Удалить" Style="{StaticResource DeleteButton}" Click="DeleteClient_Click"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </ScrollViewer>
+            </StackPanel>
+        </Grid>
+    </UserControl>

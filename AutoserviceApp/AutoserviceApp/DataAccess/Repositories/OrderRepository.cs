@@ -105,8 +105,6 @@ namespace AutoserviceApp.DataAccess.Repositories
             }
         }
 
-
-
         public Order GetOrderById(int orderId)
         {
             using (var connection = _context.GetConnection())
@@ -140,36 +138,6 @@ namespace AutoserviceApp.DataAccess.Repositories
                 command.Parameters.AddWithValue("@Код", orderId);
                 command.ExecuteNonQuery();
             }
-        }
-
-        private void SafeDeleteOrder(int orderId)
-        {
-            //try
-            //{
-            //    var works = _workRepository.GetAllWorks().Where(w => w.КодЗаказа == orderId).ToList();
-
-            //    foreach (var work in works)
-            //    {
-            //        // Удаляем жалобы, связанные с работами
-            //        _complaintRepository.DeleteComplaintsByWorkId(work.Код);
-
-            //        // Удаляем детали работ
-            //        _workDetailRepository.DeleteWorkDetailsByWorkId(work.Код);
-            //    }
-
-            //    // Удаляем сами работы
-            //    _workRepository.DeleteWorksByOrderId(orderId);
-
-            //    // Теперь можно удалить заказ
-            //    _orderRepository.DeleteOrder(orderId);
-
-            //    MessageBox.Show("Заказ и все связанные записи успешно удалены!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-            //    LoadOrders();
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            //}
         }
 
     }

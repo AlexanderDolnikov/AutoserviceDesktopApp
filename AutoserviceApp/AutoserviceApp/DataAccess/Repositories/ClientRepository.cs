@@ -71,5 +71,45 @@ namespace AutoserviceApp.DataAccess.Repositories
             }
             return null;
         }
+
+        public void AddClient(Client client)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("INSERT INTO Клиент (Имя, Фамилия, Телефон, Адрес) VALUES (@Имя, @Фамилия, @Телефон, @Адрес)", connection);
+                command.Parameters.AddWithValue("@Имя", client.Имя);
+                command.Parameters.AddWithValue("@Фамилия", client.Фамилия);
+                command.Parameters.AddWithValue("@Телефон", client.Телефон);
+                command.Parameters.AddWithValue("@Адрес", (object)client.Адрес ?? DBNull.Value);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void UpdateClient(Client client)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("UPDATE Клиент SET Имя = @Имя, Фамилия = @Фамилия, Телефон = @Телефон, Адрес = @Адрес WHERE Код = @Код", connection);
+                command.Parameters.AddWithValue("@Код", client.Код);
+                command.Parameters.AddWithValue("@Имя", client.Имя);
+                command.Parameters.AddWithValue("@Фамилия", client.Фамилия);
+                command.Parameters.AddWithValue("@Телефон", client.Телефон);
+                command.Parameters.AddWithValue("@Адрес", (object)client.Адрес ?? DBNull.Value);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteClient(int clientId)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("DELETE FROM Клиент WHERE Код = @Код", connection);
+                command.Parameters.AddWithValue("@Код", clientId);
+                command.ExecuteNonQuery();
+            }
+        }
     }
 }

@@ -36,29 +36,24 @@ namespace AutoserviceApp.ViewModels
             }
         }
         public ObservableCollection<User> Users { get; set; }
-
-
         public Dictionary<string, Func<UserControl>> ViewMappings { get; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+
         public MainViewModel()
         {
             ViewMappings = new Dictionary<string, Func<UserControl>>
-            {
+            {                
                 { "Заказы", () => new Views.OrdersView() },
-                { "Работы", () => new Views.WorksView() },
-                { "Жалобы", () => new Views.ComplaintsView() },
-                { "Мастера", () => new Views.MastersView() },
+                { "Модели", () => new Views.ModelsView() },
+                { "Автомобили", () => new Views.CarsView() },
+                { "Клиенты", () => new Views.ClientsView() },
                 { "Детали", () => new Views.DetailsView() },
+                { "Мастера", () => new Views.MastersView() },
+                { "Виды работ", () => new Views.WorkTypesView() },
                 { "Пользователи", () => new Views.UsersView() }
             };
-
-            // Открываем первую вкладку по умолчанию
-            if (ViewMappings.Any())
-            {
-                CurrentView = ViewMappings.First().Value();
-            }
         }
 
         public void SwitchView(string viewName)

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using AutoserviceApp.Models;
 using AutoserviceApp.DataAccess;
+using System.Windows;
 
 namespace AutoserviceApp.DataAccess.Repositories
 {
@@ -64,6 +65,48 @@ namespace AutoserviceApp.DataAccess.Repositories
             }
         }
 
+        public void AddMaster(Master master)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("INSERT INTO Мастер (Имя, Фамилия, Телефон, Специализация) VALUES (@Имя, @Фамилия, @Телефон, @Специализация)", connection);
+
+                command.Parameters.AddWithValue("@Имя", master.Имя);
+                command.Parameters.AddWithValue("@Фамилия", master.Фамилия);
+                command.Parameters.AddWithValue("@Телефон", master.Телефон ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Специализация", master.Специализация ?? (object)DBNull.Value);
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void UpdateMaster(Master master)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("UPDATE Мастер SET Имя = @Имя, Фамилия = @Фамилия, Телефон = @Телефон, Специализация = @Специализация WHERE Код = @Код", connection);
+
+                command.Parameters.AddWithValue("@Код", master.Код);
+                command.Parameters.AddWithValue("@Имя", master.Имя);
+                command.Parameters.AddWithValue("@Фамилия", master.Фамилия);
+                command.Parameters.AddWithValue("@Телефон", master.Телефон ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@Специализация", master.Специализация ?? (object)DBNull.Value);
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteMaster(int masterId)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("DELETE FROM Мастер WHERE Код = @Код", connection);
+                command.Parameters.AddWithValue("@Код", masterId);
+                command.ExecuteNonQuery();
+            }
+        }
     }
 }
-

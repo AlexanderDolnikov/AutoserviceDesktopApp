@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data.SqlClient;
 using AutoserviceApp.Models;
 using AutoserviceApp.DataAccess;
@@ -27,7 +21,6 @@ namespace AutoserviceApp.DataAccess.Repositories
             using (var connection = _context.GetConnection())
             {
                 connection.Open();
-
                 var command = new SqlCommand("SELECT * FROM Автомобиль", connection);
                 var reader = command.ExecuteReader();
 
@@ -43,6 +36,44 @@ namespace AutoserviceApp.DataAccess.Repositories
                 }
             }
             return cars;
+        }
+
+        public void AddCar(Car car)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("INSERT INTO Автомобиль (КодМодели, НомернойЗнак, ГодВыпуска) VALUES (@КодМодели, @НомернойЗнак, @ГодВыпуска)", connection);
+                command.Parameters.AddWithValue("@КодМодели", car.КодМодели);
+                command.Parameters.AddWithValue("@НомернойЗнак", car.НомернойЗнак);
+                command.Parameters.AddWithValue("@ГодВыпуска", car.ГодВыпуска);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void UpdateCar(Car car)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("UPDATE Автомобиль SET КодМодели = @КодМодели, НомернойЗнак = @НомернойЗнак, ГодВыпуска = @ГодВыпуска WHERE Код = @Код", connection);
+                command.Parameters.AddWithValue("@КодМодели", car.КодМодели);
+                command.Parameters.AddWithValue("@НомернойЗнак", car.НомернойЗнак);
+                command.Parameters.AddWithValue("@ГодВыпуска", car.ГодВыпуска);
+                command.Parameters.AddWithValue("@Код", car.Код);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteCar(int carId)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("DELETE FROM Автомобиль WHERE Код = @Код", connection);
+                command.Parameters.AddWithValue("@Код", carId);
+                command.ExecuteNonQuery();
+            }
         }
 
         public Car GetCarById(int carId)

@@ -7,29 +7,59 @@
              mc:Ignorable="d"
              Height="Auto" Width="Auto">
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Grid Background="#2c4055">
+        <StackPanel Margin="10">
+            <TextBlock Text="Список пользователей" Foreground="White" FontSize="20" FontWeight="Bold" Margin="10"/>
 
-        <StackPanel Orientation="Horizontal" Margin="10">
-            <TextBox x:Name="UserLoginInput" Width="150"/>
-            <PasswordBox x:Name="UserPasswordInput" Width="150"/>
-            <ComboBox x:Name="UserRoleInput" Width="150">
-                <ComboBoxItem Content="Администратор"/>
-                <ComboBoxItem Content="Сотрудник"/>
-            </ComboBox>
-            <Button Content="Добавить" Click="AddUser_Click"/>
+            <StackPanel Orientation="Vertical" Margin="10">
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Логин:" Foreground="White" Width="120"/>
+                    <TextBox x:Name="UserLoginInput" Width="200"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Пароль:" Foreground="White" Width="120"/>
+                    <PasswordBox x:Name="UserPasswordInput" Width="200"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,5">
+                    <TextBlock Text="Роль:" Foreground="White" Width="120"/>
+                    <ComboBox x:Name="UserRoleInput" Width="200">
+                        <ComboBoxItem Content="Администратор"/>
+                        <ComboBoxItem Content="Сотрудник"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,15,0,5">
+                    <Button Content="Добавить" Click="AddUser_Click" Style="{StaticResource AddButton}" Width="150"/>
+                    <Button Content="Изменить" Click="EditUser_Click" Style="{StaticResource EditButton}" Width="150"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Таблица пользователей -->
+            <Border Background="#aad413" Padding="5" Margin="5, 0, 5, 0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="    Логин:" Width="165" FontWeight="Bold" Foreground="Black"/>
+                    <TextBlock Text="Роль:" Width="150" FontWeight="Bold" Foreground="Black"/>
+                    <TextBlock Text="Действия:" Width="120" FontWeight="Bold" Foreground="Black"/>
+                </StackPanel>
+            </Border>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="430" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+                <ListBox x:Name="UsersListBox" Background="#2c4055" SelectionMode="Single"
+                         SelectionChanged="UsersListBox_SelectionChanged" Margin="5, 0, 5, 0" MinWidth="350">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="White" Padding="8, 3, 0, 3" Margin="5">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Login}" Width="150" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Role}" Width="150" VerticalAlignment="Center"/>
+                                    <Button Content="Удалить" Style="{StaticResource DeleteButton}" Click="DeleteUser_Click"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </ScrollViewer>
         </StackPanel>
-
-        <ListView Grid.Row="1" ItemsSource="{Binding Users}">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Логин" DisplayMemberBinding="{Binding Login}" Width="150"/>
-                    <GridViewColumn Header="Роль" DisplayMemberBinding="{Binding Role}" Width="150"/>
-                </GridView>
-            </ListView.View>
-        </ListView>
     </Grid>
 </UserControl>

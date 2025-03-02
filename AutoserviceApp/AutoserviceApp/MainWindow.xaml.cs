@@ -64,19 +64,20 @@ namespace AutoserviceApp
             } 
         }
 
-        private void ShowOrders_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Заказы");
-        private void ShowWorks_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Работы");
-        private void ShowComplaints_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Жалобы");
-        private void ShowMasters_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Мастера");
+        private void ShowModels_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Модели");
+        private void ShowCars_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Автомобили");
+        private void ShowClients_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Клиенты");
         private void ShowDetails_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Детали");
+        private void ShowMasters_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Мастера");
+        private void ShowWorkTypes_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Виды работ");
+        private void ShowOrders_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Заказы");
         private void ShowUsers_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Пользователи");
-
 
 
         private readonly Dictionary<string, List<string>> roleTabs = new Dictionary<string, List<string>>
         {
-            { "Сотрудник", new List<string> { "Клиенты", "Автомобили", "Модели", "Мастера", "Виды работ", "Детали", "Заказы" } },
-            { "Администратор", new List<string> { "Клиенты", "Автомобили", "Модели", "Мастера", "Виды работ", "Детали", "Заказы", "Пользователи" } }
+            { "Сотрудник", new List<string> { "Модели", "Автомобили", "Клиенты", "Детали", "Мастера", "Виды работ", "Заказы" } },
+            { "Администратор", new List<string> { "Модели", "Автомобили", "Клиенты", "Детали", "Мастера", "Виды работ", "Заказы", "Пользователи" } }
         };
 
         private void ApplyRoleRestrictions()
@@ -92,12 +93,7 @@ namespace AutoserviceApp
                 button.Visibility = allowedTabs.Contains(button.Content.ToString()) ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            // Дополнительно скрываем кнопки редактирования мастеров для сотрудников
-            //if (_currentUser.Role == "Сотрудник")
-            //{
-            //    ShowUsersButton.Visibility = Visibility.Collapsed; // Прячем кнопку "Пользователи"
-            //}
-
+            ShowOrders_Click(this, null);
             ShowWelcomeScreen(this, null);
         }
 
@@ -108,6 +104,7 @@ namespace AutoserviceApp
                 this.DragMove();
             }
         }
+        
         private void ConfigWelcomeScreen()
         {
             string roleDescription = _currentUser.Role switch
@@ -122,14 +119,12 @@ namespace AutoserviceApp
                                $"Вы вошли как: {_currentUser.Role}.\n\n" +
                                $"Вам доступен следующий функционал:\n{roleDescription}";
         }
-
         private void ShowWelcomeScreen(object sender, RoutedEventArgs? e)
         {
             ConfigWelcomeScreen();
             MainContent.Visibility = Visibility.Collapsed;
             WelcomeScreen.Visibility = Visibility.Visible;
         }
-
         private void CloseWelcomeScreen_Click(object sender, RoutedEventArgs e)
         {
             WelcomeScreen.Visibility = Visibility.Collapsed;

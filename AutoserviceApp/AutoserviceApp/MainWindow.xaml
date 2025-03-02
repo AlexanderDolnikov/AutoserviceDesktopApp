@@ -66,12 +66,15 @@
             <!-- Левое меню -->
             <StackPanel Name="MenuPanel" DockPanel.Dock="Left" Background="#2c4055" Width="150">
                 <Button Content="Заказы" Click="ShowOrders_Click" Style="{StaticResource LeftMenuButtonStyle}"/>
-                <Button Content="Работы" Click="ShowWorks_Click" Style="{StaticResource LeftMenuButtonStyle}"/>
-                <Button Content="Жалобы" Click="ShowComplaints_Click" Style="{StaticResource LeftMenuButtonStyle}"/>
+                
+                <Button Content="Модели" Click="ShowModels_Click" Style="{StaticResource LeftMenuButtonStyle}"/>
+                <Button Content="Автомобили" Click="ShowCars_Click" Style="{StaticResource LeftMenuButtonStyle}"/>
+                <Button Content="Клиенты" Click="ShowClients_Click" Style="{StaticResource LeftMenuButtonStyle}"/>
                 <Button Content="Мастера" Click="ShowMasters_Click" Style="{StaticResource LeftMenuButtonStyle}"/>
+                <Button Content="Виды работ" Click="ShowWorkTypes_Click" Style="{StaticResource LeftMenuButtonStyle}"/>
                 <Button Content="Детали" Click="ShowDetails_Click" Style="{StaticResource LeftMenuButtonStyle}"/>
+                
                 <Button Content="Пользователи" Click="ShowUsers_Click" Style="{StaticResource LeftMenuButtonStyle}"/>
-                <!--Name="ShowUsersButton" -->
             </StackPanel>
 
             <!-- Динамическое отображение таблиц -->

@@ -60,5 +60,39 @@ namespace AutoserviceApp.DataAccess.Repositories
             }
         }
 
+        public void AddWorkType(WorkType workType)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("INSERT INTO ВидРаботы (Название) VALUES (@Название)", connection);
+                command.Parameters.AddWithValue("@Название", workType.Название);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void UpdateWorkType(WorkType workType)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("UPDATE ВидРаботы SET Название = @Название WHERE Код = @Код", connection);
+                command.Parameters.AddWithValue("@Код", workType.Код);
+                command.Parameters.AddWithValue("@Название", workType.Название);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteWorkType(int workTypeId)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+
+                var command = new SqlCommand("DELETE FROM ВидРаботы WHERE Код = @Код", connection);
+                command.Parameters.AddWithValue("@Код", workTypeId);
+                command.ExecuteNonQuery();
+            }
+        }
     }
 }
