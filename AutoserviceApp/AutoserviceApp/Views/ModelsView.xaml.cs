@@ -15,17 +15,20 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using AutoserviceApp.Interfaces;
+using AutoserviceApp.Helpers;
 
 
 namespace AutoserviceApp.Views
 {
-    public partial class ModelsView : UserControl
+    public partial class ModelsView : UserControl, IRefreshable
     {
         private readonly DatabaseContext _context;
         private readonly ModelRepository _modelRepository;
         private readonly CarRepository _carRepository;
         private List<Model> _models;
         private Model _selectedModel;
+        private int _selectedModelIndex;
 
         public ModelsView()
         {
@@ -37,16 +40,19 @@ namespace AutoserviceApp.Views
             LoadModels();
         }
 
+        public void RefreshData() => LoadModels();
+
         private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
-            ScrollViewer scrollViewer = sender as ScrollViewer;
-            if (scrollViewer != null)
-            {
-                scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta / 3);
-                e.Handled = true;
-            }
+            ScrollHelper.HandleMouseWheel(sender, e);
         }
 
+        private void SetFocusOnFirstInput(object sender = null, RoutedEventArgs? e = null)
+        {
+            ViewFocusHelper.SetFocusAndClearItemsValues(ModelNameTextBox);
+        }
+
+        /* - - - - - */
         private void LoadModels()
         {
             _models = _modelRepository.GetAllModels();
@@ -58,6 +64,8 @@ namespace AutoserviceApp.Views
             if (ModelsListBox.SelectedItem is Model selectedModel)
             {
                 _selectedModel = selectedModel;
+                _selectedModelIndex = ModelsListBox.SelectedIndex;
+
                 ModelNameTextBox.Text = selectedModel.Название;
             }
         }
@@ -75,9 +83,24 @@ namespace AutoserviceApp.Views
                 Название = ModelNameTextBox.Text.Trim()
             };
 
-            _modelRepository.AddModel(newModel);
-            LoadModels();
-            ModelNameTextBox.Clear();
+            try
+            {
+                _modelRepository.AddModel(newModel);
+                LoadModels();
+
+                SetFocusOnFirstInput();
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.StartsWith("Violation of UNIQUE KEY constraint 'UQ__Модель"))
+                {
+                    MessageBox.Show($"Ошибка: Такая модель уже существует!");
+                }
+                else
+                {
+                    MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private void EditModel_Click(object sender, RoutedEventArgs e)
@@ -91,8 +114,25 @@ namespace AutoserviceApp.Views
             }
 
             _selectedModel.Название = ModelNameTextBox.Text.Trim();
-            _modelRepository.UpdateModel(_selectedModel);
-            LoadModels();
+            
+            try
+            {
+                _modelRepository.UpdateModel(_selectedModel);
+                LoadModels();
+
+                ModelsListBox.SelectedIndex = _selectedModelIndex;
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.StartsWith("Violation of UNIQUE KEY constraint 'UQ__Модель"))
+                {
+                    MessageBox.Show($"Ошибка: Такая модель уже существует!");
+                }
+                else
+                {
+                    MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private void DeleteModel_Click(object sender, RoutedEventArgs e)
@@ -115,6 +155,8 @@ namespace AutoserviceApp.Views
 
                 _modelRepository.DeleteModel(selectedModel.Код);
                 LoadModels();
+
+                SetFocusOnFirstInput();
             }
         }
 

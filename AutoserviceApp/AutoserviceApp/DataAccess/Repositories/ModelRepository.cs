@@ -27,7 +27,7 @@ namespace AutoserviceApp.DataAccess.Repositories
             using (var connection = _context.GetConnection())
             {
                 connection.Open();
-                var command = new SqlCommand("SELECT * FROM Модель", connection);
+                var command = new SqlCommand("SELECT * FROM Модель ORDER BY Название", connection);
                 var reader = command.ExecuteReader();
 
                 while (reader.Read())

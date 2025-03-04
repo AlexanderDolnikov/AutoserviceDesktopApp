@@ -10,7 +10,7 @@
         <StackPanel Margin="10">
             <TextBlock Text="Список автомобилей" Foreground="White" FontSize="20" FontWeight="Bold" Margin="10"/>
 
-            <StackPanel Orientation="Vertical" Margin="10">
+            <StackPanel Orientation="Vertical" Margin="10" Loaded="SetFocusOnFirstInput">
                 <StackPanel Orientation="Horizontal" Margin="0,5">
                     <TextBlock Text="Модель:" Foreground="White" Width="100"/>
                     <ComboBox x:Name="ModelDropdown" DisplayMemberPath="Название" SelectedValuePath="Код" Width="200"/>
@@ -33,7 +33,7 @@
             </StackPanel>
 
             <!-- Таблица автомобилей -->
-            <Border Background="#aad413" Padding="5" Margin="5, 0, 5, 0">
+            <Border Background="#aad413" Padding="5" Margin="5, 0, 0, 0">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="    Модель:" Width="165" FontWeight="Bold" Foreground="Black"/>
                     <TextBlock Text="Номерной знак:" Width="150" FontWeight="Bold" Foreground="Black"/>
@@ -43,7 +43,7 @@
             </Border>
             <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="430" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
                 <ListBox x:Name="CarsListBox" Background="#2c4055" SelectionMode="Single"
-                         SelectionChanged="CarsListBox_SelectionChanged" Margin="5, 0, 5, 0">
+                         SelectionChanged="CarsListBox_SelectionChanged" Margin="5, 0, 0, 0">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Border Background="White" Padding="8, 3, 0, 3" Margin="5">

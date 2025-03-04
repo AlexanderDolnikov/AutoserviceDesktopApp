@@ -26,7 +26,7 @@ namespace AutoserviceApp.DataAccess.Repositories
             {
                 connection.Open();
 
-                var command = new SqlCommand("SELECT * FROM Заказ", connection);
+                var command = new SqlCommand("SELECT * FROM Заказ ORDER BY ДатаНачала DESC", connection);
                 var reader = command.ExecuteReader();
 
                 while (reader.Read())

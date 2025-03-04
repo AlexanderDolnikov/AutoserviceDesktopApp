@@ -16,6 +16,8 @@ using System.Windows;
 using AutoserviceApp.DataAccess.Repositories;
 using AutoserviceApp.DataAccess;
 using AutoserviceApp.Models;
+using AutoserviceApp.Interfaces;
+using AutoserviceApp.Helpers;
 
 namespace AutoserviceApp
 {
@@ -24,19 +26,26 @@ namespace AutoserviceApp
         private readonly UserRepository _userRepository;
         public User CurrentUser { get; private set; }
 
+        public LoginWindow()
+        {
+            InitializeComponent();
+            var context = new DatabaseContext();
+            _userRepository = new UserRepository(context);
+        }
+
+        private void SetFocusOnFirstInput(object sender = null, RoutedEventArgs? e = null)
+        {
+            //ViewFocusHelper.SetFocusAndClearItemsValues(LoginInput, PasswordInput);
+        }
+
+        /* - - - - - */
+
         private void PasswordInput_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
                 Login_Click(sender, e);
             }
-        }
-
-        public LoginWindow()
-        {
-            InitializeComponent();
-            var context = new DatabaseContext();
-            _userRepository = new UserRepository(context);
         }
 
         private void Login_Click(object sender, RoutedEventArgs e)
@@ -67,20 +76,6 @@ namespace AutoserviceApp
                 MessageBox.Show("Пользователь не найден");
             }
         }
-
-        private void WorkerLogin_Click(object sender, RoutedEventArgs e)
-        {
-            CurrentUser = new User
-            {
-                Id = 0,
-                Login = "worker",
-                Role = "Сотрудник"
-            };
-
-            DialogResult = true;
-            Close();
-        }
-
     }
 }
 

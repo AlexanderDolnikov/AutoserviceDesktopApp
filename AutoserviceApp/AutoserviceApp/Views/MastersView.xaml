@@ -10,7 +10,7 @@
         <StackPanel Margin="10">
             <TextBlock Text="Список мастеров" Foreground="White" FontSize="20" FontWeight="Bold" Margin="10"/>
 
-            <StackPanel Orientation="Vertical" Margin="10">
+            <StackPanel Orientation="Vertical" Margin="10" Loaded="SetFocusOnFirstInput">
                 <StackPanel Orientation="Horizontal" Margin="0,5">
                     <TextBlock Text="Имя:" Foreground="White" Width="100"/>
                     <TextBox x:Name="MasterNameTextBox" Width="200"/>
@@ -38,7 +38,7 @@
             </StackPanel>
 
             <!-- Таблица мастеров -->
-            <Border Background="#aad413" Padding="5" Margin="5, 0, 5, 0">
+            <Border Background="#aad413" Padding="5" Margin="5, 0, 0, 0">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="    Имя:" Width="115" FontWeight="Bold" Foreground="Black"/>
                     <TextBlock Text="Фамилия:" Width="100" FontWeight="Bold" Foreground="Black"/>
@@ -49,7 +49,7 @@
             </Border>
             <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="410" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
                 <ListBox x:Name="MastersListBox" Background="#2c4055" SelectionMode="Single"
-                         SelectionChanged="MastersListBox_SelectionChanged" Margin="5, 0, 5, 0">
+                         SelectionChanged="MastersListBox_SelectionChanged" Margin="5, 0, 0, 0">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Border Background="White" Padding="8, 3, 0, 3" Margin="5">

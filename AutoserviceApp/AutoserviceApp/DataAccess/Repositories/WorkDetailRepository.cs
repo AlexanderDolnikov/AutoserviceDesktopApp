@@ -27,7 +27,7 @@ namespace AutoserviceApp.DataAccess.Repositories
             {
                 connection.Open();
 
-                var command = new SqlCommand("SELECT * FROM ДетальРаботы", connection);
+                var command = new SqlCommand("SELECT * FROM ДетальРаботы ORDER BY Количество DESC", connection);
                 var reader = command.ExecuteReader();
 
                 while (reader.Read())

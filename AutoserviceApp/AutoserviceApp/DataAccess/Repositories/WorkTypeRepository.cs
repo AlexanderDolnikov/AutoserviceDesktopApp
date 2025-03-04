@@ -24,7 +24,7 @@ namespace AutoserviceApp.DataAccess.Repositories
 
             using (var connection = _context.GetConnection())
             {
-                string query = "SELECT Код, Название FROM ВидРаботы";
+                string query = "SELECT * FROM ВидРаботы ORDER BY Название";
                 using (var command = new SqlCommand(query, connection))
                 {
                     connection.Open();

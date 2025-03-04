@@ -17,18 +17,19 @@ using AutoserviceApp.Models;
 using AutoserviceApp.DataAccess.Repositories;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
+using AutoserviceApp.Interfaces;
+using AutoserviceApp.Helpers;
 
 namespace AutoserviceApp.Views
 {
-    public partial class WorkTypesView : UserControl
+    public partial class WorkTypesView : UserControl, IRefreshable
     {
         private readonly DatabaseContext _context;
         private readonly WorkTypeRepository _workTypeRepository;
         private readonly WorkRepository _workRepository;
         private List<WorkType> _workTypes;
         private WorkType _selectedWorkType;
+        private int _selectedWorkTypeIndex;
 
         public WorkTypesView()
         {
@@ -40,15 +41,19 @@ namespace AutoserviceApp.Views
             LoadWorkTypes();
         }
 
+        public void RefreshData() => LoadWorkTypes();
+
         private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
-            ScrollViewer scrollViewer = sender as ScrollViewer;
-            if (scrollViewer != null)
-            {
-                scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta / 3);
-                e.Handled = true;
-            }
+            ScrollHelper.HandleMouseWheel(sender, e);
         }
+
+        private void SetFocusOnFirstInput(object sender = null, RoutedEventArgs? e = null)
+        {
+            ViewFocusHelper.SetFocusAndClearItemsValues(WorkTypeNameTextBox);
+        }
+
+        /* - - - - - */
 
         private void LoadWorkTypes()
         {
@@ -61,6 +66,8 @@ namespace AutoserviceApp.Views
             if (WorkTypesListBox.SelectedItem is WorkType selectedWorkType)
             {
                 _selectedWorkType = selectedWorkType;
+                _selectedWorkTypeIndex = WorkTypesListBox.SelectedIndex;
+
                 WorkTypeNameTextBox.Text = selectedWorkType.Название;
             }
         }
@@ -80,7 +87,8 @@ namespace AutoserviceApp.Views
 
             _workTypeRepository.AddWorkType(newWorkType);
             LoadWorkTypes();
-            WorkTypeNameTextBox.Clear();
+
+            SetFocusOnFirstInput();
         }
 
         private void EditWorkType_Click(object sender, RoutedEventArgs e)
@@ -90,6 +98,8 @@ namespace AutoserviceApp.Views
             _selectedWorkType.Название = WorkTypeNameTextBox.Text.Trim();
             _workTypeRepository.UpdateWorkType(_selectedWorkType);
             LoadWorkTypes();
+
+            WorkTypesListBox.SelectedIndex = _selectedWorkTypeIndex;
         }
 
         private void DeleteWorkType_Click(object sender, RoutedEventArgs e)
@@ -111,6 +121,8 @@ namespace AutoserviceApp.Views
 
                 _workTypeRepository.DeleteWorkType(selectedWorkType.Код);
                 LoadWorkTypes();
+
+                SetFocusOnFirstInput();
             }
         }
     }

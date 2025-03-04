@@ -21,7 +21,7 @@ namespace AutoserviceApp.DataAccess.Repositories
             using (var connection = _context.GetConnection())
             {
                 connection.Open();
-                var command = new SqlCommand("SELECT * FROM Автомобиль", connection);
+                var command = new SqlCommand("SELECT * FROM Автомобиль ORDER BY НомернойЗнак", connection);
                 var reader = command.ExecuteReader();
 
                 while (reader.Read())

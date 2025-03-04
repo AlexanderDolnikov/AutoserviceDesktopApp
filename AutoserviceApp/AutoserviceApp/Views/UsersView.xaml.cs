@@ -8,6 +8,7 @@ using AutoserviceApp.Interfaces;
 using AutoserviceApp.DataAccess.Repositories;
 using AutoserviceApp.DataAccess;
 using DocumentFormat.OpenXml.InkML;
+using AutoserviceApp.Helpers;
 
 namespace AutoserviceApp.Views
 {
@@ -16,6 +17,7 @@ namespace AutoserviceApp.Views
         private readonly UserRepository _userRepository;
         private readonly DatabaseContext _context;
         private User _selectedUser;
+        private int _selectedUserIndex;
 
         public UsersView()
         {
@@ -28,17 +30,17 @@ namespace AutoserviceApp.Views
         {
             LoadUsers();
         }
-
         private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
-            ScrollViewer scrollViewer = sender as ScrollViewer;
-            if (scrollViewer != null)
-            {
-                scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta / 3);
-                e.Handled = true;
-            }
+            ScrollHelper.HandleMouseWheel(sender, e);
         }
 
+        private void SetFocusOnFirstInput(object sender = null, RoutedEventArgs? e = null)
+        {
+            ViewFocusHelper.SetFocusAndClearItemsValues(UserLoginInput, UserPasswordInput, UserRoleDropdown);
+        }
+
+        /* - - - - - */
         private void LoadUsers()
         {
             UsersListBox.ItemsSource = _userRepository.GetAllUsers();
@@ -49,10 +51,10 @@ namespace AutoserviceApp.Views
             if (UsersListBox.SelectedItem is User selectedUser)
             {
                 _selectedUser = selectedUser;
+                _selectedUserIndex = UsersListBox.SelectedIndex;
+
                 UserLoginInput.Text = selectedUser.Login;
-                UserRoleInput.SelectedItem = UserRoleInput.Items
-                    .Cast<ComboBoxItem>()
-                    .FirstOrDefault(item => item.Content.ToString() == selectedUser.Role);
+                UserRoleDropdown.Text = selectedUser.Role;
             }
         }
 
@@ -60,7 +62,7 @@ namespace AutoserviceApp.Views
         {
             if (string.IsNullOrWhiteSpace(UserLoginInput.Text) ||
                 string.IsNullOrWhiteSpace(UserPasswordInput.Password) ||
-                UserRoleInput.SelectedItem == null)
+                UserRoleDropdown.SelectedItem == null)
             {
                 MessageBox.Show("Заполните все поля!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -68,7 +70,7 @@ namespace AutoserviceApp.Views
 
             string login = UserLoginInput.Text.Trim();
             string password = UserPasswordInput.Password;
-            string role = (UserRoleInput.SelectedItem as ComboBoxItem)?.Content.ToString();
+            string role = (UserRoleDropdown.SelectedItem as ComboBoxItem)?.Content.ToString();
 
             try
             {
@@ -76,9 +78,7 @@ namespace AutoserviceApp.Views
                 LoadUsers();
                 MessageBox.Show("Пользователь успешно добавлен!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                //UserLoginInput.Clear();
-                UserPasswordInput.Clear();
-                //UserRoleInput.SelectedIndex = -1;
+                SetFocusOnFirstInput();
             }
             catch (Exception ex)
             {
@@ -101,8 +101,14 @@ namespace AutoserviceApp.Views
             }
 
             string newLogin = UserLoginInput.Text.Trim();
-            string newRole = (UserRoleInput.SelectedItem as ComboBoxItem)?.Content.ToString();
+            string newRole = (UserRoleDropdown.SelectedItem as ComboBoxItem)?.Content.ToString();
             string newPassword = UserPasswordInput.Password;
+
+            if (newLogin is null || newRole is null || newPassword is null)
+            {
+                MessageBox.Show("Заполните все поля!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             try
             {
@@ -116,6 +122,10 @@ namespace AutoserviceApp.Views
             _userRepository.UpdateUserPassword(_selectedUser.Id, newPassword);
 
             LoadUsers();
+
+            UsersListBox.SelectedIndex = _selectedUserIndex;
+            UsersListBox.Focus();
+
             MessageBox.Show("Данные пользователя обновлены!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -136,6 +146,8 @@ namespace AutoserviceApp.Views
                 LoadUsers();
                 MessageBox.Show("Пользователь удален!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }
+
+            SetFocusOnFirstInput();
         }
     }
 }

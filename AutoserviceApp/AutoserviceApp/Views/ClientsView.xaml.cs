@@ -19,16 +19,19 @@ using System.Windows.Controls;
 using AutoserviceApp.DataAccess;
 using AutoserviceApp.Models;
 using AutoserviceApp.DataAccess.Repositories;
+using AutoserviceApp.Interfaces;
+using AutoserviceApp.Helpers;
 
 namespace AutoserviceApp.Views
 {
-    public partial class ClientsView : UserControl
+    public partial class ClientsView : UserControl, IRefreshable
     {
         private readonly DatabaseContext _context;
         private readonly ClientRepository _clientRepository;
         private readonly OrderRepository _orderRepository;
         private List<Client> _clients;
         private Client _selectedClient;
+        private int _selectedClientIndex;
 
         public ClientsView()
         {
@@ -40,15 +43,19 @@ namespace AutoserviceApp.Views
             LoadClients();
         }
 
+        public void RefreshData() => LoadClients();
+
         private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
-            ScrollViewer scrollViewer = sender as ScrollViewer;
-            if (scrollViewer != null)
-            {
-                scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta / 3);
-                e.Handled = true;
-            }
+            ScrollHelper.HandleMouseWheel(sender, e);
         }
+
+        private void SetFocusOnFirstInput(object sender = null, RoutedEventArgs? e = null)
+        {
+            ViewFocusHelper.SetFocusAndClearItemsValues(ClientNameTextBox, ClientSurnameTextBox, ClientPhoneTextBox, ClientAddressTextBox);
+        }
+
+        /* - - - - - */
 
         private void LoadClients()
         {
@@ -61,6 +68,8 @@ namespace AutoserviceApp.Views
             if (ClientsListBox.SelectedItem is Client selectedClient)
             {
                 _selectedClient = selectedClient;
+                _selectedClientIndex = ClientsListBox.SelectedIndex;
+
                 ClientNameTextBox.Text = selectedClient.Имя;
                 ClientSurnameTextBox.Text = selectedClient.Фамилия;
                 ClientPhoneTextBox.Text = selectedClient.Телефон;
@@ -88,10 +97,8 @@ namespace AutoserviceApp.Views
 
             _clientRepository.AddClient(newClient);
             LoadClients();
-            ClientNameTextBox.Clear();
-            ClientSurnameTextBox.Clear();
-            ClientPhoneTextBox.Clear();
-            ClientAddressTextBox.Clear();
+
+            SetFocusOnFirstInput();
         }
 
         private void EditClient_Click(object sender, RoutedEventArgs e)
@@ -105,6 +112,8 @@ namespace AutoserviceApp.Views
 
             _clientRepository.UpdateClient(_selectedClient);
             LoadClients();
+
+            ClientsListBox.SelectedIndex = _selectedClientIndex;
         }
 
         private void DeleteClient_Click(object sender, RoutedEventArgs e)
@@ -135,6 +144,8 @@ namespace AutoserviceApp.Views
                 {
                     MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+
+                SetFocusOnFirstInput();
             }
         }
     }

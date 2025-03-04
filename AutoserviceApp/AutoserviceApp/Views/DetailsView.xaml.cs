@@ -9,16 +9,18 @@ using System.Windows.Controls;
 using AutoserviceApp.DataAccess;
 using AutoserviceApp.Models;
 using AutoserviceApp.DataAccess.Repositories;
+using AutoserviceApp.Helpers;
 
 namespace AutoserviceApp.Views
 {
-    public partial class DetailsView : UserControl
+    public partial class DetailsView : UserControl, IRefreshable
     {
         private readonly DatabaseContext _context;
         private readonly DetailRepository _detailRepository;
         private readonly WorkDetailRepository _workDetailRepository;
         private List<Detail> _details;
         private Detail _selectedDetail;
+        private int _selectedDetailIndex;
 
         public DetailsView()
         {
@@ -30,15 +32,19 @@ namespace AutoserviceApp.Views
             LoadDetails();
         }
 
+        public void RefreshData() => LoadDetails();
+
         private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
-            ScrollViewer scrollViewer = sender as ScrollViewer;
-            if (scrollViewer != null)
-            {
-                scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta / 3);
-                e.Handled = true;
-            }
+            ScrollHelper.HandleMouseWheel(sender, e);
         }
+
+        private void SetFocusOnFirstInput(object sender = null, RoutedEventArgs? e = null)
+        {
+            ViewFocusHelper.SetFocusAndClearItemsValues(DetailNameTextBox, DetailCostTextBox, DetailManufacturerTextBox);
+        }
+
+        /* - - - - - */
 
         private void LoadDetails()
         {
@@ -51,6 +57,8 @@ namespace AutoserviceApp.Views
             if (DetailsListBox.SelectedItem is Detail selectedDetail)
             {
                 _selectedDetail = selectedDetail;
+                _selectedDetailIndex = DetailsListBox.SelectedIndex;
+
                 DetailNameTextBox.Text = selectedDetail.Название;
                 DetailCostTextBox.Text = selectedDetail.Стоимость.ToString();
                 DetailManufacturerTextBox.Text = selectedDetail.Производитель;
@@ -82,9 +90,8 @@ namespace AutoserviceApp.Views
 
             _detailRepository.AddDetail(newDetail);
             LoadDetails();
-            DetailNameTextBox.Clear();
-            DetailCostTextBox.Clear();
-            DetailManufacturerTextBox.Clear();
+
+            SetFocusOnFirstInput();
         }
 
         private void EditDetail_Click(object sender, RoutedEventArgs e)
@@ -103,6 +110,8 @@ namespace AutoserviceApp.Views
 
             _detailRepository.UpdateDetail(_selectedDetail);
             LoadDetails();
+
+            DetailsListBox.SelectedIndex = _selectedDetailIndex;
         }
 
         private void DeleteDetail_Click(object sender, RoutedEventArgs e)
@@ -133,6 +142,8 @@ namespace AutoserviceApp.Views
                 {
                     MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+
+                SetFocusOnFirstInput();
             }
         }
     }

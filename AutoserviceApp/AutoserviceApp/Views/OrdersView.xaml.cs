@@ -13,6 +13,7 @@ using DocumentFormat.OpenXml.ExtendedProperties;
 using DocumentFormat.OpenXml.Bibliography;
 using System.Reflection.PortableExecutable;
 using System.Windows.Input;
+using AutoserviceApp.Helpers;
 
 namespace AutoserviceApp.Views
 {
@@ -30,7 +31,9 @@ namespace AutoserviceApp.Views
         private readonly DatabaseContext _context;
         private List<Order> _orders;
         private OrderWithInfo _selectedOrder;
+        private int _selectedOrderIndex;
         private WorkWithInfo _selectedWork;
+        private int _selectedWorkIndex;
 
         public OrdersView()
         {
@@ -56,6 +59,15 @@ namespace AutoserviceApp.Views
         public void RefreshData()
         {
             LoadOrders();
+            LoadClients();
+            LoadCars();
+            LoadDetails();
+            LoadMasters();
+            LoadWorkTypes();
+        }
+        private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            ScrollHelper.HandleMouseWheel(sender, e);
         }
 
         private void LoadClients()
@@ -81,18 +93,6 @@ namespace AutoserviceApp.Views
             var workTypes = _workTypeRepository.GetAllWorkTypes();
             WorkTypeDropdown.ItemsSource = workTypes;
         }
-
-        private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            ScrollViewer scrollViewer = sender as ScrollViewer;
-            if (scrollViewer != null)
-            {
-                scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta / 3);
-                e.Handled = true;
-            }
-        }
-
-
 
         /* - - - Заказы - - - */
         private void LoadOrders()

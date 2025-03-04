@@ -53,7 +53,7 @@ namespace AutoserviceApp.DataAccess.Repositories
             {
                 connection.Open();
 
-                var command = new SqlCommand("SELECT * FROM Работа", connection);
+                var command = new SqlCommand("SELECT * FROM Работа ORDER BY Стоимость DESC", connection);
                 var reader = command.ExecuteReader();
 
                 while (reader.Read())

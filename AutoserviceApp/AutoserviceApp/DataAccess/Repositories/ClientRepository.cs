@@ -29,7 +29,7 @@ namespace AutoserviceApp.DataAccess.Repositories
             {
                 connection.Open();
 
-                var command = new SqlCommand("SELECT * FROM Клиент", connection);
+                var command = new SqlCommand("SELECT * FROM Клиент ORDER BY Фамилия", connection);
                 var reader = command.ExecuteReader();
 
                 while (reader.Read())

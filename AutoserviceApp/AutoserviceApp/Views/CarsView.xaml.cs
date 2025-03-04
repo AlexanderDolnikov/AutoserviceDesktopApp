@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using AutoserviceApp.DataAccess.Repositories;
 using AutoserviceApp.Models;
 using AutoserviceApp.DataAccess;
+using AutoserviceApp.Helpers;
 
 namespace AutoserviceApp.Views
 {
@@ -27,6 +28,7 @@ namespace AutoserviceApp.Views
         private readonly DatabaseContext _context;
         private List<CarWithInfo> _cars;
         private CarWithInfo _selectedCar;
+        private int _selectedCarIndex;
 
         public CarsView()
         {
@@ -40,19 +42,38 @@ namespace AutoserviceApp.Views
             LoadCars();
         }
 
+        public void RefreshData()
+        {
+            LoadModels();
+            LoadCars();
+        }
+
         private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
-            ScrollViewer scrollViewer = sender as ScrollViewer;
-            if (scrollViewer != null)
-            {
-                scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta / 3);
-                e.Handled = true;
-            }
-
+            ScrollHelper.HandleMouseWheel(sender, e);
         }
+
+        private void SetFocusOnFirstInput(object sender = null, RoutedEventArgs? e = null)
+        {
+            ViewFocusHelper.SetFocusAndClearItemsValues(ModelDropdown, CarNumberTextBox, CarYearTextBox);
+        }
+
+        /* - - - - - */
         private void LoadModels()
         {
             ModelDropdown.ItemsSource = _modelRepository.GetAllModels();
+        }
+        private void CarsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CarsListBox.SelectedItem is CarWithInfo selectedCar)
+            {
+                _selectedCar = selectedCar;
+                _selectedCarIndex = CarsListBox.SelectedIndex;
+
+                ModelDropdown.SelectedValue = selectedCar.КодМодели;
+                CarNumberTextBox.Text = selectedCar.НомернойЗнак;
+                CarYearTextBox.Text = selectedCar.ГодВыпуска.ToString();
+            }
         }
 
         private void LoadCars()
@@ -69,17 +90,6 @@ namespace AutoserviceApp.Views
                 .ToList();
 
             CarsListBox.ItemsSource = _cars;
-        }
-
-        private void CarsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (CarsListBox.SelectedItem is CarWithInfo selectedCar)
-            {
-                _selectedCar = selectedCar;
-                ModelDropdown.SelectedValue = selectedCar.КодМодели;
-                CarNumberTextBox.Text = selectedCar.НомернойЗнак;
-                CarYearTextBox.Text = selectedCar.ГодВыпуска.ToString();
-            }
         }
 
         private void AddCar_Click(object sender, RoutedEventArgs e)
@@ -103,8 +113,24 @@ namespace AutoserviceApp.Views
                 ГодВыпуска = int.Parse(CarYearTextBox.Text)
             };
 
-            _carRepository.AddCar(newCar);
-            LoadCars();
+            try
+            {
+                _carRepository.AddCar(newCar);
+                LoadCars();
+
+                SetFocusOnFirstInput();
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.StartsWith("Violation of UNIQUE KEY constraint 'UQ__Автомоби"))
+                {
+                    MessageBox.Show($"Ошибка: Автомобиль с таким Номерным знаком уже существует!");
+                }
+                else
+                {
+                    MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private void EditCar_Click(object sender, RoutedEventArgs e)
@@ -135,8 +161,27 @@ namespace AutoserviceApp.Views
                 ГодВыпуска = int.Parse(CarYearTextBox.Text)
             };
 
-            _carRepository.UpdateCar(updatedCar);
-            LoadCars();
+
+            try
+            {
+                _carRepository.UpdateCar(updatedCar);
+                LoadCars();
+
+                CarsListBox.SelectedIndex = _selectedCarIndex;
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.StartsWith("Violation of UNIQUE KEY constraint 'UQ__Автомоби"))
+                {
+                    MessageBox.Show($"Ошибка: Автомобиль с таким Номерным знаком уже существует!");
+                }
+                else
+                {
+                    MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+
+            
         }
 
         private void DeleteCar_Click(object sender, RoutedEventArgs e)
@@ -159,6 +204,8 @@ namespace AutoserviceApp.Views
 
                 _carRepository.DeleteCar(selectedCar.Код);
                 LoadCars();
+
+                SetFocusOnFirstInput();
             }
         }
 

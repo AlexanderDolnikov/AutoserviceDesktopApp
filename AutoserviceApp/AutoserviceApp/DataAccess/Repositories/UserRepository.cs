@@ -28,7 +28,7 @@ namespace AutoserviceApp.DataAccess.Repositories
             {
                 connection.Open();
 
-                var command = new SqlCommand("SELECT Id, Login, Role FROM Users", connection);
+                var command = new SqlCommand("SELECT Id, Login, Role FROM Users ORDER BY Login", connection);
                 var reader = command.ExecuteReader();
 
                 while (reader.Read())

@@ -102,10 +102,8 @@ namespace AutoserviceApp.DataAccess.Repositories
             {
                 connection.Open();
 
-                var command = new SqlCommand("SELECT * FROM Жалоба WHERE КодРаботы = @workId", connection);
+                var command = new SqlCommand("SELECT * FROM Жалоба WHERE КодРаботы = @workId ORDER BY Дата DESC", connection);
                 command.Parameters.AddWithValue("@workId", workId);
-
-                //MessageBox.Show($"Executing query: SELECT * FROM Жалоба WHERE КодРаботы = {workId}");
 
                 var reader = command.ExecuteReader();
 

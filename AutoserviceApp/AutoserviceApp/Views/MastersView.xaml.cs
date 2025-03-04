@@ -9,16 +9,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using AutoserviceApp.Helpers;
 
 namespace AutoserviceApp.Views
 {
-    public partial class MastersView : UserControl
+    public partial class MastersView : UserControl, IRefreshable
     {
         private readonly DatabaseContext _context;
         private readonly MasterRepository _masterRepository;
         private readonly WorkRepository _workRepository;
         private List<Master> _masters;
         private Master _selectedMaster;
+        private int _selectedMasterIndex;
 
         public MastersView()
         {
@@ -30,15 +32,19 @@ namespace AutoserviceApp.Views
             LoadMasters();
         }
 
+        public void RefreshData() => LoadMasters();
+
         private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
-            ScrollViewer scrollViewer = sender as ScrollViewer;
-            if (scrollViewer != null)
-            {
-                scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - e.Delta / 3);
-                e.Handled = true;
-            }
+            ScrollHelper.HandleMouseWheel(sender, e);
         }
+
+        private void SetFocusOnFirstInput(object sender = null, RoutedEventArgs? e = null)
+        {
+            ViewFocusHelper.SetFocusAndClearItemsValues(MasterNameTextBox, MasterSurnameTextBox, MasterPhoneTextBox, MasterSpecializationTextBox);
+        }
+
+        /* - - - - - */
 
         private void LoadMasters()
         {
@@ -51,6 +57,8 @@ namespace AutoserviceApp.Views
             if (MastersListBox.SelectedItem is Master selectedMaster)
             {
                 _selectedMaster = selectedMaster;
+                _selectedMasterIndex = MastersListBox.SelectedIndex;
+
                 MasterNameTextBox.Text = selectedMaster.Имя;
                 MasterSurnameTextBox.Text = selectedMaster.Фамилия;
                 MasterPhoneTextBox.Text = selectedMaster.Телефон;
@@ -77,10 +85,8 @@ namespace AutoserviceApp.Views
 
             _masterRepository.AddMaster(newMaster);
             LoadMasters();
-            MasterNameTextBox.Clear();
-            MasterSurnameTextBox.Clear();
-            MasterPhoneTextBox.Clear();
-            MasterSpecializationTextBox.Clear();
+
+            SetFocusOnFirstInput();
         }
 
         private void EditMaster_Click(object sender, RoutedEventArgs e)
@@ -94,6 +100,8 @@ namespace AutoserviceApp.Views
 
             _masterRepository.UpdateMaster(_selectedMaster);
             LoadMasters();
+
+            MastersListBox.SelectedIndex = _selectedMasterIndex;
         }
 
         private void DeleteMaster_Click(object sender, RoutedEventArgs e)
@@ -124,6 +132,8 @@ namespace AutoserviceApp.Views
                 {
                     MessageBox.Show($"Ошибка при удалении: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+
+                SetFocusOnFirstInput();
             }
         }
     }

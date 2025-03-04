@@ -11,7 +11,7 @@
             <StackPanel Margin="10">
                 <TextBlock Text="Список клиентов" Foreground="White" FontSize="20" FontWeight="Bold" Margin="10"/>
 
-                <StackPanel Orientation="Vertical" Margin="10">
+                <StackPanel Orientation="Vertical" Margin="10" Loaded="SetFocusOnFirstInput">
                     <StackPanel Orientation="Horizontal" Margin="0,5">
                         <TextBlock Text="Имя:" Foreground="White" Width="100"/>
                         <TextBox x:Name="ClientNameTextBox" Width="200"/>
@@ -39,7 +39,7 @@
                 </StackPanel>
 
                 <!-- Таблица клиентов -->
-                <Border Background="#aad413" Padding="5" Margin="5, 0, 5, 0">
+                <Border Background="#aad413" Padding="5" Margin="5, 0, 0, 0">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="    Имя:" Width="132" FontWeight="Bold" Foreground="Black"/>
                         <TextBlock Text="Фамилия:" Width="120" FontWeight="Bold" Foreground="Black"/>
@@ -50,7 +50,7 @@
                 </Border>
                 <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="410" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
                     <ListBox x:Name="ClientsListBox" Background="#2c4055" SelectionMode="Single"
-                         SelectionChanged="ClientsListBox_SelectionChanged" Margin="5, 0, 5, 0"
+                         SelectionChanged="ClientsListBox_SelectionChanged" Margin="5, 0, 0, 0"
                          MinWidth="350">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
