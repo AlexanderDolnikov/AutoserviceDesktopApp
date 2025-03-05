@@ -1,11 +1,5 @@
 ﻿using AutoserviceApp.Models;
-using DocumentFormat.OpenXml.InkML;
-using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AutoserviceApp.DataAccess.Repositories
 {
@@ -24,27 +18,23 @@ namespace AutoserviceApp.DataAccess.Repositories
 
             using (var connection = _context.GetConnection())
             {
-                string query = "SELECT * FROM ВидРаботы ORDER BY Название";
-                using (var command = new SqlCommand(query, connection))
+                connection.Open(); 
+                
+                var command = new SqlCommand("SELECT * FROM ВидРаботы ORDER BY Название", connection);
+                var reader = command.ExecuteReader(); 
+                
+                while (reader.Read())
                 {
-                    connection.Open();
-                    using (var reader = command.ExecuteReader())
+                    workTypes.Add(new WorkType
                     {
-                        while (reader.Read())
-                        {
-                            workTypes.Add(new WorkType
-                            {
-                                Код = reader.GetInt32(0),
-                                Название = reader.GetString(1)
-                            });
-                        }
-                    }
+                        Код = (int)reader["Код"],
+                        Название = reader["Название"].ToString()
+                    });
                 }
             }
 
             return workTypes;
         }
-
 
         public string GetWorkTypeNameById(int detailId)
         {

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AutoserviceApp.DataAccess.Models
+﻿namespace AutoserviceApp.DataAccess.Models
 {
-    internal class OrderWithInfo
+    public class OrderWithInfo
     {
         public int Код { get; set; }
         public DateTime ДатаНачала { get; set; }

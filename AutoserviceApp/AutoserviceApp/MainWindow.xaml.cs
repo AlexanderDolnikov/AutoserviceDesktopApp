@@ -1,24 +1,9 @@
-﻿using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
 using AutoserviceApp.DataAccess.Repositories;
 using AutoserviceApp.DataAccess;
 using AutoserviceApp.Models;
-using System.Data.SqlClient;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Wordprocessing;
-using DocumentFormat.OpenXml;
-using Paragraph = DocumentFormat.OpenXml.Wordprocessing.Paragraph;
-using Run = DocumentFormat.OpenXml.Wordprocessing.Run;
-using DocumentFormat.OpenXml.Office2010.PowerPoint;
 using AutoserviceApp.ViewModels;
 
 namespace AutoserviceApp
@@ -63,7 +48,6 @@ namespace AutoserviceApp
                 Application.Current.Shutdown();
             } 
         }
-
         private void ShowModels_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Модели");
         private void ShowCars_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Автомобили");
         private void ShowClients_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Клиенты");
@@ -73,13 +57,17 @@ namespace AutoserviceApp
         private void ShowOrders_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Заказы");
         private void ShowUsers_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Пользователи");
 
+        public void ShowWorks_Switch(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Работы");
+        public void ShowWorkDetails_Switch(object sender, RoutedEventArgs e) => _viewModel.SwitchView("ДеталиРабот");
+        public void ShowWorkComplaints_Switch(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Жалобы");
+
 
         private readonly Dictionary<string, List<string>> roleTabs = new Dictionary<string, List<string>>
         {
             { "Сотрудник", new List<string> { "Модели", "Автомобили", "Клиенты", "Детали", "Мастера", "Виды работ", "Заказы" } },
             { "Администратор", new List<string> { "Модели", "Автомобили", "Клиенты", "Детали", "Мастера", "Виды работ", "Заказы", "Пользователи" } }
         };
-
+        
         private void ApplyRoleRestrictions()
         {
             if (!roleTabs.ContainsKey(_currentUser.Role))
@@ -94,22 +82,12 @@ namespace AutoserviceApp
             }
 
             ShowOrders_Click(this, null);
-            ShowWelcomeScreen(this, null);
-        }
-
-        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                this.DragMove();
-            }
-        }
-        
+            ShowWelcomeScreen();
+        }        
         private void ConfigWelcomeScreen()
         {
             string roleDescription = _currentUser.Role switch
             {
-                //"Гость" => "Вы можете просматривать список мастеров и последние выполненные работы.",
                 "Сотрудник" => "Вы имеете полный доступ ко всем данным, за исключением Мастеров и Пользователей.",
                 "Администратор" => "Вы имеете полный доступ ко всем данным, включая управление пользователями.",
                 _ => "Неизвестная роль"
@@ -119,13 +97,13 @@ namespace AutoserviceApp
                                $"Вы вошли как: {_currentUser.Role}.\n\n" +
                                $"Вам доступен следующий функционал:\n{roleDescription}";
         }
-        private void ShowWelcomeScreen(object sender, RoutedEventArgs? e)
+        private void ShowWelcomeScreen(object sender = null, RoutedEventArgs? e = null)
         {
             ConfigWelcomeScreen();
             MainContent.Visibility = Visibility.Collapsed;
             WelcomeScreen.Visibility = Visibility.Visible;
         }
-        private void CloseWelcomeScreen_Click(object sender, RoutedEventArgs e)
+        private void CloseWelcomeScreen_Click(object sender = null, RoutedEventArgs e = null)
         {
             WelcomeScreen.Visibility = Visibility.Collapsed;
             MainContent.Visibility = Visibility.Visible;
@@ -169,8 +147,25 @@ namespace AutoserviceApp
             MessageBox.Show("Отчет 3...", "Отчет");
         }
 
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                this.DragMove();
+            }
+        }
         private void CloseApp_Click(object sender, RoutedEventArgs e) => Application.Current.Shutdown();
         private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
         private void Maximize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+
+        private void UserControl_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                CloseWelcomeScreen_Click();
+            }
+        }
+
+
     }
 }

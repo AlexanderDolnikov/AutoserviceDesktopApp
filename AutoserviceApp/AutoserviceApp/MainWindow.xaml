@@ -12,6 +12,7 @@
         Title="My Autoservice" Height="760" Width="1115"
         ResizeMode="CanResizeWithGrip"
         WindowStartupLocation="CenterScreen"
+        KeyDown="UserControl_KeyDown"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
  
     <Window.Resources>
@@ -26,23 +27,23 @@
         </Grid.RowDefinitions>
         
         <!-- Верхняя панель с кнопками управления -->
-        <DockPanel DockPanel.Dock="Top" Background="#34495e" Height="40" MouseLeftButtonDown="Window_MouseLeftButtonDown"  Grid.Row="0">
+        <DockPanel DockPanel.Dock="Top" Background="#34495e" Height="40" MouseLeftButtonDown="Window_MouseLeftButtonDown" Grid.Row="0">
             <TextBlock Text="AUTOSERVICE APP" Foreground="White" VerticalAlignment="Center" FontSize="16" Margin="10,0,0,0"/>
                
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="––" Click="Minimize_Click" Background="Transparent" Foreground="White" Width="40" FontWeight="Bold"/>
-                <Button Content="❏" Click="Maximize_Click" Background="Transparent" Foreground="White" Width="40" FontWeight="Bold"/>
-                <Button Content="✕" Click="CloseApp_Click" Background="Transparent" Foreground="White" Width="40" FontWeight="Bold"/>
+                <Button Content="––" Click="Minimize_Click" Style="{StaticResource MinimizeProgramButton}"/>
+                <Button Content="❏" Click="Maximize_Click" Style="{StaticResource MinimizeProgramButton}"/>
+                <Button Content="✕" Click="CloseApp_Click" Style="{StaticResource CloseProgramButton}"/>
             </StackPanel>
         </DockPanel>
 
         <!-- Главное меню -->
         <Menu DockPanel.Dock="Top" Background="#2c4055" Foreground="White" Padding="3" Grid.Row="1">
             <MenuItem Header="Справка" Foreground="White" Click="ShowWelcomeScreen"/>
-            <MenuItem Header="Отчеты" Foreground="White">
-                <MenuItem Header="Отчет по таблице 'Деталь'" Click="GenerateReport1_Click"/>
-                <MenuItem Header="Отчет по популярным деталям" Click="GenerateReport2_Click"/>
-                <MenuItem Header="Отчет по группировке деталей" Click="GenerateReport3_Click"/>
+            <MenuItem Header="Отчеты">
+                <MenuItem Header="Отчет по таблице 'Деталь'" Click="GenerateReport1_Click" Foreground="black"/>
+                <MenuItem Header="Отчет по популярным деталям" Click="GenerateReport2_Click" Foreground="black"/>
+                <MenuItem Header="Отчет по группировке деталей" Click="GenerateReport3_Click" Foreground="black"/>
             </MenuItem>
             <MenuItem Header="О программе" Click="ShowAbout_Click"/>
             <MenuItem Header="Выход" Click="Exit_Click"/>

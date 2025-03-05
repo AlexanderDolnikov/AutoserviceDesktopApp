@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 using AutoserviceApp.Models;
-using AutoserviceApp.DataAccess;
 
 namespace AutoserviceApp.DataAccess.Repositories
 {
@@ -64,7 +62,6 @@ namespace AutoserviceApp.DataAccess.Repositories
                 command.ExecuteNonQuery();
             }
         }
-
         public void DeleteCar(int carId)
         {
             using (var connection = _context.GetConnection())

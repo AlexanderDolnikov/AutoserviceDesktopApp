@@ -1,13 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using AutoserviceApp.Models;
-using AutoserviceApp.ViewModels;
 using AutoserviceApp.Interfaces;
 using AutoserviceApp.DataAccess.Repositories;
 using AutoserviceApp.DataAccess;
-using DocumentFormat.OpenXml.InkML;
 using AutoserviceApp.Helpers;
 
 namespace AutoserviceApp.Views
@@ -24,6 +20,8 @@ namespace AutoserviceApp.Views
             InitializeComponent();
             _context = new DatabaseContext();
             _userRepository = new UserRepository(_context);
+
+            RefreshData();
         }
 
         public void RefreshData()
@@ -113,20 +111,17 @@ namespace AutoserviceApp.Views
             try
             {
                 _userRepository.UpdateUser(_selectedUser.Id, newLogin, newRole);
+                _userRepository.UpdateUserPassword(_selectedUser.Id, newPassword);
+
+                MessageBox.Show("Данные пользователя обновлены!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         
-            _userRepository.UpdateUserPassword(_selectedUser.Id, newPassword);
-
             LoadUsers();
-
             UsersListBox.SelectedIndex = _selectedUserIndex;
-            UsersListBox.Focus();
-
-            MessageBox.Show("Данные пользователя обновлены!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void DeleteUser_Click(object sender, RoutedEventArgs e)

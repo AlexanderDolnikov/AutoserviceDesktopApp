@@ -1,22 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using AutoserviceApp.DataAccess;
 using AutoserviceApp.Models;
 using AutoserviceApp.DataAccess.Repositories;
-using System.Collections.Generic;
-using System.Linq;
 using AutoserviceApp.Interfaces;
 using AutoserviceApp.Helpers;
 
@@ -38,7 +24,7 @@ namespace AutoserviceApp.Views
             _workTypeRepository = new WorkTypeRepository(_context);
             _workRepository = new WorkRepository(_context);
 
-            LoadWorkTypes();
+            RefreshData();
         }
 
         public void RefreshData() => LoadWorkTypes();

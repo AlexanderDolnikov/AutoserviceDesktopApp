@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Controls;
 using AutoserviceApp.Models;
-using System.Windows.Markup;
 using AutoserviceApp.Interfaces;
+using AutoserviceApp.DataAccess.Models;
 
 namespace AutoserviceApp.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
+        /* Current view: */
         private UserControl _currentView;
         public UserControl CurrentView
         {
@@ -25,6 +21,7 @@ namespace AutoserviceApp.ViewModels
             }
         }
 
+        /* Current user: */
         private User _currentUser;
         public User CurrentUser
         {
@@ -35,17 +32,46 @@ namespace AutoserviceApp.ViewModels
                 OnPropertyChanged(nameof(CurrentUser));
             }
         }
+
+        /* Current order: */
+        private OrderWithInfo? _selectedOrder;
+        public OrderWithInfo? SelectedOrder
+        {
+            get => _selectedOrder;
+            set
+            {
+                _selectedOrder = value;
+                OnPropertyChanged(nameof(SelectedOrder));
+            }
+        }
+
+        /* Current work: */
+        private WorkWithInfo? _selectedWork;
+        public WorkWithInfo? SelectedWork
+        {
+            get => _selectedWork;
+            set
+            {
+                _selectedWork = value;
+                OnPropertyChanged(nameof(SelectedWork));
+            }
+        }
+
+        /* - - - - - */
+
         public ObservableCollection<User> Users { get; set; }
         public Dictionary<string, Func<UserControl>> ViewMappings { get; }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
 
         public MainViewModel()
         {
             ViewMappings = new Dictionary<string, Func<UserControl>>
             {                
                 { "Заказы", () => new Views.OrdersView() },
+                { "Работы", () => new Views.WorksView() },
+                { "ДеталиРаботы", () => new Views.WorkDetailsView() },
+                { "Жалобы", () => new Views.ComplaintsView() },
                 { "Модели", () => new Views.ModelsView() },
                 { "Автомобили", () => new Views.CarsView() },
                 { "Клиенты", () => new Views.ClientsView() },
@@ -60,7 +86,15 @@ namespace AutoserviceApp.ViewModels
         {
             if (ViewMappings.ContainsKey(viewName))
             {
-                CurrentView = ViewMappings[viewName]();
+                var newView = ViewMappings[viewName]();
+
+                // Принудительно передаем DataContext из текущей ViewModel в новую View
+                if (newView is UserControl view)
+                {
+                    view.DataContext = this;
+                }
+
+                CurrentView = newView;
 
                 // Принудительная загрузка данных при переключении вкладки
                 if (CurrentView is IRefreshable refreshable)
@@ -69,6 +103,7 @@ namespace AutoserviceApp.ViewModels
                 }
             }
         }
+
 
         protected void OnPropertyChanged(string propertyName)
         {

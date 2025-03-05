@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 namespace AutoserviceApp.Helpers
@@ -14,7 +9,10 @@ namespace AutoserviceApp.Helpers
         {
             try
             {
-                // 1. clear all contents of all items
+                // 1. focus on the first item
+                items[0].Focus();
+
+                // 2. clear all contents of all items
                 foreach (var item in items)
                 {
                     switch (item)
@@ -35,10 +33,7 @@ namespace AutoserviceApp.Helpers
                         default:
                             throw new ArgumentException($"argument is not supported: {item.GetType()}");
                     }
-                }
-                
-                // 2. focus on the first item
-                items[0].Focus();
+                }                
             }
             catch(Exception e)
             {

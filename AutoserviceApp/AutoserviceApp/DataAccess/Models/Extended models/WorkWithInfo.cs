@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AutoserviceApp.DataAccess.Models
+﻿namespace AutoserviceApp.DataAccess.Models
 {
-    internal class WorkWithInfo
+    public class WorkWithInfo
     {
         public int Код { get; set; }
         public int КодЗаказа { get; set; }

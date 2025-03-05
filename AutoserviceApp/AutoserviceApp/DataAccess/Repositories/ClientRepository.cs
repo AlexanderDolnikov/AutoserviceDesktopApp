@@ -1,14 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 using AutoserviceApp.Models;
-using AutoserviceApp.DataAccess;
 
 namespace AutoserviceApp.DataAccess.Repositories
 {
@@ -29,7 +20,7 @@ namespace AutoserviceApp.DataAccess.Repositories
             {
                 connection.Open();
 
-                var command = new SqlCommand("SELECT * FROM Клиент ORDER BY Фамилия", connection);
+                var command = new SqlCommand("SELECT * FROM Клиент ORDER BY Фамилия, Имя, Телефон", connection);
                 var reader = command.ExecuteReader();
 
                 while (reader.Read())

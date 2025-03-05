@@ -1,14 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using AutoserviceApp.Interfaces;
 using AutoserviceApp.Models;
 using AutoserviceApp.DataAccess;
-using AutoserviceApp.Models;
 using AutoserviceApp.DataAccess.Repositories;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using AutoserviceApp.Helpers;
 
 namespace AutoserviceApp.Views
@@ -29,7 +24,7 @@ namespace AutoserviceApp.Views
             _masterRepository = new MasterRepository(_context);
             _workRepository = new WorkRepository(_context);
 
-            LoadMasters();
+            RefreshData();
         }
 
         public void RefreshData() => LoadMasters();

@@ -1,0 +1,97 @@
+﻿<UserControl x:Class="AutoserviceApp.Views.WorksView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AutoserviceApp.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             MouseDown="UserControl_MouseDown"
+             Loaded="WorksView_OnLoad">
+    <!-- Работы -->
+    <Grid Background="#2c4055">
+        <StackPanel Margin="10">
+            <!-- Заголовок с кнопкой "Назад" -->
+            <DockPanel LastChildFill="False" Margin="10">
+                <TextBlock x:Name="WorkHeader" Text="Работы по заказу: " Foreground="White" FontSize="20" FontWeight="Bold" DockPanel.Dock="Left"/>
+                <Button Content="Назад" Click="BackToOrders_Click" Style="{StaticResource BackButton}" DockPanel.Dock="Right"/>
+            </DockPanel>
+
+            <!-- Блок управления работами -->
+            <Border BorderBrush="White" BorderThickness="1" Padding="10" Margin="5">
+                <StackPanel Orientation="Vertical" Loaded="SetFocusOnFirstInput">
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Название работы:" Foreground="White" Width="110"/>
+                        <TextBox x:Name="WorkNameTextBox" Width="200"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Стоимость:" Foreground="White" Width="110"/>
+                        <TextBox x:Name="WorkCostTextBox" Width="100"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Мастер:" Foreground="White" Width="110"/>
+                        <ComboBox x:Name="MasterDropdown" DisplayMemberPath="Фамилия" SelectedValuePath="Код" Width="200"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="Вид работы:" Foreground="White" Width="110"/>
+                        <ComboBox x:Name="WorkTypeDropdown" DisplayMemberPath="Название" SelectedValuePath="Код" Width="200"/>
+                    </StackPanel>
+
+
+                    <!-- Кнопки управления работами -->
+                    <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
+                        <Button Content="Добавить" Click="AddWork_Click" Style="{StaticResource AddButton}"/>
+                        <Button Content="Изменить" Click="EditWork_Click" Style="{StaticResource EditButton}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Таблица работ по заказу -->
+            <Border Background="#aad413" Padding="5" Margin="5, 0, 0, 0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="    Название работы:" Width="235" FontWeight="Bold" Foreground="Black"/>
+                    <TextBlock Text="Стоимость:" Width="95" FontWeight="Bold" Foreground="Black"/>
+                    <TextBlock Text="Мастер:" Width="85" FontWeight="Bold" Foreground="Black"/>
+                    <TextBlock Text="Вид работы:" Width="190" FontWeight="Bold" Foreground="Black"/>
+                    <TextBlock Text="Действия:" Width="220" FontWeight="Bold" Foreground="Black"/>
+                </StackPanel>
+            </Border>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="320"              
+                              PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+                <ListBox x:Name="WorksListBox" Background="#2c4055" SelectionMode="Single"
+                        SelectionChanged="WorksListBox_SelectionChanged" Margin="5, 0, 0, 0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="White" Padding="8, 3, 0, 3" Margin="5" MinWidth="893">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Описание}" Width="220" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                        <TextBlock.ToolTip>
+                                            <ToolTip Content="{Binding Описание}"/>
+                                        </TextBlock.ToolTip>
+                                    </TextBlock>
+
+                                    <TextBlock Text="{Binding Стоимость, StringFormat=C}" Width="95" VerticalAlignment="Center"/>
+
+                                    <TextBlock Text="{Binding ФамилияМастера}" Width="85" VerticalAlignment="Center"/>
+
+                                    <TextBlock Text="{Binding НазваниеВидаРаботы}" Width="186" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                                        <TextBlock.ToolTip>
+                                            <ToolTip Content="{Binding НазваниеВидаРаботы}"/>
+                                        </TextBlock.ToolTip>
+                                    </TextBlock>
+
+                                    <Button Content="Детали" Style="{StaticResource AddButton}" Click="ShowWorkDetails_Click"/>
+                                    <Button Content="Жалобы" Style="{StaticResource EditButton}" Click="ShowComplaint_Click"/>
+                                    <Button Content="Удалить" Style="{StaticResource DeleteButton}" Click="DeleteWork_Click"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </ScrollViewer>
+        </StackPanel>
+    </Grid>
+</UserControl>

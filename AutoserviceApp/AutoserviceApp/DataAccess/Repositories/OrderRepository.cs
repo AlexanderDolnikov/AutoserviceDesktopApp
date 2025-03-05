@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 using System.Windows;
 using AutoserviceApp.Models;
 
@@ -26,7 +24,7 @@ namespace AutoserviceApp.DataAccess.Repositories
             {
                 connection.Open();
 
-                var command = new SqlCommand("SELECT * FROM Заказ ORDER BY ДатаНачала DESC", connection);
+                var command = new SqlCommand("SELECT * FROM Заказ ORDER BY ДатаНачала DESC, ДатаОкончания DESC, КодКлиента, КодАвтомобиля", connection);
                 var reader = command.ExecuteReader();
 
                 while (reader.Read())

@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 using AutoserviceApp.Models;
 
 namespace AutoserviceApp.DataAccess.Repositories
@@ -28,7 +20,7 @@ namespace AutoserviceApp.DataAccess.Repositories
             {
                 connection.Open();
 
-                var command = new SqlCommand("SELECT Id, Login, Role FROM Users ORDER BY Login", connection);
+                var command = new SqlCommand("SELECT Id, Login, Role FROM Users ORDER BY Role, Login", connection);
                 var reader = command.ExecuteReader();
 
                 while (reader.Read())
