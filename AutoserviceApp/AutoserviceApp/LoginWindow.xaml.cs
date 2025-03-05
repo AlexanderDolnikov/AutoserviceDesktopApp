@@ -1,18 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-
-using System.Windows;
 using AutoserviceApp.DataAccess.Repositories;
 using AutoserviceApp.DataAccess;
 using AutoserviceApp.Models;
@@ -24,19 +11,26 @@ namespace AutoserviceApp
         private readonly UserRepository _userRepository;
         public User CurrentUser { get; private set; }
 
+        public LoginWindow()
+        {
+            InitializeComponent();
+            var context = new DatabaseContext();
+            _userRepository = new UserRepository(context);
+        }
+
+        private void SetFocusOnFirstInput(object sender = null, RoutedEventArgs? e = null)
+        {
+            //ViewFocusHelper.SetFocusAndClearItemsValues(LoginInput, PasswordInput);
+        }
+
+        /* - - - - - */
+
         private void PasswordInput_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
                 Login_Click(sender, e);
             }
-        }
-
-        public LoginWindow()
-        {
-            InitializeComponent();
-            var context = new DatabaseContext();
-            _userRepository = new UserRepository(context);
         }
 
         private void Login_Click(object sender, RoutedEventArgs e)
@@ -68,18 +62,18 @@ namespace AutoserviceApp
             }
         }
 
-        private void GuestLogin_Click(object sender, RoutedEventArgs e)
-        {
-            CurrentUser = new User
-            {
-                Id = 0, // Гости не хранятся в БД
-                Login = "guest",
-                Role = "Гость"
-            };
+        /* - - - - - */
 
-            DialogResult = true;
-            Close();
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                this.DragMove();
+            }
         }
+        private void CloseApp_Click(object sender, RoutedEventArgs e) => Application.Current.Shutdown();
+        private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+        private void Maximize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
 
     }
 }

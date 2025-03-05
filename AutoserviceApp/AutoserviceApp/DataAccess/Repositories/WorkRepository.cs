@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System.Collections.Generic;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 using AutoserviceApp.Models;
 
 namespace AutoserviceApp.DataAccess.Repositories
@@ -19,6 +12,32 @@ namespace AutoserviceApp.DataAccess.Repositories
             _context = context;
         }
 
+        public List<Work> GetWorksByOrderId(int orderId)
+        {
+            var works = new List<Work>();
+
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+
+                var command = new SqlCommand("SELECT * FROM Работа WHERE КодЗаказа = @orderId ORDER BY Стоимость DESC, Описание ASC", connection);
+                command.Parameters.AddWithValue("@orderId", orderId);
+                var reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    works.Add(new Work
+                    {
+                        Код = (int)reader["Код"],
+                        Описание = reader["Описание"].ToString(),
+                        Стоимость = (decimal)reader["Стоимость"],
+                    });
+                }
+            }
+
+            return works;
+        }
+
         public List<Work> GetAllWorks()
         {
             var works = new List<Work>();
@@ -27,7 +46,7 @@ namespace AutoserviceApp.DataAccess.Repositories
             {
                 connection.Open();
 
-                var command = new SqlCommand("SELECT * FROM Работа", connection);
+                var command = new SqlCommand("SELECT * FROM Работа ORDER BY Стоимость DESC, Описание ASC", connection);
                 var reader = command.ExecuteReader();
 
                 while (reader.Read())
@@ -68,15 +87,33 @@ namespace AutoserviceApp.DataAccess.Repositories
 
         public void UpdateWork(Work work)
         {
+            if (work.Код == 0)
+                throw new Exception("Ошибка: Работа должна иметь корректный Код.");
+
             using (var connection = _context.GetConnection())
             {
                 connection.Open();
 
+                if (work.КодЗаказа == 0)
+                {
+                    throw new Exception("Ошибка: Код заказа не может быть 0.");
+                }
+
+                var checkOrderCommand = new SqlCommand("SELECT COUNT(*) FROM Заказ WHERE Код = @КодЗаказа", connection);
+                checkOrderCommand.Parameters.AddWithValue("@КодЗаказа", work.КодЗаказа);
+                int orderCount = (int)(checkOrderCommand.ExecuteScalar() ?? 0);
+
+                if (orderCount == 0)
+                {
+                    throw new Exception($"Ошибка: Заказ с Код = {work.КодЗаказа} не существует.");
+                }
+
                 var command = new SqlCommand(
-                    "UPDATE Работа SET КодЗаказа = @КодЗаказа, КодМастера = @КодМастера, Описание = @Описание, Стоимость = @Стоимость, КодВидаРаботы = @КодВидаРаботы WHERE Код = @Код", connection);
+                    "UPDATE Работа SET КодМастера = @КодМастера, Описание = @Описание, Стоимость = @Стоимость, КодВидаРаботы = @КодВидаРаботы WHERE Код = @Код",
+                    connection
+                );
 
                 command.Parameters.AddWithValue("@Код", work.Код);
-                command.Parameters.AddWithValue("@КодЗаказа", work.КодЗаказа);
                 command.Parameters.AddWithValue("@КодМастера", work.КодМастера);
                 command.Parameters.AddWithValue("@Описание", work.Описание);
                 command.Parameters.AddWithValue("@Стоимость", work.Стоимость);
@@ -86,16 +123,24 @@ namespace AutoserviceApp.DataAccess.Repositories
             }
         }
 
+
+
+
         public void DeleteWork(int id)
         {
             using (var connection = _context.GetConnection())
             {
                 connection.Open();
 
-                var command = new SqlCommand("DELETE FROM Работа WHERE Код = @Код", connection);
-                command.Parameters.AddWithValue("@Код", id);
+                // Удаляем все детали работы перед удалением самой работы
+                var deleteDetails = new SqlCommand("DELETE FROM ДетальРаботы WHERE КодРаботы = @КодРаботы", connection);
+                deleteDetails.Parameters.AddWithValue("@КодРаботы", id);
+                deleteDetails.ExecuteNonQuery();
 
-                command.ExecuteNonQuery();
+                // Теперь можно удалить работу
+                var deleteWork = new SqlCommand("DELETE FROM Работа WHERE Код = @Код", connection);
+                deleteWork.Parameters.AddWithValue("@Код", id);
+                deleteWork.ExecuteNonQuery();
             }
         }
 

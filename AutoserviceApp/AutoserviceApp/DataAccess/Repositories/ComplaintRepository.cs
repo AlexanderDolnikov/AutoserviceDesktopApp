@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System.Collections.Generic;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 using AutoserviceApp.Models;
-using System.Windows;
 
 namespace AutoserviceApp.DataAccess.Repositories
 {
@@ -102,10 +94,8 @@ namespace AutoserviceApp.DataAccess.Repositories
             {
                 connection.Open();
 
-                var command = new SqlCommand("SELECT * FROM Жалоба WHERE КодРаботы = @workId", connection);
+                var command = new SqlCommand("SELECT * FROM Жалоба WHERE КодРаботы = @workId ORDER BY Дата DESC, Описание ASC", connection);
                 command.Parameters.AddWithValue("@workId", workId);
-
-                //MessageBox.Show($"Executing query: SELECT * FROM Жалоба WHERE КодРаботы = {workId}");
 
                 var reader = command.ExecuteReader();
 
@@ -120,7 +110,6 @@ namespace AutoserviceApp.DataAccess.Repositories
                     });
                 }
 
-                //MessageBox.Show($"Found {complaints.Count} complaints for WorkId {workId}");
             }
 
             return complaints;

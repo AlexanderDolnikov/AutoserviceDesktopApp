@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AutoserviceApp.Models
+﻿namespace AutoserviceApp.Models
 {
     public class WorkType
     {
@@ -12,4 +6,3 @@ namespace AutoserviceApp.Models
         public string Название { get; set; }
     }
 }
-

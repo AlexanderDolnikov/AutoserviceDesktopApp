@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 using AutoserviceApp.Models;
 
 namespace AutoserviceApp.DataAccess.Repositories
@@ -20,6 +12,30 @@ namespace AutoserviceApp.DataAccess.Repositories
             _context = context;
         }
 
+        public List<User> GetAllUsers()
+        {
+            var users = new List<User>();
+
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+
+                var command = new SqlCommand("SELECT Id, Login, Role FROM Users ORDER BY Role, Login", connection);
+                var reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    users.Add(new User
+                    {
+                        Id = (int)reader["Id"],
+                        Login = reader["Login"].ToString(),
+                        Role = reader["Role"].ToString()
+                    });
+                }
+            }
+
+            return users;
+        }
         public User GetUserByLogin(string login)
         {
             using (var connection = _context.GetConnection())
@@ -43,8 +59,6 @@ namespace AutoserviceApp.DataAccess.Repositories
             }
             return null;
         }
-
-
         public void AddUser(string login, string password, string role)
         {
             using (var connection = _context.GetConnection())
@@ -68,31 +82,58 @@ namespace AutoserviceApp.DataAccess.Repositories
             }
         }
 
-        public List<User> GetAllUsers()
-        {
-            var users = new List<User>();
 
+        public void UpdateUser(int userId, string newLogin, string newRole)
+        {
             using (var connection = _context.GetConnection())
             {
                 connection.Open();
 
-                var command = new SqlCommand("SELECT Id, Login, Role FROM Users", connection);
-                var reader = command.ExecuteReader();
+                var command = new SqlCommand(
+                    "UPDATE Users SET Login = @Login, Role = @Role WHERE Id = @UserId",
+                    connection);
 
-                while (reader.Read())
-                {
-                    users.Add(new User
-                    {
-                        Id = (int)reader["Id"],
-                        Login = reader["Login"].ToString(),
-                        Role = reader["Role"].ToString()
-                    });
-                }
+                command.Parameters.AddWithValue("@UserId", userId);
+                command.Parameters.AddWithValue("@Login", newLogin);
+                command.Parameters.AddWithValue("@Role", newRole);
+
+                command.ExecuteNonQuery();
             }
-
-            return users;
         }
 
+        public void UpdateUserPassword(int userId, string newPassword)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+
+                // Генерируем новую соль и хеш пароля
+                string newSalt = PasswordHelper.GenerateSalt();
+                string newPasswordHash = PasswordHelper.HashPassword(newPassword, newSalt);
+
+                var command = new SqlCommand(
+                    "UPDATE Users SET PasswordHash = @PasswordHash, Salt = @Salt WHERE Id = @UserId",
+                    connection);
+
+                command.Parameters.AddWithValue("@UserId", userId);
+                command.Parameters.AddWithValue("@PasswordHash", newPasswordHash);
+                command.Parameters.AddWithValue("@Salt", newSalt);
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteUser(int userId)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+
+                var command = new SqlCommand("DELETE FROM Users WHERE Id = @UserId", connection);
+                command.Parameters.AddWithValue("@UserId", userId);
+                command.ExecuteNonQuery();
+            }
+        }
     }
 }
 

@@ -5,34 +5,40 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AutoserviceApp"
         mc:Ignorable="d"
-        Title="Вход в систему" 
-        Background="#2c4055"
+        Title="Вход в систему"
         WindowStartupLocation="CenterScreen"
         Foreground="#ecf0f1"
-        Height="270" Width="300"
-        ResizeMode="NoResize" SizeToContent="Manual">
+        Background="#2c4055"
+        Height="320" Width="320"
+        ResizeMode="NoResize" SizeToContent="Manual"
+        WindowStyle="None"
+        AllowsTransparency="True">
 
-    <Window.Resources>
-        <Style x:Key="LoginButtonStyle" TargetType="Button">
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="Background" Value="#aad413"/>
-            <Setter Property="Padding" Value="10"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-    </Window.Resources>
-    
-    <StackPanel Margin="20">
-        <TextBlock Text="Логин:" Margin="0, 0, 0, 3"/>
-        <TextBox x:Name="LoginInput" Padding="1" Margin="0, 0, 0, 5" Text="admin"/>
-        <TextBlock Text="Пароль:" Margin="0, 8, 0, 3"/>
-        <PasswordBox x:Name="PasswordInput" KeyDown="PasswordInput_KeyDown" Padding="2" Password="admina"/>
+        <DockPanel DockPanel.Dock="Top" Background="#34495e" Height="40" MouseLeftButtonDown="Window_MouseLeftButtonDown" Grid.Row="0">
+            <TextBlock Text="AUTOSERVICE APP - LOGIN" Foreground="White" VerticalAlignment="Center" FontSize="16" Margin="10,0,0,0"/>
 
-        <Button Content="Войти" Click="Login_Click" Padding="7" Margin="0,15,0,0" Style="{StaticResource LoginButtonStyle}"/>
-        <Button Content="Войти как гость" Click="GuestLogin_Click" Padding="8" Margin="0,15,0,0" Style="{StaticResource LoginButtonStyle}"/>
-    </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="––" Click="Minimize_Click" Style="{StaticResource MinimizeProgramButton}"/>
+                <Button Content="✕" Click="CloseApp_Click" Style="{StaticResource CloseProgramButton}"/>
+            </StackPanel>
+        </DockPanel>
+
+        <StackPanel Margin="20" Grid.Row="1" Loaded="SetFocusOnFirstInput">
+            <TextBlock Text="Логин:" Margin="0, 3, 0, 3"/>
+            <TextBox x:Name="LoginInput" Padding="1" Margin="0, 0, 0, 5" Text="admin"/>
+            <TextBlock Text="Пароль:" Margin="0, 12, 0, 3"/>
+            <PasswordBox x:Name="PasswordInput" KeyDown="PasswordInput_KeyDown" Padding="2" Password="admina"/>
+
+            <Button Content="Войти" Click="Login_Click" Style="{StaticResource LoginButton}"/>
+
+            <TextBlock Text="Delete: preset text" Margin="0, 20, 0, 0" Foreground="ForestGreen"/>
+            <TextBlock Text="Delete: fix 2x .Clear();" Margin="0, 10, 0, 0" Foreground="ForestGreen"/>
+        </StackPanel>
+    </Grid>
 </Window>
