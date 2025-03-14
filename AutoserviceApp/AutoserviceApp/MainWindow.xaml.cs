@@ -45,8 +45,8 @@ namespace AutoserviceApp
             }
             else
             {
-                Application.Current.Shutdown();
-            } 
+                Environment.Exit(0);
+            }
         }
         private void ShowModels_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Модели");
         private void ShowCars_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Автомобили");
@@ -124,7 +124,7 @@ namespace AutoserviceApp
             }
             else
             {
-                Application.Current.Shutdown();
+                Environment.Exit(0);
             }
         }
 

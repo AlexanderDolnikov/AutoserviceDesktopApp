@@ -68,9 +68,7 @@ namespace AutoserviceApp.DataAccess.Repositories
             {
                 connection.Open();
 
-                var command = new SqlCommand(
-                    "UPDATE Заказ SET ДатаНачала = @ДатаНачала, ДатаОкончания = @ДатаОкончания, КодКлиента = @КодКлиента, КодАвтомобиля = @КодАвтомобиля WHERE Код = @Код",
-                    connection);
+                var command = new SqlCommand("UPDATE Заказ SET ДатаНачала = @ДатаНачала, ДатаОкончания = @ДатаОкончания, КодКлиента = @КодКлиента, КодАвтомобиля = @КодАвтомобиля WHERE Код = @Код", connection);
 
                 command.Parameters.AddWithValue("@Код", order.Код);
                 command.Parameters.AddWithValue("@ДатаНачала", order.ДатаНачала);
@@ -83,23 +81,7 @@ namespace AutoserviceApp.DataAccess.Repositories
                 command.Parameters.AddWithValue("@КодКлиента", order.КодКлиента);
                 command.Parameters.AddWithValue("@КодАвтомобиля", order.КодАвтомобиля);
 
-                // Вывод SQL-запроса в окно
-                string debugQuery = $"UPDATE Заказ SET ДатаНачала = '{order.ДатаНачала:yyyy-MM-dd}', " +
-                                    $"ДатаОкончания = '{order.ДатаОкончания:yyyy-MM-dd}', " +
-                                    $"КодКлиента = {order.КодКлиента}, " +
-                                    $"КодАвтомобиля = {order.КодАвтомобиля} " +
-                                    $"WHERE Код = {order.Код}";
-
-                //MessageBox.Show(debugQuery, "SQL-запрос");
-
-                int rowsAffected = command.ExecuteNonQuery();
-
-                //MessageBox.Show($"Обновлено строк: {rowsAffected}", "Отладка UpdateOrder");
-
-                if (rowsAffected == 0)
-                {
-                    MessageBox.Show("Ошибка: заказ не найден в БД!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
+                command.ExecuteNonQuery();
             }
         }
 

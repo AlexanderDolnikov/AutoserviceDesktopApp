@@ -45,7 +45,7 @@ namespace AutoserviceApp.Views
         }
         private void LoadClients()
         {
-            var clients = _clientRepository.GetAllClients();
+            var clients = _clientRepository.GetAll();
             ClientDropdown.ItemsSource = clients;
         }
 
@@ -75,7 +75,7 @@ namespace AutoserviceApp.Views
                     ДатаНачала = order.ДатаНачала,
                     ДатаОкончания = order.ДатаОкончания ?? default(DateTime),
                     КодКлиента = order.КодКлиента,
-                    ФамилияКлиента = _clientRepository.GetClientById(order.КодКлиента)?.Фамилия ?? "Неизвестно",
+                    ФамилияКлиента = _clientRepository.GetById(order.КодКлиента)?.Фамилия ?? "Неизвестно",
                     КодАвтомобиля = order.КодАвтомобиля,
                     НомернойЗнакАвтомобиля = _carRepository.GetCarById(order.КодАвтомобиля)?.НомернойЗнак ?? "Неизвестно",
                 })

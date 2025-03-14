@@ -43,7 +43,7 @@ namespace AutoserviceApp.Views
 
         private void LoadClients()
         {
-            _clients = _clientRepository.GetAllClients();
+            _clients = _clientRepository.GetAll();
             ClientsListBox.ItemsSource = _clients;
         }
 
@@ -79,7 +79,7 @@ namespace AutoserviceApp.Views
                 Адрес = ClientAddressTextBox.Text.Trim()
             };
 
-            _clientRepository.AddClient(newClient);
+            _clientRepository.Add(newClient);
             LoadClients();
 
             SetFocusOnFirstInput();
@@ -94,7 +94,7 @@ namespace AutoserviceApp.Views
             _selectedClient.Телефон = ClientPhoneTextBox.Text.Trim();
             _selectedClient.Адрес = ClientAddressTextBox.Text.Trim();
 
-            _clientRepository.UpdateClient(_selectedClient);
+            _clientRepository.Update(_selectedClient);
             LoadClients();
 
             ClientsListBox.SelectedIndex = _selectedClientIndex;
@@ -120,7 +120,7 @@ namespace AutoserviceApp.Views
 
                 try
                 {
-                    _clientRepository.DeleteClient(selectedClient.Код);
+                    _clientRepository.Delete(selectedClient.Код);
                     MessageBox.Show("Клиент успешно удален!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadClients();
                 }
