@@ -92,6 +92,20 @@ namespace AutoserviceApp.Views
                 return;
             }
 
+            // Валидация номера автомобиля - от 7 до 15 символов
+            if (CarNumberTextBox.Text.Length < 7 || CarNumberTextBox.Text.Length > 15)
+            {
+                MessageBox.Show("Номерной знак должен содержать от 7 до 15 символов!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Валидация года выпуска
+            if (!int.TryParse(CarYearTextBox.Text, out int carYear) || carYear < 1900 || carYear > DateTime.Now.Year)
+            {
+                MessageBox.Show($"Введите корректный год выпуска (от 1900 до {DateTime.Now.Year})!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var newCar = new Car
             {
                 КодМодели = (int)ModelDropdown.SelectedValue,
@@ -139,6 +153,20 @@ namespace AutoserviceApp.Views
                 return;
             }
 
+            // Валидация номера автомобиля - от 7 до 15 символов
+            if (CarNumberTextBox.Text.Length < 7 || CarNumberTextBox.Text.Length > 15)
+            {
+                MessageBox.Show("Номерной знак должен содержать от 7 до 15 символов!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Валидация года выпуска
+            if (!int.TryParse(CarYearTextBox.Text, out int carYear) || carYear < 1900 || carYear > DateTime.Now.Year)
+            {
+                MessageBox.Show($"Введите корректный год выпуска (от 1900 до {DateTime.Now.Year})!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var updatedCar = new Car
             {
                 Код = _selectedCar.Код,
@@ -166,8 +194,6 @@ namespace AutoserviceApp.Views
                     MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-
-            
         }
 
         private void DeleteCar_Click(object sender, RoutedEventArgs e)

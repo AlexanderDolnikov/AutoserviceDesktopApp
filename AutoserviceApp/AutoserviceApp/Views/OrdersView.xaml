@@ -37,6 +37,10 @@
                     <Button Content="Создать заказ" Click="AddOrder_Click" Style="{StaticResource AddButton}" Width="150"/>
                     <Button Content="Изменить" Click="EditOrder_Click" Style="{StaticResource EditButton}" Width="150"/>
                 </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,15,0,5">
+                    <Button x:Name="SortOrdersButton" Content="Дата начала - Сортировка" Click="SortOrders_Click" Style="{StaticResource EditButton}" Width="200"/>
+                </StackPanel>
             </StackPanel>
 
             <!-- Таблица заказов -->

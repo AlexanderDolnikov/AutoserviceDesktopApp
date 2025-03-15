@@ -1,18 +1,4 @@
-﻿using AutoserviceApp.Models;
-using DocumentFormat.OpenXml.CustomProperties;
-using DocumentFormat.OpenXml.ExtendedProperties;
-using DocumentFormat.OpenXml.Office.Word;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Vml.Spreadsheet;
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.DirectoryServices;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Data.SqlClient;
 
 namespace AutoserviceApp.DataAccess.Repositories
 {
@@ -42,7 +28,7 @@ namespace AutoserviceApp.DataAccess.Repositories
             }
         }
 
-        public List<T> GetAll()
+        public virtual List<T> GetAll()
         {
             var resultItems = new List<T>();
 

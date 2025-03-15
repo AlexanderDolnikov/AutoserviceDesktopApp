@@ -9,7 +9,7 @@
         WindowStartupLocation="CenterScreen"
         Foreground="#ecf0f1"
         Background="#2c4055"
-        Height="320" Width="320"
+        Height="310" Width="300"
         ResizeMode="NoResize" SizeToContent="Manual"
         WindowStyle="None"
         AllowsTransparency="True">

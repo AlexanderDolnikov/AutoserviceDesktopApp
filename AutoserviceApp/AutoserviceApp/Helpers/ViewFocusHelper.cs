@@ -33,7 +33,7 @@ namespace AutoserviceApp.Helpers
                         default:
                             throw new ArgumentException($"argument is not supported: {item.GetType()}");
                     }
-                }                
+                }
             }
             catch(Exception e)
             {

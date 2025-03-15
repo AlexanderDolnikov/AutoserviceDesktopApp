@@ -60,6 +60,22 @@ namespace AutoserviceApp.Views
             }
         }
 
+        private void SearchDetails_Click(object sender, RoutedEventArgs e)
+        {
+            string searchText = SearchDetailsTextBox.Text.Trim().ToLower();
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                DetailsListBox.ItemsSource = _details;
+                return;
+            }
+
+            var filteredDetails = _details
+                .Where(d => d.Название.ToLower().Contains(searchText))
+                .ToList();
+
+            DetailsListBox.ItemsSource = filteredDetails;
+        }
         private void AddDetail_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(DetailNameTextBox.Text) ||

@@ -7,9 +7,17 @@ using AutoserviceApp.Interfaces;
 using AutoserviceApp.DataAccess.Models;
 using AutoserviceApp.Helpers;
 using AutoserviceApp.ViewModels;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace AutoserviceApp.Views
 {
+    public enum SortMode
+    {
+        Ascending,   // Дата ↑
+        Descending,  // Дата ↓
+        Default      // По умолчанию (без сортировки)
+    }
+
     public partial class OrdersView : UserControl, IRefreshable
     {
         private readonly DatabaseContext _context;
@@ -19,9 +27,11 @@ namespace AutoserviceApp.Views
         private readonly CarRepository _carRepository;
         private readonly WorkRepository _workRepository;
 
-        private List<Order> _orders;
+        private List<OrderWithInfo> _orders;
         private OrderWithInfo _selectedOrder;
-        private int _selectedOrderIndex;    
+        private int _selectedOrderIndex;
+
+        private SortMode _currentSortMode = SortMode.Default;
 
         public OrdersView()
         {
@@ -73,7 +83,7 @@ namespace AutoserviceApp.Views
                 {
                     Код = order.Код,
                     ДатаНачала = order.ДатаНачала,
-                    ДатаОкончания = order.ДатаОкончания ?? default(DateTime),
+                    ДатаОкончания = order.ДатаОкончания,
                     КодКлиента = order.КодКлиента,
                     ФамилияКлиента = _clientRepository.GetById(order.КодКлиента)?.Фамилия ?? "Неизвестно",
                     КодАвтомобиля = order.КодАвтомобиля,
@@ -82,6 +92,7 @@ namespace AutoserviceApp.Views
                 .ToList();
 
             OrdersListBox.ItemsSource = orders;
+            _orders = orders;
         }
 
         private void OrdersListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -96,6 +107,44 @@ namespace AutoserviceApp.Views
                 CarDropdown.SelectedValue = selectedOrder.КодАвтомобиля;
             }
         }
+
+        private void SortOrders_Click(object sender, RoutedEventArgs e)
+        {
+            _currentSortMode = _currentSortMode switch
+            {
+                SortMode.Default => SortMode.Ascending,
+                SortMode.Ascending => SortMode.Descending,
+                _ => SortMode.Default
+            };
+
+            ApplySorting();
+        }
+
+        private void ApplySorting()
+        {
+            if (_orders == null || !_orders.Any())
+            {
+                OrdersListBox.ItemsSource = new List<Order>(); // или просто return;
+                return;
+            }
+
+            switch (_currentSortMode)
+            {
+                case SortMode.Default:
+                    SortOrdersButton.Content = "Сортировки нет";
+                    OrdersListBox.ItemsSource = _orders;
+                    break;
+                case SortMode.Ascending:
+                    SortOrdersButton.Content = "Дата начала ↑";
+                    OrdersListBox.ItemsSource = _orders.OrderBy(o => o.ДатаНачала).ToList();
+                    break;
+                case SortMode.Descending:
+                    SortOrdersButton.Content = "Дата начала ↓";
+                    OrdersListBox.ItemsSource = _orders.OrderByDescending(o => o.ДатаНачала).ToList();
+                    break;
+            }
+        }
+
 
         private void AddOrder_Click(object sender, RoutedEventArgs e)
         {
