@@ -39,7 +39,8 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="0,15,0,5">
-                    <Button x:Name="SortOrdersButton" Content="Дата начала - Сортировка" Click="SortOrders_Click" Style="{StaticResource EditButton}" Width="200"/>
+                    <Button x:Name="SortOrdersButton" Content="Дата начала - Сортировка" Click="SortOrders_Click" Style="{StaticResource AddButton}" Width="200"/>
+                    <Button Content="Экспорт в Excel" Click="ExportOrders_Click"  Style="{StaticResource EditButton}" Width="200"/>
                 </StackPanel>
             </StackPanel>
 

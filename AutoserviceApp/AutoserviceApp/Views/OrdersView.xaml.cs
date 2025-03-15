@@ -120,6 +120,8 @@ namespace AutoserviceApp.Views
             ApplySorting();
         }
 
+        private void ExportOrders_Click(object sender, RoutedEventArgs e) => ExcelExportHelper.ExportOrdersToExcel(_orders);
+
         private void ApplySorting()
         {
             if (_orders == null || !_orders.Any())
