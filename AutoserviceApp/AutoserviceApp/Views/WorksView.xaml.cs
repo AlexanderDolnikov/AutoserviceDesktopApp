@@ -65,12 +65,12 @@ namespace AutoserviceApp.Views
         }
         private void LoadMasters()
         {
-            var masters = _masterRepository.GetAllMasters();
+            var masters = _masterRepository.GetAll();
             MasterDropdown.ItemsSource = masters;
         }
         private void LoadWorkTypes()
         {
-            var workTypes = _workTypeRepository.GetAllWorkTypes();
+            var workTypes = _workTypeRepository.GetAll();
             WorkTypeDropdown.ItemsSource = workTypes;
         }
 
@@ -107,7 +107,7 @@ namespace AutoserviceApp.Views
 
         private List<WorkWithInfo> GetWorksByOrderId(int orderId)
         {
-            var works = _workRepository.GetAllWorks()
+            var works = _workRepository.GetAll()
                 .Where(works => works.КодЗаказа == _selectedOrder.Код)
                 .Select(works => new WorkWithInfo
                 {
@@ -116,9 +116,9 @@ namespace AutoserviceApp.Views
                     Описание = works.Описание,
                     Стоимость = works.Стоимость,
                     КодМастера = works.КодМастера,
-                    ФамилияМастера = _masterRepository.GetMasterNameById(works.КодМастера),
+                    ФамилияМастера = _masterRepository.GetById(works.КодМастера).Фамилия,
                     КодВидаРаботы = works.КодВидаРаботы,
-                    НазваниеВидаРаботы = _workTypeRepository.GetWorkTypeNameById(works.КодВидаРаботы)
+                    НазваниеВидаРаботы = _workTypeRepository.GetById(works.КодВидаРаботы).Название
                 })
                 .ToList();
 
@@ -143,7 +143,7 @@ namespace AutoserviceApp.Views
                 Стоимость = decimal.Parse(WorkCostTextBox.Text)
             };
 
-            _workRepository.AddWork(newWork);
+            _workRepository.Add(newWork);
             LoadWorks(_selectedOrder.Код);
 
             SetFocusOnFirstInput();
@@ -178,7 +178,7 @@ namespace AutoserviceApp.Views
                 };
 
                 // Обновляем и загружаем работы
-                _workRepository.UpdateWork(updatedWork);
+                _workRepository.Update(updatedWork);
                 LoadWorks(_selectedOrder.Код);
 
                 WorksListBox.SelectedIndex = _selectedWorkIndex;
@@ -191,7 +191,7 @@ namespace AutoserviceApp.Views
             {
                 // Проверяем, есть ли у работы жалобы или детали
                 bool hasComplaints = _complaintRepository.GetComplaintsByWorkId(selectedWork.Код).Any();
-                bool hasWorkDetails = _workDetailRepository.GetAllWorkDetails().Any(d => d.КодРаботы == selectedWork.Код);
+                bool hasWorkDetails = _workDetailRepository.GetAll().Any(d => d.КодРаботы == selectedWork.Код);
 
                 if (hasComplaints || hasWorkDetails)
                 {
@@ -206,7 +206,7 @@ namespace AutoserviceApp.Views
 
                 try
                 {
-                    _workRepository.DeleteWork(selectedWork.Код);
+                    _workRepository.Delete(selectedWork.Код);
                     MessageBox.Show("Работа успешно удалена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadWorks(_selectedOrder.Код);
 

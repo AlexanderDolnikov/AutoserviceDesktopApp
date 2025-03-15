@@ -3,15 +3,12 @@ using AutoserviceApp.Models;
 
 namespace AutoserviceApp.DataAccess.Repositories
 {
-    public class UserRepository
+    public class UserRepository : BaseRepository<User>
     {
         private readonly DatabaseContext _context;
 
-        public UserRepository(DatabaseContext context)
-        {
-            _context = context;
-        }
-
+        public UserRepository(DatabaseContext context) : base(context) { _context = context; }
+ 
         public List<User> GetAllUsers()
         {
             var users = new List<User>();
@@ -59,6 +56,7 @@ namespace AutoserviceApp.DataAccess.Repositories
             }
             return null;
         }
+
         public void AddUser(string login, string password, string role)
         {
             using (var connection = _context.GetConnection())
@@ -81,7 +79,6 @@ namespace AutoserviceApp.DataAccess.Repositories
                 command.ExecuteNonQuery();
             }
         }
-
 
         public void UpdateUser(int userId, string newLogin, string newRole)
         {
@@ -123,17 +120,6 @@ namespace AutoserviceApp.DataAccess.Repositories
             }
         }
 
-        public void DeleteUser(int userId)
-        {
-            using (var connection = _context.GetConnection())
-            {
-                connection.Open();
-
-                var command = new SqlCommand("DELETE FROM Users WHERE Id = @UserId", connection);
-                command.Parameters.AddWithValue("@UserId", userId);
-                command.ExecuteNonQuery();
-            }
-        }
+        // delete user logic is now in BaseRepository
     }
 }
-

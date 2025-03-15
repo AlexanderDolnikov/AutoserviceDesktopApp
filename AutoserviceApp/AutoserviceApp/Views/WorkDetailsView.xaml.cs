@@ -60,7 +60,7 @@ namespace AutoserviceApp.Views
 
         private void LoadDetails()
         {
-            DetailDropdown.ItemsSource = _detailRepository.GetAllDetails();
+            DetailDropdown.ItemsSource = _detailRepository.GetAll();
         }
 
         private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
@@ -88,12 +88,12 @@ namespace AutoserviceApp.Views
 
         private void LoadWorkDetails(int workId)
         {
-            var details = _workDetailRepository.GetAllWorkDetails()
+            var details = _workDetailRepository.GetAll()
                 .Where(detail => detail.КодРаботы == workId)
                 .Select(detail => new WorkDetailsWithInfo
                 {
                     Код = detail.Код,
-                    НазваниеДетали = _detailRepository.GetDetailNameById(detail.КодДетали),
+                    НазваниеДетали = _detailRepository.GetById(detail.КодДетали).Название,
                     Количество = detail.Количество
                 })
                 .ToList();
@@ -112,7 +112,7 @@ namespace AutoserviceApp.Views
                 Количество = int.Parse(WorkQuantityTextBox.Text)
             };
 
-            _workDetailRepository.AddWorkDetail(newWorkDetail);
+            _workDetailRepository.Add(newWorkDetail);
             LoadWorkDetails(_selectedWork.Код);
 
             SetFocusOnFirstInput();
@@ -130,7 +130,7 @@ namespace AutoserviceApp.Views
                     Количество = int.Parse(WorkQuantityTextBox.Text)
                 };
 
-                _workDetailRepository.UpdateWorkDetail(updatedDetail);
+                _workDetailRepository.Update(updatedDetail);
                 LoadWorkDetails(_selectedWork.Код);
 
                 WorkDetailsListBox.SelectedIndex = _selectedWorkDetailIndex;
@@ -141,7 +141,7 @@ namespace AutoserviceApp.Views
         {
             if (((Button)sender).DataContext is WorkDetailsWithInfo selectedWorkDetailWithDetailAmount)
             {
-                _workDetailRepository.DeleteWorkDetail(selectedWorkDetailWithDetailAmount.Код);
+                _workDetailRepository.Delete(selectedWorkDetailWithDetailAmount.Код);
                 LoadWorkDetails(_selectedWork.Код);
 
                 SetFocusOnFirstInput();

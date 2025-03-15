@@ -43,7 +43,7 @@ namespace AutoserviceApp.Views
 
         private void LoadDetails()
         {
-            _details = _detailRepository.GetAllDetails();
+            _details = _detailRepository.GetAll();
             DetailsListBox.ItemsSource = _details;
         }
 
@@ -83,7 +83,7 @@ namespace AutoserviceApp.Views
                 Производитель = DetailManufacturerTextBox.Text.Trim()
             };
 
-            _detailRepository.AddDetail(newDetail);
+            _detailRepository.Add(newDetail);
             LoadDetails();
 
             SetFocusOnFirstInput();
@@ -103,7 +103,7 @@ namespace AutoserviceApp.Views
             }
             _selectedDetail.Стоимость = cost;
 
-            _detailRepository.UpdateDetail(_selectedDetail);
+            _detailRepository.Update(_selectedDetail);
             LoadDetails();
 
             DetailsListBox.SelectedIndex = _selectedDetailIndex;
@@ -114,7 +114,7 @@ namespace AutoserviceApp.Views
             if (((Button)sender).DataContext is Detail selectedDetail)
             {
                 // Проверка на существование связанных записей
-                bool hasWorkDetails = _workDetailRepository.GetAllWorkDetails().Any(d => d.КодДетали == selectedDetail.Код);
+                bool hasWorkDetails = _workDetailRepository.GetAll().Any(d => d.КодДетали == selectedDetail.Код);
 
                 if (hasWorkDetails)
                 {
@@ -129,7 +129,7 @@ namespace AutoserviceApp.Views
 
                 try
                 {
-                    _detailRepository.DeleteDetail(selectedDetail.Код);
+                    _detailRepository.Delete(selectedDetail.Код);
                     MessageBox.Show("Деталь успешно удалена!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadDetails();
                 }

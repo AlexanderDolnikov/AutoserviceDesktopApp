@@ -47,7 +47,7 @@ namespace AutoserviceApp.Views
         /* - - - - - */
         private void LoadModels()
         {
-            ModelDropdown.ItemsSource = _modelRepository.GetAllModels();
+            ModelDropdown.ItemsSource = _modelRepository.GetAll();
         }
         private void CarsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -64,12 +64,12 @@ namespace AutoserviceApp.Views
 
         private void LoadCars()
         {
-            _cars = _carRepository.GetAllCars()
+            _cars = _carRepository.GetAll()
                 .Select(car => new CarWithInfo
                 {
                     Код = car.Код,
                     КодМодели = car.КодМодели,
-                    НазваниеМодели = _modelRepository.GetModelNameById(car.КодМодели),
+                    НазваниеМодели = _modelRepository.GetById(car.КодМодели).Название,
                     НомернойЗнак = car.НомернойЗнак,
                     ГодВыпуска = car.ГодВыпуска
                 })
@@ -101,7 +101,7 @@ namespace AutoserviceApp.Views
 
             try
             {
-                _carRepository.AddCar(newCar);
+                _carRepository.Add(newCar);
                 LoadCars();
 
                 SetFocusOnFirstInput();
@@ -150,7 +150,7 @@ namespace AutoserviceApp.Views
 
             try
             {
-                _carRepository.UpdateCar(updatedCar);
+                _carRepository.Update(updatedCar);
                 LoadCars();
 
                 CarsListBox.SelectedIndex = _selectedCarIndex;
@@ -175,7 +175,7 @@ namespace AutoserviceApp.Views
             if (((Button)sender).DataContext is CarWithInfo selectedCar)
             {
                 // Проверяем, есть ли заказы, связанные с этим автомобилем
-                bool hasOrders = _orderRepository.GetAllOrders().Any(order => order.КодАвтомобиля == selectedCar.Код);
+                bool hasOrders = _orderRepository.GetAll().Any(order => order.КодАвтомобиля == selectedCar.Код);
 
                 if (hasOrders)
                 {
@@ -188,7 +188,7 @@ namespace AutoserviceApp.Views
                     if (result != MessageBoxResult.Yes) return;
                 }
 
-                _carRepository.DeleteCar(selectedCar.Код);
+                _carRepository.Delete(selectedCar.Код);
                 LoadCars();
 
                 SetFocusOnFirstInput();

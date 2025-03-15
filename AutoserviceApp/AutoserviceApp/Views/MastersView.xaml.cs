@@ -43,7 +43,7 @@ namespace AutoserviceApp.Views
 
         private void LoadMasters()
         {
-            _masters = _masterRepository.GetAllMasters();
+            _masters = _masterRepository.GetAll();
             MastersListBox.ItemsSource = _masters;
         }
 
@@ -78,7 +78,7 @@ namespace AutoserviceApp.Views
                 Специализация = MasterSpecializationTextBox.Text.Trim()
             };
 
-            _masterRepository.AddMaster(newMaster);
+            _masterRepository.Add(newMaster);
             LoadMasters();
 
             SetFocusOnFirstInput();
@@ -93,7 +93,7 @@ namespace AutoserviceApp.Views
             _selectedMaster.Телефон = MasterPhoneTextBox.Text.Trim();
             _selectedMaster.Специализация = MasterSpecializationTextBox.Text.Trim();
 
-            _masterRepository.UpdateMaster(_selectedMaster);
+            _masterRepository.Update(_selectedMaster);
             LoadMasters();
 
             MastersListBox.SelectedIndex = _selectedMasterIndex;
@@ -104,7 +104,7 @@ namespace AutoserviceApp.Views
             if (((Button)sender).DataContext is Master selectedMaster)
             {
                 // Проверка на существование связанных записей
-                bool hasWorks = _workRepository.GetAllWorks().Any(w => w.КодМастера == selectedMaster.Код);
+                bool hasWorks = _workRepository.GetAll().Any(w => w.КодМастера == selectedMaster.Код);
 
                 if (hasWorks)
                 {
@@ -119,7 +119,7 @@ namespace AutoserviceApp.Views
 
                 try
                 {
-                    _masterRepository.DeleteMaster(selectedMaster.Код);
+                    _masterRepository.Delete(selectedMaster.Код);
                     MessageBox.Show("Мастер успешно удален!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadMasters();
                 }

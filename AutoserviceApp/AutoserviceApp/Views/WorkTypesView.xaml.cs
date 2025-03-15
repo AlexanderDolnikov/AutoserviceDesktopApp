@@ -43,7 +43,7 @@ namespace AutoserviceApp.Views
 
         private void LoadWorkTypes()
         {
-            _workTypes = _workTypeRepository.GetAllWorkTypes();
+            _workTypes = _workTypeRepository.GetAll();
             WorkTypesListBox.ItemsSource = _workTypes;
         }
 
@@ -71,7 +71,7 @@ namespace AutoserviceApp.Views
                 Название = WorkTypeNameTextBox.Text.Trim()
             };
 
-            _workTypeRepository.AddWorkType(newWorkType);
+            _workTypeRepository.Add(newWorkType);
             LoadWorkTypes();
 
             SetFocusOnFirstInput();
@@ -82,7 +82,7 @@ namespace AutoserviceApp.Views
             if (_selectedWorkType == null) return;
 
             _selectedWorkType.Название = WorkTypeNameTextBox.Text.Trim();
-            _workTypeRepository.UpdateWorkType(_selectedWorkType);
+            _workTypeRepository.Update(_selectedWorkType);
             LoadWorkTypes();
 
             WorkTypesListBox.SelectedIndex = _selectedWorkTypeIndex;
@@ -92,7 +92,7 @@ namespace AutoserviceApp.Views
         {
             if (((Button)sender).DataContext is WorkType selectedWorkType)
             {
-                bool hasWorks = _workRepository.GetAllWorks().Any(w => w.КодВидаРаботы == selectedWorkType.Код);
+                bool hasWorks = _workRepository.GetAll().Any(w => w.КодВидаРаботы == selectedWorkType.Код);
 
                 if (hasWorks)
                 {
@@ -105,7 +105,7 @@ namespace AutoserviceApp.Views
                     if (result != MessageBoxResult.Yes) return;
                 }
 
-                _workTypeRepository.DeleteWorkType(selectedWorkType.Код);
+                _workTypeRepository.Delete(selectedWorkType.Код);
                 LoadWorkTypes();
 
                 SetFocusOnFirstInput();

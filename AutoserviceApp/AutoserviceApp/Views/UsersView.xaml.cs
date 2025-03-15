@@ -137,7 +137,7 @@ namespace AutoserviceApp.Views
 
             if (result == MessageBoxResult.Yes)
             {
-                _userRepository.DeleteUser(selectedUser.Id);
+                _userRepository.Delete(selectedUser.Id);
                 LoadUsers();
                 MessageBox.Show("Пользователь удален!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }

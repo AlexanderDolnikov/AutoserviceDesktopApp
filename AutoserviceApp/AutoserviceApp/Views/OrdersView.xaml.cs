@@ -51,7 +51,7 @@ namespace AutoserviceApp.Views
 
         private void LoadCars()
         {
-            var cars = _carRepository.GetAllCars();
+            var cars = _carRepository.GetAll();
             CarDropdown.ItemsSource = cars;
         }
 
@@ -68,7 +68,7 @@ namespace AutoserviceApp.Views
         /* - - - Заказы - - - */
         private void LoadOrders()
         {
-            var orders = _orderRepository.GetAllOrders()
+            var orders = _orderRepository.GetAll()
                 .Select(order => new OrderWithInfo
                 {
                     Код = order.Код,
@@ -77,7 +77,7 @@ namespace AutoserviceApp.Views
                     КодКлиента = order.КодКлиента,
                     ФамилияКлиента = _clientRepository.GetById(order.КодКлиента)?.Фамилия ?? "Неизвестно",
                     КодАвтомобиля = order.КодАвтомобиля,
-                    НомернойЗнакАвтомобиля = _carRepository.GetCarById(order.КодАвтомобиля)?.НомернойЗнак ?? "Неизвестно",
+                    НомернойЗнакАвтомобиля = _carRepository.GetById(order.КодАвтомобиля)?.НомернойЗнак ?? "Неизвестно",
                 })
                 .ToList();
 
@@ -119,7 +119,7 @@ namespace AutoserviceApp.Views
                 КодАвтомобиля = (int)CarDropdown.SelectedValue
             };
 
-            _orderRepository.AddOrder(newOrder);
+            _orderRepository.Add(newOrder);
             LoadOrders();
 
             SetFocusOnFirstInput();
@@ -152,7 +152,7 @@ namespace AutoserviceApp.Views
                     КодАвтомобиля = (int)CarDropdown.SelectedValue
                 };
 
-                _orderRepository.UpdateOrder(updatedOrder);
+                _orderRepository.Update(updatedOrder);
                 LoadOrders();
 
                 OrdersListBox.SelectedIndex = _selectedOrderIndex;
@@ -164,7 +164,7 @@ namespace AutoserviceApp.Views
             if (((Button)sender).DataContext is OrderWithInfo selectedOrder)
             {
                 // Проверяем, есть ли у заказа работы
-                bool hasWorks = _workRepository.GetAllWorks().Any(w => w.КодЗаказа == selectedOrder.Код);
+                bool hasWorks = _workRepository.GetAll().Any(w => w.КодЗаказа == selectedOrder.Код);
 
                 if (hasWorks)
                 {
@@ -179,7 +179,7 @@ namespace AutoserviceApp.Views
 
                 try
                 {
-                    _orderRepository.DeleteOrder(selectedOrder.Код);
+                    _orderRepository.Delete(selectedOrder.Код);
                     MessageBox.Show("Заказ удален!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadOrders();
 

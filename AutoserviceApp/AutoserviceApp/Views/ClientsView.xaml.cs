@@ -105,7 +105,7 @@ namespace AutoserviceApp.Views
             if (((Button)sender).DataContext is Client selectedClient)
             {
                 // Проверка на существование связанных заказов
-                bool hasOrders = _orderRepository.GetAllOrders().Any(o => o.КодКлиента == selectedClient.Код);
+                bool hasOrders = _orderRepository.GetAll().Any(o => o.КодКлиента == selectedClient.Код);
 
                 if (hasOrders)
                 {
