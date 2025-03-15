@@ -1,6 +1,10 @@
 ﻿using AutoserviceApp.Models;
+using DocumentFormat.OpenXml.CustomProperties;
+using DocumentFormat.OpenXml.ExtendedProperties;
+using DocumentFormat.OpenXml.Office.Word;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Vml.Spreadsheet;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -8,6 +12,7 @@ using System.DirectoryServices;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace AutoserviceApp.DataAccess.Repositories
 {
@@ -21,7 +26,7 @@ namespace AutoserviceApp.DataAccess.Repositories
         {
             _context = context;
             _mapper = EntityMapper.GetMapper<T>();
-            _tableName = EntityMapper.GetTableName<T>();
+            _tableName = EntityMapper.GetTableName(typeof(T));
         }
 
         public T GetById(int id)
@@ -56,26 +61,60 @@ namespace AutoserviceApp.DataAccess.Repositories
             return resultItems;
         }
 
-        public void Add(string insertQuery, Action<SqlCommand> setParameters)
+        public void Add(T db_object)
         {
+            // получаем свойства
+            var properties = EntityMapper.GetCachedProperties(typeof(T));
+
+            // создаем query
+            string fieldNames = string.Join(", ", properties.Select(p => p.Name));
+            string fieldValues = string.Join(", ", properties.Select(p => "@" + p.Name));
+
+            string query = $"INSERT INTO {_tableName} ({fieldNames}) VALUES ({fieldValues})";
+
+            // подключаемся к бд
             using (var connection = _context.GetConnection())
             {
                 connection.Open();
-                var command = new SqlCommand(insertQuery, connection);
-                setParameters(command);
+
+                var command = new SqlCommand(query, connection);
+
+                // вставляем значения
+                foreach (var prop in properties)
+                {
+                    command.Parameters.AddWithValue($"@{prop.Name}", prop.GetValue(db_object) ?? DBNull.Value);
+                }
 
                 command.ExecuteNonQuery();
             }
         }
 
-        public void Update(string updateQuery, Action<SqlCommand> setParameters)
+        public void Update(T db_object)
         {
+            // получаем свойства
+            var properties = EntityMapper.GetCachedProperties(typeof(T));
+
+            // создаем query
+            var setFields = string.Join(", ", properties.Select(p => $"{p.Name} = @{p.Name}"));
+
+            string query = $"UPDATE {_tableName} SET {setFields} WHERE Код = @Код";
+
+            // подключаемся к бд
             using (var connection = _context.GetConnection())
             {
                 connection.Open();
-                var command = new SqlCommand(updateQuery, connection);
-                setParameters(command);
 
+                var command = new SqlCommand(query, connection);
+
+                // вставляем значения
+                foreach (var prop in properties)
+                {
+                    command.Parameters.AddWithValue($"@{prop.Name}", prop.GetValue(db_object) ?? DBNull.Value);
+                }
+
+                // получаем id нашего объекта
+                command.Parameters.AddWithValue("@Код", typeof(T).GetProperty("Код").GetValue(db_object));
+            
                 command.ExecuteNonQuery();
             }
         }

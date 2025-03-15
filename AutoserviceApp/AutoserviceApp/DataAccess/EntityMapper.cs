@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
+using System.Reflection;
 using AutoserviceApp.Models;
 
 namespace AutoserviceApp.DataAccess
 {
     public static class EntityMapper
     {
+        // _mappers 
         private static readonly Dictionary<Type, Func<SqlDataReader, object>> _mappers = new()
         {
             { typeof(Client), reader => new Client
@@ -111,6 +111,7 @@ namespace AutoserviceApp.DataAccess
             }
         };
 
+        // _tableNames
         private static readonly Dictionary<Type, string> _tableNames = new()
         {
             { typeof(Client), "Клиент" },
@@ -122,9 +123,12 @@ namespace AutoserviceApp.DataAccess
             { typeof(WorkType), "ВидРаботы" },
             { typeof(Master), "Мастер" },
             { typeof(WorkDetail), "ДетальРаботы" },
-            { typeof(Complaint), "Жалобв" },
+            { typeof(Complaint), "Жалоба" },
             { typeof(User), "Users" }
         };
+
+        // _propertiesCache
+        private static readonly Dictionary<Type, PropertyInfo[]> _propertiesCache = new();
 
         public static Func<SqlDataReader, T> GetMapper<T>() where T : class
         {
@@ -134,12 +138,26 @@ namespace AutoserviceApp.DataAccess
             throw new InvalidOperationException($"No mapper registered for type {typeof(T).Name}");
         }
 
-        public static string GetTableName<T>() where T : class
+        public static string GetTableName(Type type)
         {
-            if (_tableNames.TryGetValue(typeof(T), out var tableName))
+            if (_tableNames.TryGetValue(type, out var tableName))
                 return tableName;
 
-            throw new InvalidOperationException($"No tableName registered for type {typeof(T).Name}");
+            throw new InvalidOperationException($"No tableName registered for type {type.Name}");
+        }
+
+        public static PropertyInfo[] GetCachedProperties(Type type)
+        {
+            if (!_propertiesCache.TryGetValue(type, out var properties))
+            {
+                properties = type.GetProperties()
+                    .Where(p => p.Name != "Код")
+                    .ToArray();
+
+                _propertiesCache[type] = properties;
+            }
+
+            return properties;
         }
     }
 }
