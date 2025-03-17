@@ -26,9 +26,33 @@ namespace AutoserviceApp.Views
             _dbProceduresAndFunctionsRepository = new DBProceduresAndFunctionsRepository(_context);
             _masterRepository = new MasterRepository(_context);
 
+            MastersChart.Configuration.LockHorizontalAxis = true;
+            MastersChart.Configuration.LockVerticalAxis = true;
+            WorkTypesChart.Configuration.LockHorizontalAxis = true;
+            WorkTypesChart.Configuration.LockVerticalAxis = true;
+            IncomeChart.Configuration.LockHorizontalAxis = true;
+            IncomeChart.Configuration.LockVerticalAxis = true;
+
+            ApplyStyles(MastersChart);
+            ApplyStyles(WorkTypesChart);
+            ApplyStyles(IncomeChart);
+
             LoadMastersData();
             LoadWorkTypesData();
             LoadIncomeData();
+        }
+
+        void ApplyStyles(WpfPlot chart)
+        {
+            chart.Plot.Style(
+                figureBackground: System.Drawing.ColorTranslator.FromHtml("#2c4055"),
+                dataBackground: System.Drawing.ColorTranslator.FromHtml("#34495e"),
+                grid: System.Drawing.ColorTranslator.FromHtml("#506070"),
+                axisLabel: System.Drawing.Color.White,
+                titleLabel: System.Drawing.Color.White,
+                tick: System.Drawing.Color.LightGray
+            );
+            chart.Refresh();
         }
 
         private void LoadMastersData()
@@ -40,7 +64,7 @@ namespace AutoserviceApp.Views
                 return;
             }
 
-            double[] values = masterStats.Select(m => (double)m.КоличествоРабот).ToArray();
+            double[] values = masterStats.Select(m => (double)m.КоличествоРабот).OrderBy(m => m).ToArray();
             double[] positions = Enumerable.Range(0, values.Length).Select(i => (double)i).ToArray();
             string[] labels = masterStats
                 .Select(m =>
@@ -53,14 +77,14 @@ namespace AutoserviceApp.Views
             MastersChart.Plot.Clear();
             MastersChart.Plot.AddBar(values, positions);
             MastersChart.Plot.XTicks(positions, labels);
+            MastersChart.Plot.XLabel("Мастера");
+            MastersChart.Plot.XAxis.TickLabelStyle(rotation: 45, fontSize: 14, fontBold: true);
+            MastersChart.Plot.YAxis.TickLabelStyle(fontSize: 14);
             MastersChart.Plot.SetAxisLimits(yMin: 0);
             MastersChart.Plot.Title("Работы мастеров");
             MastersChart.Plot.YLabel("Количество работ");
-
-            // Обновляем график
             MastersChart.Refresh();
         }
-
 
         private void LoadWorkTypesData()
         {
@@ -74,32 +98,64 @@ namespace AutoserviceApp.Views
             string[] labels = workTypesData.Select(w => w.НазваниеВидаРаботы).ToArray();
             double[] values = workTypesData.Select(w => (double)w.КоличествоРабот).ToArray();
 
-            // Очищаем и строим круговую диаграмму
             WorkTypesChart.Plot.Clear();
-            WorkTypesChart.Plot.AddPie(values);
             WorkTypesChart.Plot.Title("Работы по видам");
+
+            var pie = WorkTypesChart.Plot.AddPie(values);
+            pie.SliceLabels = labels;
+            pie.ShowPercentages = true;
+            pie.ShowLabels = true;
+            pie.CenterFont.Size = 12;
+            pie.SliceFont.Size = 13;
+
+            // Вынес текст за пределы круга
+            pie.Explode = true;
+
+            pie.CenterFont.Color = System.Drawing.Color.White;
             WorkTypesChart.Render();
         }
 
         private void LoadIncomeData()
         {
             var incomeStats = _dbViewsRepository.GetMonthlyIncome();
+
             if (incomeStats.Count == 0)
             {
                 MessageBox.Show("Нет данных по доходности.", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
-            string[] months = incomeStats.Select(i => i.Месяц).ToArray();
-            double[] income = incomeStats.Select(i => (double)i.ОбщийДоход).ToArray();
+            var monthsList = incomeStats
+                .Select(i => DateTime.ParseExact(i.Месяц, "yyyy-MM", null))
+                .ToList();
 
-            // Очищаем и строим график дохода
+            var allMonths = Enumerable.Range(0, (monthsList.Max() - monthsList.Min()).Days / 30 + 1)
+                .Select(offset => monthsList.Min().AddMonths(offset).ToString("yyyy-MM"))
+                .ToArray();
+
+            // Заполняем доходы, подставляя 0 для отсутствующих месяцев
+            var incomeDict = incomeStats.ToDictionary(i => i.Месяц, i => (double)i.ОбщийДоход);
+
+            double[] income = allMonths
+                .Select(m => incomeDict.GetValueOrDefault(m, 0))
+                .ToArray();
+
             IncomeChart.Plot.Clear();
-            IncomeChart.Plot.AddScatter(Enumerable.Range(0, months.Length).Select(i => (double)i).ToArray(), income);
-            IncomeChart.Plot.XTicks(Enumerable.Range(0, months.Length).Select(i => (double)i).ToArray(), months);
+
+            var xs = Enumerable.Range(0, allMonths.Length)
+                .Select(i => (double)i)
+                .ToArray();
+
+            IncomeChart.Plot.AddScatter(xs, income, System.Drawing.Color.Cyan, lineWidth: 2, markerSize: 8, markerShape: ScottPlot.MarkerShape.filledCircle);
+
+            IncomeChart.Plot.XTicks(xs, allMonths);
             IncomeChart.Plot.Title("Доход по месяцам");
             IncomeChart.Plot.YLabel("Доход");
+            IncomeChart.Plot.XLabel("Месяцы");
+            IncomeChart.Plot.XAxis.TickLabelStyle(fontSize: 14);
+            IncomeChart.Plot.YAxis.TickLabelStyle(fontSize: 14);
             IncomeChart.Render();
         }
+
     }
 }
