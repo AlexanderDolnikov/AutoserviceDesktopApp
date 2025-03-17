@@ -78,7 +78,7 @@ namespace AutoserviceApp.Views
         /* - - - Заказы - - - */
         private void LoadOrders()
         {
-            var orders = _orderRepository.GetAll()
+            var orders = _orderRepository.GetAllOrdersWithInfo()
                 .Select(order => new OrderWithInfo
                 {
                     Код = order.Код,
@@ -119,8 +119,6 @@ namespace AutoserviceApp.Views
 
             ApplySorting();
         }
-
-        private void ExportOrders_Click(object sender, RoutedEventArgs e) => ExcelExportHelper.ExportOrdersToExcel(_orders);
 
         private void ApplySorting()
         {

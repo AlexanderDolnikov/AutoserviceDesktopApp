@@ -40,11 +40,7 @@
         <!-- Главное меню -->
         <Menu DockPanel.Dock="Top" Background="#2c4055" Foreground="White" Padding="3" Grid.Row="1">
             <MenuItem Header="Справка" Foreground="White" Click="ShowWelcomeScreen"/>
-            <MenuItem Header="Отчеты">
-                <MenuItem Header="Отчет по таблице 'Деталь'" Click="GenerateReport1_Click" Foreground="black"/>
-                <MenuItem Header="Отчет по популярным деталям" Click="GenerateReport2_Click" Foreground="black"/>
-                <MenuItem Header="Отчет по группировке деталей" Click="GenerateReport3_Click" Foreground="black"/>
-            </MenuItem>
+            <MenuItem Header="Отчеты" Click="OpenReportsView_Click"/>
             <MenuItem Header="О программе" Click="ShowAbout_Click"/>
             <MenuItem Header="Выход" Click="Exit_Click"/>
         </Menu>

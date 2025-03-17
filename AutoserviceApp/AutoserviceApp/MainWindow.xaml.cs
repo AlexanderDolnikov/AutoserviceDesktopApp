@@ -5,6 +5,7 @@ using AutoserviceApp.DataAccess.Repositories;
 using AutoserviceApp.DataAccess;
 using AutoserviceApp.Models;
 using AutoserviceApp.ViewModels;
+using AutoserviceApp.Views;
 
 namespace AutoserviceApp
 {
@@ -134,17 +135,9 @@ namespace AutoserviceApp
 
             MessageBox.Show(helpText, "Справка", MessageBoxButton.OK, MessageBoxImage.Information);
         }
-        private void GenerateReport1_Click(object sender, RoutedEventArgs e)
+        private void OpenReportsView_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Отчет 1...", "Отчет");
-        }
-        private void GenerateReport2_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Отчет 2...", "Отчет");
-        }
-        private void GenerateReport3_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Отчет 3...", "Отчет");
+            _viewModel.SwitchView("Отчеты");
         }
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

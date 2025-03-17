@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoserviceApp.DataAccess.Models;
 using AutoserviceApp.Models;
 using AutoserviceApp.Models.DBViewsModels;
 
@@ -18,29 +19,36 @@ namespace AutoserviceApp.DataAccess.Repositories
             _context = context;
         }
 
-        public List<MonthlyIncome> GetMonthlyIncome()
+        public List<Order> GetOrdersForPeriod(DateTime startDate, DateTime endDate)
         {
-            var incomeList = new List<MonthlyIncome>();
+            var orders = new List<Order>();
 
             using (var connection = _context.GetConnection())
             {
                 connection.Open();
-                var command = new SqlCommand("SELECT * FROM vw_MonthlyIncome", connection);
+                var command = new SqlCommand("usp_GetOrdersForDatePeriod", connection);
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+
+                command.Parameters.AddWithValue("@startDate", startDate);
+                command.Parameters.AddWithValue("@endDate", endDate);
+
                 var reader = command.ExecuteReader();
 
                 while (reader.Read())
                 {
-                    incomeList.Add(new MonthlyIncome
+                    orders.Add(new Order
                     {
-                        Месяц = reader["Месяц"].ToString(),
-                        ОбщийДоход = (decimal)reader["ОбщийДоход"]
+                        ДатаНачала = (DateTime)reader["ДатаНачала"],
+                        ДатаОкончания = reader["ДатаОкончания"] as DateTime?,
+                        КодКлиента = (int)reader["КодКлиента"],
+                        КодАвтомобиля = (int)reader["КодАвтомобиля"]
                     });
                 }
             }
-            return incomeList;
+            return orders;
         }
 
-        public List<MasterWithWorkAmounts> GetWorkStats()
+        public List<MasterWithWorkAmounts> GetMasterWithWorkAmounts()
         {
             var workStatsList = new List<MasterWithWorkAmounts>();
 
@@ -62,6 +70,28 @@ namespace AutoserviceApp.DataAccess.Repositories
             return workStatsList;
         }
 
+        public List<MonthlyIncome> GetMonthlyIncome()
+        {
+            var incomeList = new List<MonthlyIncome>();
+
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("SELECT * FROM vw_MonthlyIncome", connection);
+                var reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    incomeList.Add(new MonthlyIncome
+                    {
+                        Месяц = reader["Месяц"].ToString(),
+                        КоличествоЗаказов = (int)reader["КоличествоЗаказов"],
+                        ОбщийДоход = (decimal)reader["ОбщийДоход"]
+                    });
+                }
+            }
+            return incomeList;
+        }
 
     }
 }

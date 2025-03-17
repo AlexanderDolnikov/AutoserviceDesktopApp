@@ -78,7 +78,8 @@ namespace AutoserviceApp.ViewModels
                 { "Детали", () => new Views.DetailsView() },
                 { "Мастера", () => new Views.MastersView() },
                 { "Виды работ", () => new Views.WorkTypesView() },
-                { "Пользователи", () => new Views.UsersView() }
+                { "Пользователи", () => new Views.UsersView() },
+                { "Отчеты", () => new Views.ReportsView() }
             };
         }
 

@@ -8,7 +8,7 @@ namespace AutoserviceApp.DataAccess.Repositories
     {
         public OrderRepository(DatabaseContext context) : base(context) { }
 
-        public List<OrderWithInfo> GetAll()
+        public List<OrderWithInfo> GetAllOrdersWithInfo()
         {
             var orders = new List<OrderWithInfo>();
 
@@ -34,6 +34,5 @@ namespace AutoserviceApp.DataAccess.Repositories
             }
             return orders;
         }
-
     }
 }
