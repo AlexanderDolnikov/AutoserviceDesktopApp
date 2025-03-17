@@ -140,6 +140,11 @@ namespace AutoserviceApp
             _viewModel.SwitchView("Отчеты");
         }
 
+        private void OpenChartsView_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.SwitchView("Диаграммы");
+        }
+
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)

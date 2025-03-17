@@ -79,7 +79,8 @@ namespace AutoserviceApp.ViewModels
                 { "Мастера", () => new Views.MastersView() },
                 { "Виды работ", () => new Views.WorkTypesView() },
                 { "Пользователи", () => new Views.UsersView() },
-                { "Отчеты", () => new Views.ReportsView() }
+                { "Отчеты", () => new Views.ReportsView() },
+                { "Диаграммы", () => new Views.ChartsView() }
             };
         }
 
@@ -104,8 +105,6 @@ namespace AutoserviceApp.ViewModels
                 }
             }
         }
-
-
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

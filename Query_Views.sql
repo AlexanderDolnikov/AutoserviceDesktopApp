@@ -1,11 +1,6 @@
 DROP VIEW IF EXISTS vw_Clients, vw_MonthlyIncome, vw_OrdersWithInfo, vw_MasterWorksAmounts
 GO
 
-CREATE VIEW vw_Clients 
-AS
-  SELECT * FROM Клиент;
-GO
-
 CREATE VIEW vw_OrdersWithInfo 
 AS
   SELECT o.Код, 
@@ -47,4 +42,27 @@ AS
     FROM Заказ з
     INNER JOIN Работа р ON з.Код = р.КодЗаказа
     GROUP BY FORMAT(з.ДатаНачала, 'yyyy-MM');
+GO
+
+CREATE VIEW vw_MasterWorks
+AS
+BEGIN
+    -- Создаем временную таблицу
+    CREATE TABLE #tempMasterWorks (
+        КодМастера INT,
+        КоличествоРабот INT
+    );
+
+    -- Заполняем временную таблицу
+    INSERT INTO #tempMasterWorks
+    SELECT КодМастера, COUNT(*) 
+    FROM Работа
+    GROUP BY КодМастера;
+
+    -- Выбираем данные из временной таблицы
+    SELECT * FROM #tempMasterWorks;
+
+    -- Удаляем временную таблицу
+    DROP TABLE #tempMasterWorks;
+END;
 GO
