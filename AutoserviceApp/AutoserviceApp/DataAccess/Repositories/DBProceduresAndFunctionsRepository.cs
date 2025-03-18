@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoserviceApp.DataAccess.Models.DBProceduresAndFunctionsModels;
+using AutoserviceApp.Models;
 
 namespace AutoserviceApp.DataAccess.Repositories
 {
@@ -39,6 +40,48 @@ namespace AutoserviceApp.DataAccess.Repositories
             return workStatsList;
         }
 
+        public List<Order> GetOrdersForPeriod(DateTime startDate, DateTime endDate)
+        {
+            var orders = new List<Order>();
+
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("usp_GetOrdersForDatePeriod", connection);
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+
+                command.Parameters.AddWithValue("@startDate", startDate);
+                command.Parameters.AddWithValue("@endDate", endDate);
+
+                var reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    orders.Add(new Order
+                    {
+                        Код = (int)reader["Код"],
+                        ДатаНачала = (DateTime)reader["ДатаНачала"],
+                        ДатаОкончания = reader["ДатаОкончания"] as DateTime?,
+                        КодКлиента = (int)reader["КодКлиента"],
+                        КодАвтомобиля = (int)reader["КодАвтомобиля"]
+                    });
+                }
+            }
+            return orders;
+        }
+
+        public decimal GetTotalWorksCostForOrder(int orderId)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("SELECT dbo.fn_TotalWorksCostForOrder(@OrderId)", connection);
+                command.Parameters.AddWithValue("@OrderId", orderId);
+
+                var result = command.ExecuteScalar();
+                return result != DBNull.Value ? Convert.ToDecimal(result) : 0;
+            }
+        }
 
     }
 }

@@ -17,7 +17,7 @@ namespace AutoserviceApp.DataAccess.Repositories
             {
                 connection.Open();
 
-                var command = new SqlCommand("SELECT * FROM Жалоба WHERE КодРаботы = @workId ORDER BY Дата DESC, Описание ASC", connection);
+                var command = new SqlCommand("SELECT * FROM dbo.fn_ComplaintsByWorkId(@workId) ORDER BY Дата DESC, Описание ASC", connection);
                 command.Parameters.AddWithValue("@workId", workId);
 
                 var reader = command.ExecuteReader();

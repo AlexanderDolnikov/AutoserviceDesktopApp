@@ -19,35 +19,6 @@ namespace AutoserviceApp.DataAccess.Repositories
             _context = context;
         }
 
-        public List<Order> GetOrdersForPeriod(DateTime startDate, DateTime endDate)
-        {
-            var orders = new List<Order>();
-
-            using (var connection = _context.GetConnection())
-            {
-                connection.Open();
-                var command = new SqlCommand("usp_GetOrdersForDatePeriod", connection);
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-
-                command.Parameters.AddWithValue("@startDate", startDate);
-                command.Parameters.AddWithValue("@endDate", endDate);
-
-                var reader = command.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    orders.Add(new Order
-                    {
-                        ДатаНачала = (DateTime)reader["ДатаНачала"],
-                        ДатаОкончания = reader["ДатаОкончания"] as DateTime?,
-                        КодКлиента = (int)reader["КодКлиента"],
-                        КодАвтомобиля = (int)reader["КодАвтомобиля"]
-                    });
-                }
-            }
-            return orders;
-        }
-
         public List<MasterWithWorkAmounts> GetMasterWithWorkAmounts()
         {
             var workStatsList = new List<MasterWithWorkAmounts>();

@@ -1,6 +1,7 @@
 DROP VIEW IF EXISTS vw_Clients, vw_MonthlyIncome, vw_OrdersWithInfo, vw_MasterWorksAmounts
 GO
 
+-- используется в форме - в OrderRepository для получения расширенной информации по заказам
 CREATE VIEW vw_OrdersWithInfo 
 AS
   SELECT o.Код, 
@@ -17,6 +18,7 @@ AS
     ON o.КодАвтомобиля = a.Код;
 GO
 
+-- используется в диаграмме и отчете - в DBViewsRepository для получения данных "Мастер - КоличествоРабот"
 CREATE VIEW vw_MasterWorksAmounts 
 AS
   SELECT КодМастера,
@@ -25,6 +27,7 @@ AS
     GROUP BY КодМастера;
 GO
 
+-- используется в диаграмме и отчете - в DBViewsRepository для получения данных "Месяц - КоличествоРабот - ОбщийДоход"
 CREATE VIEW vw_MonthlyIncome 
 AS
   SELECT 

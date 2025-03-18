@@ -1,31 +1,27 @@
-﻿using AutoserviceApp.DataAccess.Repositories;
+﻿using AutoserviceApp.DataAccess;
+using AutoserviceApp.DataAccess.Repositories;
 using AutoserviceApp.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace AutoserviceApp.Views
-{    public partial class ReportsView : UserControl
+{    
+    public partial class ReportsView : UserControl
     {
+        private readonly DatabaseContext _context;
+
         private readonly DBViewsRepository _dbViewsRepository;
+        private readonly DBProceduresAndFunctionsRepository _dbProceduresAndFunctionsRepository;
         private readonly OrderRepository _orderRepository;
 
         public ReportsView()
         {
             InitializeComponent();
-            _dbViewsRepository = new DBViewsRepository(new DataAccess.DatabaseContext());
-            _orderRepository = new OrderRepository(new DataAccess.DatabaseContext());
+            _context = new DatabaseContext();
+            
+            _dbViewsRepository = new DBViewsRepository(_context);
+            _dbProceduresAndFunctionsRepository = new DBProceduresAndFunctionsRepository(_context);
+            _orderRepository = new OrderRepository(_context);
         }
 
         // Отчет по заказам за период
@@ -40,23 +36,16 @@ namespace AutoserviceApp.Views
             DateTime startDate = StartDatePicker.SelectedDate.Value;
             DateTime endDate = EndDatePicker.SelectedDate.Value;
 
-            // Получаем все заказы и фильтруем их по датам
-            var orders = _orderRepository.GetAll()
-                .Where(o => o.ДатаНачала >= startDate && o.ДатаНачала <= endDate)
-                .ToList();
+            var ordersForPeriod = _dbProceduresAndFunctionsRepository.GetOrdersForPeriod(startDate, endDate);
 
-            if (orders.Count == 0)
+            if (ordersForPeriod.Count() == 0)
             {
                 MessageBox.Show("За выбранный период нет заказов.", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
-            var ordersForPeriod = _dbViewsRepository.GetOrdersForPeriod(startDate, endDate);
-
-            // Вызываем новый метод, который использует хранимую процедуру
             ExcelExportHelper.ExportOrdersToExcel(ordersForPeriod, true);
         }
-
 
         // Отчет по всем заказам
         private void ExportAllOrders_Click(object sender, RoutedEventArgs e)
@@ -86,6 +75,7 @@ namespace AutoserviceApp.Views
 
             ExcelExportHelper.ExportMasterWithWorkAmountsToExcel(masterStats);
         }
+
 
         // Отчет по доходу по месяцам
         private void GenerateMonthlyIncomeReport_Click(object sender, RoutedEventArgs e)
