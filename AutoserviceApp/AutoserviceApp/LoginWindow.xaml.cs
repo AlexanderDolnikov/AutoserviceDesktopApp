@@ -3,6 +3,7 @@ using System.Windows.Input;
 using AutoserviceApp.DataAccess.Repositories;
 using AutoserviceApp.DataAccess;
 using AutoserviceApp.Models;
+using AutoserviceApp.Helpers;
 
 namespace AutoserviceApp
 {
@@ -20,7 +21,7 @@ namespace AutoserviceApp
 
         private void SetFocusOnFirstInput(object sender = null, RoutedEventArgs? e = null)
         {
-            //ViewFocusHelper.SetFocusAndClearItemsValues(LoginInput, PasswordInput);
+            ViewFocusHelper.SetFocusAndClearItemsValues(LoginInput, PasswordInput);
         }
 
         /* - - - - - */
@@ -38,6 +39,12 @@ namespace AutoserviceApp
             string login = LoginInput.Text;
             string password = PasswordInput.Password;
 
+            if (LoginInput.Text == "" || PasswordInput.Password == "" )
+            {
+                MessageBox.Show("Введите Ваш логин и пароль.");
+                return; 
+            }
+
             var user = _userRepository.GetUserByLogin(login);
 
             if (user != null)
@@ -47,6 +54,9 @@ namespace AutoserviceApp
 
                 if (hashedInputPassword == user.PasswordHash)
                 {
+                    LoginInput.Text = "";
+                    PasswordInput.Password = "";
+
                     CurrentUser = user;
                     DialogResult = true;
                     Close();

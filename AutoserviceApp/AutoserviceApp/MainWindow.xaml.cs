@@ -110,6 +110,21 @@ namespace AutoserviceApp
             MainContent.Visibility = Visibility.Visible;
         }
 
+        private void ShowAbout_Click(object sender, RoutedEventArgs e)
+        {
+            string helpText = "Программа сделана студентом группы ПО-31 - Дольников Александр";
+
+            MessageBox.Show(helpText, "Справка", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        private void OpenReportsView_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.SwitchView("Отчеты");
+        }
+
+        private void OpenChartsView_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.SwitchView("Диаграммы");
+        }
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
             MainContent.Visibility = Visibility.Collapsed;
@@ -127,22 +142,6 @@ namespace AutoserviceApp
             {
                 Environment.Exit(0);
             }
-        }
-
-        private void ShowAbout_Click(object sender, RoutedEventArgs e)
-        {
-            string helpText = "Программа сделана студентом группы ПО-31 - Дольников Александр";
-
-            MessageBox.Show(helpText, "Справка", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-        private void OpenReportsView_Click(object sender, RoutedEventArgs e)
-        {
-            _viewModel.SwitchView("Отчеты");
-        }
-
-        private void OpenChartsView_Click(object sender, RoutedEventArgs e)
-        {
-            _viewModel.SwitchView("Диаграммы");
         }
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
