@@ -7,9 +7,17 @@ using AutoserviceApp.Interfaces;
 using AutoserviceApp.DataAccess.Models;
 using AutoserviceApp.Helpers;
 using AutoserviceApp.ViewModels;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace AutoserviceApp.Views
 {
+    public enum SortMode
+    {
+        Ascending,   // Дата ↑
+        Descending,  // Дата ↓
+        Default      // По умолчанию (без сортировки)
+    }
+
     public partial class OrdersView : UserControl, IRefreshable
     {
         private readonly DatabaseContext _context;
@@ -18,10 +26,13 @@ namespace AutoserviceApp.Views
         private readonly ClientRepository _clientRepository;
         private readonly CarRepository _carRepository;
         private readonly WorkRepository _workRepository;
+        private readonly ModelRepository _modelRepository;
 
-        private List<Order> _orders;
+        private List<OrderWithInfo> _orders;
         private OrderWithInfo _selectedOrder;
-        private int _selectedOrderIndex;    
+        private int _selectedOrderIndex;
+
+        private SortMode _currentSortMode = SortMode.Default;
 
         public OrdersView()
         {
@@ -33,6 +44,7 @@ namespace AutoserviceApp.Views
             _clientRepository = new ClientRepository(_context);
             _carRepository = new CarRepository(_context);
             _workRepository = new WorkRepository(_context);
+            _modelRepository = new ModelRepository(_context);
 
             RefreshData();
         }
@@ -45,15 +57,34 @@ namespace AutoserviceApp.Views
         }
         private void LoadClients()
         {
-            var clients = _clientRepository.GetAllClients();
+            var clients = _clientRepository.GetAll()
+                .Select(c => new
+                {
+                    c.Код,
+                    DisplayText = $"{c.Фамилия} {c.Имя} ({c.Телефон})"
+                })
+                .ToList();
+
             ClientDropdown.ItemsSource = clients;
+            ClientDropdown.DisplayMemberPath = "DisplayText";
+            ClientDropdown.SelectedValuePath = "Код";
         }
 
         private void LoadCars()
         {
-            var cars = _carRepository.GetAllCars();
+            var cars = _carRepository.GetAll()
+                .Select(c => new
+                {
+                    c.Код,
+                    DisplayText = $"{c.НомернойЗнак} ({_modelRepository.GetById(c.КодМодели)?.Название ?? "Неизвестно"})"
+                })
+                .ToList();
+
             CarDropdown.ItemsSource = cars;
+            CarDropdown.DisplayMemberPath = "DisplayText";
+            CarDropdown.SelectedValuePath = "Код";
         }
+
 
         private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
@@ -68,20 +99,9 @@ namespace AutoserviceApp.Views
         /* - - - Заказы - - - */
         private void LoadOrders()
         {
-            var orders = _orderRepository.GetAllOrders()
-                .Select(order => new OrderWithInfo
-                {
-                    Код = order.Код,
-                    ДатаНачала = order.ДатаНачала,
-                    ДатаОкончания = order.ДатаОкончания ?? default(DateTime),
-                    КодКлиента = order.КодКлиента,
-                    ФамилияКлиента = _clientRepository.GetClientById(order.КодКлиента)?.Фамилия ?? "Неизвестно",
-                    КодАвтомобиля = order.КодАвтомобиля,
-                    НомернойЗнакАвтомобиля = _carRepository.GetCarById(order.КодАвтомобиля)?.НомернойЗнак ?? "Неизвестно",
-                })
-                .ToList();
-
+            var orders = _orderRepository.GetAllOrdersWithInfo();
             OrdersListBox.ItemsSource = orders;
+            _orders = orders;
         }
 
         private void OrdersListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -96,6 +116,44 @@ namespace AutoserviceApp.Views
                 CarDropdown.SelectedValue = selectedOrder.КодАвтомобиля;
             }
         }
+
+        private void SortOrders_Click(object sender, RoutedEventArgs e)
+        {
+            _currentSortMode = _currentSortMode switch
+            {
+                SortMode.Default => SortMode.Ascending,
+                SortMode.Ascending => SortMode.Descending,
+                _ => SortMode.Default
+            };
+
+            ApplySorting();
+        }
+
+        private void ApplySorting()
+        {
+            if (_orders == null || !_orders.Any())
+            {
+                OrdersListBox.ItemsSource = new List<Order>(); // или просто return;
+                return;
+            }
+
+            switch (_currentSortMode)
+            {
+                case SortMode.Default:
+                    SortOrdersButton.Content = "Сортировки нет";
+                    OrdersListBox.ItemsSource = _orders;
+                    break;
+                case SortMode.Ascending:
+                    SortOrdersButton.Content = "Дата начала ↑";
+                    OrdersListBox.ItemsSource = _orders.OrderBy(o => o.ДатаНачала).ToList();
+                    break;
+                case SortMode.Descending:
+                    SortOrdersButton.Content = "Дата начала ↓";
+                    OrdersListBox.ItemsSource = _orders.OrderByDescending(o => o.ДатаНачала).ToList();
+                    break;
+            }
+        }
+
 
         private void AddOrder_Click(object sender, RoutedEventArgs e)
         {
@@ -119,7 +177,7 @@ namespace AutoserviceApp.Views
                 КодАвтомобиля = (int)CarDropdown.SelectedValue
             };
 
-            _orderRepository.AddOrder(newOrder);
+            _orderRepository.Add(newOrder);
             LoadOrders();
 
             SetFocusOnFirstInput();
@@ -152,7 +210,7 @@ namespace AutoserviceApp.Views
                     КодАвтомобиля = (int)CarDropdown.SelectedValue
                 };
 
-                _orderRepository.UpdateOrder(updatedOrder);
+                _orderRepository.Update(updatedOrder);
                 LoadOrders();
 
                 OrdersListBox.SelectedIndex = _selectedOrderIndex;
@@ -164,7 +222,7 @@ namespace AutoserviceApp.Views
             if (((Button)sender).DataContext is OrderWithInfo selectedOrder)
             {
                 // Проверяем, есть ли у заказа работы
-                bool hasWorks = _workRepository.GetAllWorks().Any(w => w.КодЗаказа == selectedOrder.Код);
+                bool hasWorks = _workRepository.GetAll().Any(w => w.КодЗаказа == selectedOrder.Код);
 
                 if (hasWorks)
                 {
@@ -179,7 +237,7 @@ namespace AutoserviceApp.Views
 
                 try
                 {
-                    _orderRepository.DeleteOrder(selectedOrder.Код);
+                    _orderRepository.Delete(selectedOrder.Код);
                     MessageBox.Show("Заказ удален!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                     LoadOrders();
 

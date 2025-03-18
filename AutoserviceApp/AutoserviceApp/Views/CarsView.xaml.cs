@@ -47,7 +47,7 @@ namespace AutoserviceApp.Views
         /* - - - - - */
         private void LoadModels()
         {
-            ModelDropdown.ItemsSource = _modelRepository.GetAllModels();
+            ModelDropdown.ItemsSource = _modelRepository.GetAll();
         }
         private void CarsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -64,12 +64,12 @@ namespace AutoserviceApp.Views
 
         private void LoadCars()
         {
-            _cars = _carRepository.GetAllCars()
+            _cars = _carRepository.GetAll()
                 .Select(car => new CarWithInfo
                 {
                     Код = car.Код,
                     КодМодели = car.КодМодели,
-                    НазваниеМодели = _modelRepository.GetModelNameById(car.КодМодели),
+                    НазваниеМодели = _modelRepository.GetById(car.КодМодели).Название,
                     НомернойЗнак = car.НомернойЗнак,
                     ГодВыпуска = car.ГодВыпуска
                 })
@@ -92,6 +92,20 @@ namespace AutoserviceApp.Views
                 return;
             }
 
+            // Валидация номера автомобиля - от 7 до 15 символов
+            if (CarNumberTextBox.Text.Length < 7 || CarNumberTextBox.Text.Length > 15)
+            {
+                MessageBox.Show("Номерной знак должен содержать от 7 до 15 символов!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Валидация года выпуска
+            if (!int.TryParse(CarYearTextBox.Text, out int carYear) || carYear < 1900 || carYear > DateTime.Now.Year)
+            {
+                MessageBox.Show($"Введите корректный год выпуска (от 1900 до {DateTime.Now.Year})!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var newCar = new Car
             {
                 КодМодели = (int)ModelDropdown.SelectedValue,
@@ -101,7 +115,7 @@ namespace AutoserviceApp.Views
 
             try
             {
-                _carRepository.AddCar(newCar);
+                _carRepository.Add(newCar);
                 LoadCars();
 
                 SetFocusOnFirstInput();
@@ -139,6 +153,20 @@ namespace AutoserviceApp.Views
                 return;
             }
 
+            // Валидация номера автомобиля - от 7 до 15 символов
+            if (CarNumberTextBox.Text.Length < 7 || CarNumberTextBox.Text.Length > 15)
+            {
+                MessageBox.Show("Номерной знак должен содержать от 7 до 15 символов!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Валидация года выпуска
+            if (!int.TryParse(CarYearTextBox.Text, out int carYear) || carYear < 1900 || carYear > DateTime.Now.Year)
+            {
+                MessageBox.Show($"Введите корректный год выпуска (от 1900 до {DateTime.Now.Year})!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var updatedCar = new Car
             {
                 Код = _selectedCar.Код,
@@ -150,7 +178,7 @@ namespace AutoserviceApp.Views
 
             try
             {
-                _carRepository.UpdateCar(updatedCar);
+                _carRepository.Update(updatedCar);
                 LoadCars();
 
                 CarsListBox.SelectedIndex = _selectedCarIndex;
@@ -166,8 +194,6 @@ namespace AutoserviceApp.Views
                     MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-
-            
         }
 
         private void DeleteCar_Click(object sender, RoutedEventArgs e)
@@ -175,7 +201,7 @@ namespace AutoserviceApp.Views
             if (((Button)sender).DataContext is CarWithInfo selectedCar)
             {
                 // Проверяем, есть ли заказы, связанные с этим автомобилем
-                bool hasOrders = _orderRepository.GetAllOrders().Any(order => order.КодАвтомобиля == selectedCar.Код);
+                bool hasOrders = _orderRepository.GetAll().Any(order => order.КодАвтомобиля == selectedCar.Код);
 
                 if (hasOrders)
                 {
@@ -188,7 +214,7 @@ namespace AutoserviceApp.Views
                     if (result != MessageBoxResult.Yes) return;
                 }
 
-                _carRepository.DeleteCar(selectedCar.Код);
+                _carRepository.Delete(selectedCar.Код);
                 LoadCars();
 
                 SetFocusOnFirstInput();

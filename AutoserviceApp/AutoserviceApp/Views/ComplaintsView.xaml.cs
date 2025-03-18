@@ -94,7 +94,7 @@ namespace AutoserviceApp.Views
                 Дата = ComplaintDatePicker.SelectedDate ?? DateTime.Now
             };
 
-            _complaintRepository.AddComplaint(newComplaint);
+            _complaintRepository.Add(newComplaint);
             LoadComplaints(_selectedWork.Код);
 
             SetFocusOnFirstInput();
@@ -107,7 +107,7 @@ namespace AutoserviceApp.Views
                 selectedComplaint.Описание = ComplaintTextBox.Text;
                 selectedComplaint.Дата = ComplaintDatePicker.SelectedDate ?? DateTime.Now;
 
-                _complaintRepository.UpdateComplaint(selectedComplaint);
+                _complaintRepository.Update(selectedComplaint);
                 LoadComplaints(_selectedWork.Код);
 
                 ComplaintsListBox.SelectedIndex = _selectedComplaintIndex;
@@ -118,7 +118,7 @@ namespace AutoserviceApp.Views
         {
             if (((Button)sender).DataContext is Complaint selectedComplaint)
             {
-                _complaintRepository.DeleteComplaint(selectedComplaint.Код);
+                _complaintRepository.Delete(selectedComplaint.Код);
                 LoadComplaints(_selectedWork.Код);
 
                 SetFocusOnFirstInput();

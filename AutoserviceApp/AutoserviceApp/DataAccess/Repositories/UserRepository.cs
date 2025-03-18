@@ -1,17 +1,15 @@
 ﻿using System.Data.SqlClient;
 using AutoserviceApp.Models;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace AutoserviceApp.DataAccess.Repositories
 {
-    public class UserRepository
+    public class UserRepository : BaseRepository<User>
     {
         private readonly DatabaseContext _context;
 
-        public UserRepository(DatabaseContext context)
-        {
-            _context = context;
-        }
-
+        public UserRepository(DatabaseContext context) : base(context) { _context = context; }
+ 
         public List<User> GetAllUsers()
         {
             var users = new List<User>();
@@ -59,81 +57,65 @@ namespace AutoserviceApp.DataAccess.Repositories
             }
             return null;
         }
-        public void AddUser(string login, string password, string role)
+
+        public void AddUser(User newUser, string newPassword)
         {
             using (var connection = _context.GetConnection())
             {
                 connection.Open();
 
-                // Генерируем соль и хеш пароля
-                string salt = PasswordHelper.GenerateSalt();
-                string hashedPassword = PasswordHelper.HashPassword(password, salt);
+                var command = new SqlCommand("INSERT INTO Users (Login, PasswordHash, Salt, Role) VALUES (@Login, @PasswordHash, @Salt, @Role)", connection);
 
-                var command = new SqlCommand(
-                    "INSERT INTO Users (Login, PasswordHash, Salt, Role) VALUES (@Login, @PasswordHash, @Salt, @Role)",
-                    connection);
+                command.Parameters.AddWithValue("@Login", newUser.Login);
 
-                command.Parameters.AddWithValue("@Login", login);
-                command.Parameters.AddWithValue("@PasswordHash", hashedPassword);
-                command.Parameters.AddWithValue("@Salt", salt);
-                command.Parameters.AddWithValue("@Role", role);
+                (string passwordHash, string passwordSalt) = UpdateUserPassword(newPassword);
+                command.Parameters.AddWithValue("@PasswordHash", passwordHash);
+                command.Parameters.AddWithValue("@Salt", passwordSalt);
+
+                command.Parameters.AddWithValue("@Role", newUser.Role);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void UpdateUser(User newUser, string newPassword)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+
+                var command = new SqlCommand("UPDATE Users SET Login = @Login, PasswordHash = @PasswordHash, Salt = @Salt, Role = @Role WHERE Id = @UserId", connection);
+
+                command.Parameters.AddWithValue("@UserId", newUser.Id);
+                command.Parameters.AddWithValue("@Login", newUser.Login);
+
+                (string passwordHash, string passwordSalt) = UpdateUserPassword(newPassword);
+                command.Parameters.AddWithValue("@PasswordHash", passwordHash);
+                command.Parameters.AddWithValue("@Salt", passwordSalt);
+
+                command.Parameters.AddWithValue("@Role", newUser.Role);
 
                 command.ExecuteNonQuery();
             }
         }
 
-
-        public void UpdateUser(int userId, string newLogin, string newRole)
+        public (string passwordHash, string passwordSalt) UpdateUserPassword(string newPassword)
         {
-            using (var connection = _context.GetConnection())
-            {
-                connection.Open();
+            string passwordSalt = PasswordHelper.GenerateSalt();
+            string passwordHash = PasswordHelper.HashPassword(newPassword, passwordSalt);
 
-                var command = new SqlCommand(
-                    "UPDATE Users SET Login = @Login, Role = @Role WHERE Id = @UserId",
-                    connection);
-
-                command.Parameters.AddWithValue("@UserId", userId);
-                command.Parameters.AddWithValue("@Login", newLogin);
-                command.Parameters.AddWithValue("@Role", newRole);
-
-                command.ExecuteNonQuery();
-            }
+            return (passwordHash, passwordSalt);
         }
 
-        public void UpdateUserPassword(int userId, string newPassword)
+        public void DeleteUser(int id)
         {
             using (var connection = _context.GetConnection())
             {
                 connection.Open();
+                var command = new SqlCommand($"DELETE FROM {_tableName} WHERE Id = @id", connection);
+                command.Parameters.AddWithValue("@id", id);
 
-                // Генерируем новую соль и хеш пароля
-                string newSalt = PasswordHelper.GenerateSalt();
-                string newPasswordHash = PasswordHelper.HashPassword(newPassword, newSalt);
-
-                var command = new SqlCommand(
-                    "UPDATE Users SET PasswordHash = @PasswordHash, Salt = @Salt WHERE Id = @UserId",
-                    connection);
-
-                command.Parameters.AddWithValue("@UserId", userId);
-                command.Parameters.AddWithValue("@PasswordHash", newPasswordHash);
-                command.Parameters.AddWithValue("@Salt", newSalt);
-
-                command.ExecuteNonQuery();
-            }
-        }
-
-        public void DeleteUser(int userId)
-        {
-            using (var connection = _context.GetConnection())
-            {
-                connection.Open();
-
-                var command = new SqlCommand("DELETE FROM Users WHERE Id = @UserId", connection);
-                command.Parameters.AddWithValue("@UserId", userId);
                 command.ExecuteNonQuery();
             }
         }
     }
 }
-

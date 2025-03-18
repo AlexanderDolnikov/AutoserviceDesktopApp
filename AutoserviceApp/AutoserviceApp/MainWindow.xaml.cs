@@ -5,6 +5,7 @@ using AutoserviceApp.DataAccess.Repositories;
 using AutoserviceApp.DataAccess;
 using AutoserviceApp.Models;
 using AutoserviceApp.ViewModels;
+using AutoserviceApp.Views;
 
 namespace AutoserviceApp
 {
@@ -45,8 +46,8 @@ namespace AutoserviceApp
             }
             else
             {
-                Application.Current.Shutdown();
-            } 
+                Environment.Exit(0);
+            }
         }
         private void ShowModels_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Модели");
         private void ShowCars_Click(object sender, RoutedEventArgs e) => _viewModel.SwitchView("Автомобили");
@@ -88,7 +89,7 @@ namespace AutoserviceApp
         {
             string roleDescription = _currentUser.Role switch
             {
-                "Сотрудник" => "Вы имеете полный доступ ко всем данным, за исключением Мастеров и Пользователей.",
+                "Сотрудник" => "Вы имеете полный доступ ко всем данным, за исключением Пользователей.",
                 "Администратор" => "Вы имеете полный доступ ко всем данным, включая управление пользователями.",
                 _ => "Неизвестная роль"
             };
@@ -109,6 +110,21 @@ namespace AutoserviceApp
             MainContent.Visibility = Visibility.Visible;
         }
 
+        private void ShowAbout_Click(object sender, RoutedEventArgs e)
+        {
+            string helpText = "Программа сделана студентом группы ПО-31 - Дольников Александр";
+
+            MessageBox.Show(helpText, "Справка", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        private void OpenReportsView_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.SwitchView("Отчеты");
+        }
+
+        private void OpenChartsView_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.SwitchView("Диаграммы");
+        }
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
             MainContent.Visibility = Visibility.Collapsed;
@@ -124,27 +140,8 @@ namespace AutoserviceApp
             }
             else
             {
-                Application.Current.Shutdown();
+                Environment.Exit(0);
             }
-        }
-
-        private void ShowAbout_Click(object sender, RoutedEventArgs e)
-        {
-            string helpText = "Программа сделана студентом группы ПО-31 - Дольников Александр";
-
-            MessageBox.Show(helpText, "Справка", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-        private void GenerateReport1_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Отчет 1...", "Отчет");
-        }
-        private void GenerateReport2_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Отчет 2...", "Отчет");
-        }
-        private void GenerateReport3_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("Отчет 3...", "Отчет");
         }
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

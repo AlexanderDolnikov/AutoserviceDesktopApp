@@ -1,142 +1,38 @@
-﻿using System.Data.SqlClient;
-using System.Windows;
+﻿using AutoserviceApp.DataAccess.Models;
 using AutoserviceApp.Models;
+using System.Data.SqlClient;
 
 namespace AutoserviceApp.DataAccess.Repositories
 {
-    public class OrderRepository
+    public class OrderRepository : BaseRepository<Order>
     {
-        private readonly DatabaseContext _context;
-        private readonly WorkRepository _workRepository;
-        private readonly ComplaintRepository _complaintRepository;
-        private readonly WorkDetailRepository _workDetailRepository;
+        public OrderRepository(DatabaseContext context) : base(context) { }
 
-        public OrderRepository(DatabaseContext context)
+        public List<OrderWithInfo> GetAllOrdersWithInfo()
         {
-            _context = context;
-        }
-
-        public List<Order> GetAllOrders()
-        {
-            var orders = new List<Order>();
+            var orders = new List<OrderWithInfo>();
 
             using (var connection = _context.GetConnection())
             {
                 connection.Open();
-
-                var command = new SqlCommand("SELECT * FROM Заказ ORDER BY ДатаНачала DESC, ДатаОкончания DESC, КодКлиента, КодАвтомобиля", connection);
+                var command = new SqlCommand("SELECT * FROM vw_OrdersWithInfo ORDER BY ДатаНачала DESC", connection);
                 var reader = command.ExecuteReader();
 
                 while (reader.Read())
                 {
-                    orders.Add(new Order
+                    orders.Add(new OrderWithInfo
                     {
                         Код = (int)reader["Код"],
                         ДатаНачала = (DateTime)reader["ДатаНачала"],
-                        ДатаОкончания = reader.IsDBNull(reader.GetOrdinal("ДатаОкончания")) ? (DateTime?)null : (DateTime)reader["ДатаОкончания"],
+                        ДатаОкончания = reader["ДатаОкончания"] == DBNull.Value ? DateTime.MinValue : (DateTime)reader["ДатаОкончания"],
                         КодКлиента = (int)reader["КодКлиента"],
-                        КодАвтомобиля = (int)reader["КодАвтомобиля"]
+                        ФамилияКлиента = reader["ФамилияКлиента"].ToString(),
+                        КодАвтомобиля = (int)reader["КодАвтомобиля"],
+                        НомернойЗнакАвтомобиля = reader["НомернойЗнакАвтомобиля"].ToString()
                     });
                 }
             }
-
             return orders;
         }
-
-        public void AddOrder(Order order)
-        {
-            using (var connection = _context.GetConnection())
-            {
-                connection.Open();
-                var command = new SqlCommand("INSERT INTO Заказ (ДатаНачала, ДатаОкончания, КодКлиента, КодАвтомобиля) VALUES (@ДатаНачала, @ДатаОкончания, @КодКлиента, @КодАвтомобиля)", connection);
-                command.Parameters.AddWithValue("@ДатаНачала", order.ДатаНачала);
-
-                if (order.ДатаОкончания.HasValue)
-                    command.Parameters.AddWithValue("@ДатаОкончания", order.ДатаОкончания.Value);
-                else
-                    command.Parameters.AddWithValue("@ДатаОкончания", DBNull.Value);
-
-                command.Parameters.AddWithValue("@КодКлиента", order.КодКлиента);
-                command.Parameters.AddWithValue("@КодАвтомобиля", order.КодАвтомобиля);
-                command.ExecuteNonQuery();
-            }
-        }
-
-        public void UpdateOrder(Order order)
-        {
-            using (var connection = _context.GetConnection())
-            {
-                connection.Open();
-
-                var command = new SqlCommand(
-                    "UPDATE Заказ SET ДатаНачала = @ДатаНачала, ДатаОкончания = @ДатаОкончания, КодКлиента = @КодКлиента, КодАвтомобиля = @КодАвтомобиля WHERE Код = @Код",
-                    connection);
-
-                command.Parameters.AddWithValue("@Код", order.Код);
-                command.Parameters.AddWithValue("@ДатаНачала", order.ДатаНачала);
-
-                if (order.ДатаОкончания.HasValue)
-                    command.Parameters.AddWithValue("@ДатаОкончания", order.ДатаОкончания.Value);
-                else
-                    command.Parameters.AddWithValue("@ДатаОкончания", DBNull.Value);
-                
-                command.Parameters.AddWithValue("@КодКлиента", order.КодКлиента);
-                command.Parameters.AddWithValue("@КодАвтомобиля", order.КодАвтомобиля);
-
-                // Вывод SQL-запроса в окно
-                string debugQuery = $"UPDATE Заказ SET ДатаНачала = '{order.ДатаНачала:yyyy-MM-dd}', " +
-                                    $"ДатаОкончания = '{order.ДатаОкончания:yyyy-MM-dd}', " +
-                                    $"КодКлиента = {order.КодКлиента}, " +
-                                    $"КодАвтомобиля = {order.КодАвтомобиля} " +
-                                    $"WHERE Код = {order.Код}";
-
-                //MessageBox.Show(debugQuery, "SQL-запрос");
-
-                int rowsAffected = command.ExecuteNonQuery();
-
-                //MessageBox.Show($"Обновлено строк: {rowsAffected}", "Отладка UpdateOrder");
-
-                if (rowsAffected == 0)
-                {
-                    MessageBox.Show("Ошибка: заказ не найден в БД!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-            }
-        }
-
-        public Order GetOrderById(int orderId)
-        {
-            using (var connection = _context.GetConnection())
-            {
-                connection.Open();
-                var command = new SqlCommand("SELECT * FROM Заказ WHERE Код = @Код", connection);
-                command.Parameters.AddWithValue("@Код", orderId);
-                var reader = command.ExecuteReader();
-
-                if (reader.Read())
-                {
-                    return new Order
-                    {
-                        Код = (int)reader["Код"],
-                        ДатаНачала = (DateTime)reader["ДатаНачала"],
-                        ДатаОкончания = (DateTime)reader["ДатаОкончания"],
-                        КодКлиента = (int)reader["КодКлиента"],
-                        КодАвтомобиля = (int)reader["КодАвтомобиля"]
-                    };
-                }
-            }
-            return null;
-        }
-
-        public void DeleteOrder(int orderId)
-        {
-            using (var connection = _context.GetConnection())
-            {
-                connection.Open();
-                var command = new SqlCommand("DELETE FROM Заказ WHERE Код = @Код", connection);
-                command.Parameters.AddWithValue("@Код", orderId);
-                command.ExecuteNonQuery();
-            }
-        }
-
     }
 }

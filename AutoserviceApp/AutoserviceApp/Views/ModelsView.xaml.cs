@@ -43,7 +43,7 @@ namespace AutoserviceApp.Views
         /* - - - - - */
         private void LoadModels()
         {
-            _models = _modelRepository.GetAllModels();
+            _models = _modelRepository.GetAll();
             ModelsListBox.ItemsSource = _models;
         }
 
@@ -73,7 +73,7 @@ namespace AutoserviceApp.Views
 
             try
             {
-                _modelRepository.AddModel(newModel);
+                _modelRepository.Add(newModel);
                 LoadModels();
 
                 SetFocusOnFirstInput();
@@ -105,7 +105,7 @@ namespace AutoserviceApp.Views
             
             try
             {
-                _modelRepository.UpdateModel(_selectedModel);
+                _modelRepository.Update(_selectedModel);
                 LoadModels();
 
                 ModelsListBox.SelectedIndex = _selectedModelIndex;
@@ -128,7 +128,7 @@ namespace AutoserviceApp.Views
             if (((Button)sender).DataContext is Model selectedModel)
             {
                 // Проверяем, есть ли автомобили, связанные с этой моделью
-                bool hasCars = _carRepository.GetAllCars().Any(car => car.КодМодели == selectedModel.Код);
+                bool hasCars = _carRepository.GetAll().Any(car => car.КодМодели == selectedModel.Код);
 
                 if (hasCars)
                 {
@@ -141,7 +141,7 @@ namespace AutoserviceApp.Views
                     if (result != MessageBoxResult.Yes) return;
                 }
 
-                _modelRepository.DeleteModel(selectedModel.Код);
+                _modelRepository.Delete(selectedModel.Код);
                 LoadModels();
 
                 SetFocusOnFirstInput();

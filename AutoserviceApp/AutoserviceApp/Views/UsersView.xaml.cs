@@ -58,21 +58,28 @@ namespace AutoserviceApp.Views
 
         private void AddUser_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(UserLoginInput.Text) ||
-                string.IsNullOrWhiteSpace(UserPasswordInput.Password) ||
-                UserRoleDropdown.SelectedItem == null)
+            string newLogin = UserLoginInput.Text.Trim();
+            string newRole = (UserRoleDropdown.SelectedItem as ComboBoxItem)?.Content.ToString();
+            string newPassword = UserPasswordInput.Password;
+
+            if (newLogin is null || newRole is null || newPassword is null)
             {
                 MessageBox.Show("Заполните все поля!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            string login = UserLoginInput.Text.Trim();
-            string password = UserPasswordInput.Password;
-            string role = (UserRoleDropdown.SelectedItem as ComboBoxItem)?.Content.ToString();
+            var newUser = new User
+            {
+                Id = 0,
+                Login = newLogin,
+                PasswordHash = "",
+                Salt = "",
+                Role = newRole
+            };
 
             try
             {
-                _userRepository.AddUser(login, password, role);
+                _userRepository.AddUser(newUser, newPassword);
                 LoadUsers();
                 MessageBox.Show("Пользователь успешно добавлен!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
 
@@ -108,10 +115,18 @@ namespace AutoserviceApp.Views
                 return;
             }
 
+            var newUser = new User
+            {
+                Id = _selectedUser.Id,
+                Login = newLogin,
+                PasswordHash = "",
+                Salt = "",
+                Role = newRole
+            };
+
             try
             {
-                _userRepository.UpdateUser(_selectedUser.Id, newLogin, newRole);
-                _userRepository.UpdateUserPassword(_selectedUser.Id, newPassword);
+                _userRepository.UpdateUser(newUser, newPassword);
 
                 MessageBox.Show("Данные пользователя обновлены!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -137,7 +152,7 @@ namespace AutoserviceApp.Views
 
             if (result == MessageBoxResult.Yes)
             {
-                _userRepository.DeleteUser(selectedUser.Id);
+                _userRepository.Delete(selectedUser.Id);
                 LoadUsers();
                 MessageBox.Show("Пользователь удален!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }
