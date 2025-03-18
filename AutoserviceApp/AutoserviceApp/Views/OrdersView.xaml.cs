@@ -26,6 +26,7 @@ namespace AutoserviceApp.Views
         private readonly ClientRepository _clientRepository;
         private readonly CarRepository _carRepository;
         private readonly WorkRepository _workRepository;
+        private readonly ModelRepository _modelRepository;
 
         private List<OrderWithInfo> _orders;
         private OrderWithInfo _selectedOrder;
@@ -43,6 +44,7 @@ namespace AutoserviceApp.Views
             _clientRepository = new ClientRepository(_context);
             _carRepository = new CarRepository(_context);
             _workRepository = new WorkRepository(_context);
+            _modelRepository = new ModelRepository(_context);
 
             RefreshData();
         }
@@ -55,15 +57,34 @@ namespace AutoserviceApp.Views
         }
         private void LoadClients()
         {
-            var clients = _clientRepository.GetAll();
+            var clients = _clientRepository.GetAll()
+                .Select(c => new
+                {
+                    c.Код,
+                    DisplayText = $"{c.Фамилия} {c.Имя} ({c.Телефон})"
+                })
+                .ToList();
+
             ClientDropdown.ItemsSource = clients;
+            ClientDropdown.DisplayMemberPath = "DisplayText";
+            ClientDropdown.SelectedValuePath = "Код";
         }
 
         private void LoadCars()
         {
-            var cars = _carRepository.GetAll();
+            var cars = _carRepository.GetAll()
+                .Select(c => new
+                {
+                    c.Код,
+                    DisplayText = $"{c.НомернойЗнак} ({_modelRepository.GetById(c.КодМодели)?.Название ?? "Неизвестно"})"
+                })
+                .ToList();
+
             CarDropdown.ItemsSource = cars;
+            CarDropdown.DisplayMemberPath = "DisplayText";
+            CarDropdown.SelectedValuePath = "Код";
         }
+
 
         private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
         {
@@ -78,19 +99,7 @@ namespace AutoserviceApp.Views
         /* - - - Заказы - - - */
         private void LoadOrders()
         {
-            var orders = _orderRepository.GetAllOrdersWithInfo()
-                .Select(order => new OrderWithInfo
-                {
-                    Код = order.Код,
-                    ДатаНачала = order.ДатаНачала,
-                    ДатаОкончания = order.ДатаОкончания,
-                    КодКлиента = order.КодКлиента,
-                    ФамилияКлиента = _clientRepository.GetById(order.КодКлиента)?.Фамилия ?? "Неизвестно",
-                    КодАвтомобиля = order.КодАвтомобиля,
-                    НомернойЗнакАвтомобиля = _carRepository.GetById(order.КодАвтомобиля)?.НомернойЗнак ?? "Неизвестно",
-                })
-                .ToList();
-
+            var orders = _orderRepository.GetAllOrdersWithInfo();
             OrdersListBox.ItemsSource = orders;
             _orders = orders;
         }

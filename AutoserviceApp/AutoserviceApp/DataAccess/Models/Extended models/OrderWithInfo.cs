@@ -9,6 +9,6 @@
         public string ФамилияКлиента { get; set; }
         public int КодАвтомобиля { get; set; }
         public string НомернойЗнакАвтомобиля { get; set; }
-        public string ДатаОкончанияОтображение => ДатаОкончания != DateTime.MinValue ? ДатаОкончания.ToShortDateString() : "Не завершено";
+        public string ДатаОкончанияОтображение => ДатаОкончания != DateTime.MinValue ? ДатаОкончания.ToShortDateString() : "В процессе";
     }
 }
