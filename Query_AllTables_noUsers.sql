@@ -41,7 +41,7 @@ CREATE TABLE Мастер (
 
 CREATE TABLE ВидРаботы (
   Код INT IDENTITY PRIMARY KEY,
-  Название VARCHAR(100) NOT NULL
+  Название VARCHAR(100) NOT NULL UNIQUE
 );
 
 CREATE TABLE Работа (
