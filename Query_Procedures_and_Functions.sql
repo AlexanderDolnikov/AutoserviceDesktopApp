@@ -83,7 +83,7 @@ CREATE FUNCTION fn_TotalWorksCostForOrder(@кодЗаказа INT)
 RETURNS MONEY
 AS
 BEGIN
-  DECLARE @общаяСтоимость INT
+  DECLARE @общаяСтоимость MONEY
 
   SET @общаяСтоимость = (
     Select SUM(Стоимость) as суммаСтоимостиРаботЗаказа

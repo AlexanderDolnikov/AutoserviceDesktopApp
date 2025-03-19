@@ -128,12 +128,19 @@ namespace AutoserviceApp.Views
         private void AddWork_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedOrder == null) return;
+            
             if (MasterDropdown.SelectedValue == null || WorkTypeDropdown.SelectedValue == null)
             {
                 MessageBox.Show("Выберите мастера и вид работы!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
+            if (!decimal.TryParse(WorkCostTextBox.Text, out decimal price) || price < 0)
+            {
+                MessageBox.Show("Ошибка: Введите корректную стоимость (> 0) в поле 'Стоимость'.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+
+            }
             var newWork = new Work
             {
                 КодЗаказа = _selectedOrder.Код,

@@ -105,6 +105,12 @@ namespace AutoserviceApp.Views
         {
             if (_selectedWork == null || DetailDropdown.SelectedValue == null) return;
 
+            if (!int.TryParse(WorkQuantityTextBox.Text, out int quantity) || quantity < 0)
+            {
+                MessageBox.Show("Ошибка: Введите корректное целое число (>= 0) в поле 'Количество'.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var newWorkDetail = new WorkDetail
             {
                 КодРаботы = _selectedWork.Код,
