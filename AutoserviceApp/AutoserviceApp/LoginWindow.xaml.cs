@@ -21,7 +21,7 @@ namespace AutoserviceApp
 
         private void SetFocusOnFirstInput(object sender = null, RoutedEventArgs? e = null)
         {
-            ViewFocusHelper.SetFocusAndClearItemsValues(LoginInput, PasswordInput);
+            //ViewFocusHelper.SetFocusAndClearItemsValues(LoginInput, PasswordInput);
         }
 
         /* - - - - - */
