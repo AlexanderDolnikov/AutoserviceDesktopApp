@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -82,6 +83,47 @@ namespace AutoserviceApp.DataAccess.Repositories
                 return result != DBNull.Value ? Convert.ToDecimal(result) : 0;
             }
         }
+
+        public int MergeWorkDetailsByWorkId(int workId)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("usp_MergeWorkDetailsByWorkID", connection);
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.AddWithValue("@кодРаботы", workId);
+                var outputParam = new SqlParameter("@counter", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
+                command.Parameters.Add(outputParam);
+
+                command.ExecuteNonQuery();
+                return (int)outputParam.Value;
+            }
+        }
+
+        public int MergeWorkDetailsByOrderId(int orderId)
+        {
+            using (var connection = _context.GetConnection())
+            {
+                connection.Open();
+                var command = new SqlCommand("usp_MergeWorkDetailsByOrderID", connection);
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.AddWithValue("@кодЗаказа", orderId);
+                var outputParam = new SqlParameter("@changesCounter", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.Output
+                };
+                command.Parameters.Add(outputParam);
+
+                command.ExecuteNonQuery();
+                return (int)outputParam.Value;
+            }
+        }
+
 
     }
 }

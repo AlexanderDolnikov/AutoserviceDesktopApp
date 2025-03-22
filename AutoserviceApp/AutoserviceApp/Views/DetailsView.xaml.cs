@@ -88,7 +88,7 @@ namespace AutoserviceApp.Views
 
             if (!decimal.TryParse(DetailCostTextBox.Text, out decimal cost) || cost <= 0)
             {
-                MessageBox.Show("Некорректное значение стоимости!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Некорректное значение стоимости! Введите стоимость > 0", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -114,7 +114,7 @@ namespace AutoserviceApp.Views
 
             if (!decimal.TryParse(DetailCostTextBox.Text, out decimal cost) || cost <= 0)
             {
-                MessageBox.Show("Некорректное значение стоимости!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Некорректное значение стоимости! Введите стоимость > 0", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             _selectedDetail.Стоимость = cost;
