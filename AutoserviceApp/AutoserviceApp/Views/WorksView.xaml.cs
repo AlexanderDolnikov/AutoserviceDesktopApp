@@ -67,9 +67,19 @@ namespace AutoserviceApp.Views
         }
         private void LoadMasters()
         {
-            var masters = _masterRepository.GetAll();
+            var masters = _masterRepository.GetAll()
+                .Select(c => new
+                {
+                    c.Код,
+                    DisplayText = $"{c.Фамилия} {c.Имя} ({c.Телефон})"
+                })
+                .ToList();
+
             MasterDropdown.ItemsSource = masters;
+            MasterDropdown.DisplayMemberPath = "DisplayText";
+            MasterDropdown.SelectedValuePath = "Код";
         }
+
         private void LoadWorkTypes()
         {
             var workTypes = _workTypeRepository.GetAll();

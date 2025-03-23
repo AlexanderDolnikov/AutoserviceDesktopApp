@@ -30,6 +30,16 @@
                     <Button Content="Добавить" Click="AddCar_Click" Style="{StaticResource AddButton}" Width="150"/>
                     <Button Content="Изменить" Click="EditCar_Click" Style="{StaticResource EditButton}" Width="150"/>
                 </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0, 20, 10, 10">
+                    <TextBlock Text="Год выпуска от:" Foreground="White" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBox x:Name="MinYearTextBox" Width="60" Height="20" Margin="0,0,10,0"/>
+                    
+                    <TextBlock Text="до:" Foreground="White" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <TextBox x:Name="MaxYearTextBox" Width="60" Height="20" Margin="0,0,20,0"/>
+
+                    <Button Content="Фильтровать" Click="FilterByYearButton_Click" Padding="0, 6" Width="100"/>
+                </StackPanel>
             </StackPanel>
 
             <!-- Таблица автомобилей -->

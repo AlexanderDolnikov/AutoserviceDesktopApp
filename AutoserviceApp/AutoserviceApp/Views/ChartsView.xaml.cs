@@ -99,7 +99,7 @@ namespace AutoserviceApp.Views
             double[] values = workTypesData.Select(w => (double)w.КоличествоРабот).ToArray();
 
             WorkTypesChart.Plot.Clear();
-            WorkTypesChart.Plot.Title("Работы по видам");
+            WorkTypesChart.Plot.Title("Работы по видам работ");
 
             var pie = WorkTypesChart.Plot.AddPie(values);
             pie.SliceLabels = labels;

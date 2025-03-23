@@ -39,7 +39,8 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="0,15,0,5">
-                    <Button x:Name="SortOrdersButton" Content="Дата начала - Сортировка" Click="SortOrders_Click" Style="{StaticResource AddButton}" Width="200"/>
+                    <TextBlock Text="Дата начала - Сортировка:" Foreground="White" VerticalAlignment="Center" Width="160"/>
+                    <Button x:Name="SortOrdersButton" Content="Дата начала ↓" Click="SortOrders_Click" Style="{StaticResource AddButton}" Width="150"/>
                 </StackPanel>
             </StackPanel>
 

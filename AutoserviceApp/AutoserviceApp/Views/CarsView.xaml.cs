@@ -44,6 +44,36 @@ namespace AutoserviceApp.Views
             ViewFocusHelper.SetFocusAndClearItemsValues(ModelDropdown, CarNumberTextBox, CarYearTextBox);
         }
 
+        private void FilterByYearButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!int.TryParse(MinYearTextBox.Text, out int minYear) || !int.TryParse(MaxYearTextBox.Text, out int maxYear))
+            {
+                MessageBox.Show("Введите корректные числовые значения для года выпуска.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (minYear > maxYear)
+            {
+                MessageBox.Show("Минимальный год не может быть больше максимального.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var filteredCars = _carRepository.GetAll()
+                .Select(car => new CarWithInfo
+                {
+                    Код = car.Код,
+                    КодМодели = car.КодМодели,
+                    НазваниеМодели = _modelRepository.GetById(car.КодМодели).Название,
+                    НомернойЗнак = car.НомернойЗнак,
+                    ГодВыпуска = car.ГодВыпуска
+                })
+                .Where(c => c.ГодВыпуска >= minYear && c.ГодВыпуска <= maxYear)
+                .ToList();
+
+            CarsListBox.ItemsSource = filteredCars;
+        }
+
+
         /* - - - - - */
         private void LoadModels()
         {

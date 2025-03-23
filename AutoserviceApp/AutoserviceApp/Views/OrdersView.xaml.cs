@@ -15,7 +15,6 @@ namespace AutoserviceApp.Views
     {
         Ascending,   // Дата ↑
         Descending,  // Дата ↓
-        Default      // По умолчанию (без сортировки)
     }
 
     public partial class OrdersView : UserControl, IRefreshable
@@ -32,7 +31,7 @@ namespace AutoserviceApp.Views
         private OrderWithInfo _selectedOrder;
         private int _selectedOrderIndex;
 
-        private SortMode _currentSortMode = SortMode.Default;
+        private SortMode _currentSortMode = SortMode.Descending;
 
         public OrdersView()
         {
@@ -119,12 +118,7 @@ namespace AutoserviceApp.Views
 
         private void SortOrders_Click(object sender, RoutedEventArgs e)
         {
-            _currentSortMode = _currentSortMode switch
-            {
-                SortMode.Default => SortMode.Ascending,
-                SortMode.Ascending => SortMode.Descending,
-                _ => SortMode.Default
-            };
+            _currentSortMode = (_currentSortMode == SortMode.Descending) ? SortMode.Ascending : SortMode.Descending;
 
             ApplySorting();
         }
@@ -133,16 +127,12 @@ namespace AutoserviceApp.Views
         {
             if (_orders == null || !_orders.Any())
             {
-                OrdersListBox.ItemsSource = new List<Order>(); // или просто return;
+                OrdersListBox.ItemsSource = new List<Order>();
                 return;
             }
 
             switch (_currentSortMode)
             {
-                case SortMode.Default:
-                    SortOrdersButton.Content = "Сортировки нет";
-                    OrdersListBox.ItemsSource = _orders;
-                    break;
                 case SortMode.Ascending:
                     SortOrdersButton.Content = "Дата начала ↑";
                     OrdersListBox.ItemsSource = _orders.OrderBy(o => o.ДатаНачала).ToList();
@@ -153,7 +143,6 @@ namespace AutoserviceApp.Views
                     break;
             }
         }
-
 
         private void AddOrder_Click(object sender, RoutedEventArgs e)
         {
@@ -199,13 +188,14 @@ namespace AutoserviceApp.Views
                 return;
             }
 
+            
             if (OrdersListBox.SelectedItem is OrderWithInfo selectedOrderWithInfo)
             {
                 Order updatedOrder = new Order
                 {
                     Код = selectedOrderWithInfo.Код,
                     ДатаНачала = (DateTime)StartDatePicker.SelectedDate,
-                    ДатаОкончания = EndDatePicker.SelectedDate.HasValue ? (DateTime)EndDatePicker.SelectedDate.Value : (DateTime?)null,
+                    ДатаОкончания = (!EndDatePicker.SelectedDate.HasValue || DateTime.Compare((DateTime)EndDatePicker.SelectedDate.Value, new DateTime(0001, 1, 1)) == 0) ? (DateTime?)null : (DateTime)EndDatePicker.SelectedDate.Value,
                     КодКлиента = (int)ClientDropdown.SelectedValue,
                     КодАвтомобиля = (int)CarDropdown.SelectedValue
                 };
