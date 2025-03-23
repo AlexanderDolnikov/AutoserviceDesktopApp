@@ -291,8 +291,9 @@ namespace AutoserviceApp.Views
                 return;
 
             int updatedCount = _DBProceduresAndFunctionsRepository.MergeWorkDetailsByOrderId(_selectedOrder.Код);
-            MessageBox.Show($"Объединено дубликатов: {updatedCount}", "Результат", MessageBoxButton.OK, MessageBoxImage.Information);
+            
             RefreshData();
+            MessageBox.Show($"Объединено дубликатов: {updatedCount}", "Результат", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
 

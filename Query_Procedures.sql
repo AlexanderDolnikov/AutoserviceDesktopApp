@@ -7,9 +7,21 @@ CREATE PROCEDURE usp_GetOrdersForDatePeriod
   @endDate DATE
 AS
 BEGIN
-  SELECT *
+  CREATE TABLE #temp (
+    Код INT,
+    ДатаНачала DATE,
+    ДатаОкончания DATE,
+    КодКлиента INT,
+    КодАвтомобиля INT
+  );
+
+  INSERT INTO #temp
+  SELECT Код, ДатаНачала, ДатаОкончания, КодКлиента, КодАвтомобиля
     FROM Заказ
-    WHERE ДатаНачала BETWEEN @startDate AND @endDate
+    WHERE ДатаНачала BETWEEN @startDate AND @endDate;
+
+  SELECT * 
+    FROM #temp
     ORDER BY ДатаНачала DESC;
 END;
 GO
