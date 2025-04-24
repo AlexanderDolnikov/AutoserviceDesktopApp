@@ -41,7 +41,7 @@ CREATE TABLE Мастер (
 
 CREATE TABLE ВидРаботы (
   Код INT IDENTITY PRIMARY KEY,
-  Название VARCHAR(100) NOT NULL
+  Название VARCHAR(100) NOT NULL UNIQUE
 );
 
 CREATE TABLE Работа (
@@ -308,7 +308,9 @@ VALUES
   (37, 3, 4),  
   (38, 4, 2),  
   (39, 5, 1),  
-  (40, 6, 3);
+  (40, 6, 3),
+  (40, 6, 7),
+  (40, 6, 2)
 GO
 
 INSERT INTO Жалоба (КодРаботы, Описание, Дата) 

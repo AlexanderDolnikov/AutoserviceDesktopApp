@@ -157,7 +157,7 @@ namespace AutoserviceApp
 
         private void UserControl_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Escape)
+            if (e.Key == Key.Escape || e.Key == Key.Enter)
             {
                 CloseWelcomeScreen_Click();
             }

@@ -251,16 +251,20 @@ namespace AutoserviceApp.Helpers
                     worksheet.Cells[row + 1, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.ColorTranslator.FromHtml("#C6E0B4"));
 
                     worksheet.Cells[row + 2, 1, row + 2, 2].Merge = true;
-                    worksheet.Cells[row + 2, 1].Value = "Максимум работ:";
-                    worksheet.Cells[row + 2, 3].Value = masterStats.Max(m => m.КоличествоРабот);
+                    worksheet.Cells[row + 2, 1].Value = "Всего мастеров:";
+                    worksheet.Cells[row + 2, 3].Value = masterStats.Count();
 
                     worksheet.Cells[row + 3, 1, row + 3, 2].Merge = true;
-                    worksheet.Cells[row + 3, 1].Value = "Минимум работ:";
-                    worksheet.Cells[row + 3, 3].Value = masterStats.Min(m => m.КоличествоРабот);
-                    
+                    worksheet.Cells[row + 3, 1].Value = "Максимум работ:";
+                    worksheet.Cells[row + 3, 3].Value = masterStats.Max(m => m.КоличествоРабот);
+
                     worksheet.Cells[row + 4, 1, row + 4, 2].Merge = true;
-                    worksheet.Cells[row + 4, 1].Value = "В среднем работ:";
-                    worksheet.Cells[row + 4, 3].Value = Math.Round(masterStats.Average(m => m.КоличествоРабот), 3);
+                    worksheet.Cells[row + 4, 1].Value = "Минимум работ:";
+                    worksheet.Cells[row + 4, 3].Value = masterStats.Min(m => m.КоличествоРабот);
+                    
+                    worksheet.Cells[row + 5, 1, row + 5, 2].Merge = true;
+                    worksheet.Cells[row + 5, 1].Value = "В среднем работ:";
+                    worksheet.Cells[row + 5, 3].Value = Math.Round(masterStats.Average(m => m.КоличествоРабот), 3);
 
                     worksheet.Cells.AutoFitColumns();
 
@@ -376,23 +380,32 @@ namespace AutoserviceApp.Helpers
                     worksheet.Cells[row + 1, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
                     worksheet.Cells[row + 1, 1].Style.Fill.BackgroundColor.SetColor(System.Drawing.ColorTranslator.FromHtml("#C6E0B4"));
 
+                    // месяцы
                     worksheet.Cells[row + 2, 1].Value = "Всего месяцев работы:";
                     worksheet.Cells[row + 2, 2].Value = fullMonths.Count;
 
+                    // доход
                     worksheet.Cells[row + 3, 1].Value = "Суммарный доход:";
                     worksheet.Cells[row + 3, 2].Value = fullMonths.Sum(i => i.ОбщийДоход);
 
-                    worksheet.Cells[row + 4, 1].Value = "Средний доход в месяц:";
-                    worksheet.Cells[row + 4, 2].Value = Math.Round(fullMonths.Average(i => i.ОбщийДоход), 2);
+                    worksheet.Cells[row + 4, 1].Value = "Максимальный доход:";
+                    worksheet.Cells[row + 4, 2].Value = fullMonths.Max(i => i.ОбщийДоход);
 
-                    worksheet.Cells[row + 5, 1].Value = "Макс. заказов в месяц:";
-                    worksheet.Cells[row + 5, 2].Value = fullMonths.Max(i => i.КоличествоЗаказов);
-                
-                    worksheet.Cells[row + 6, 1].Value = "Мин. заказов в месяц:";
-                    worksheet.Cells[row + 6, 2].Value = fullMonths.Min(i => i.КоличествоЗаказов);
+                    worksheet.Cells[row + 5, 1].Value = "Средний доход:";
+                    worksheet.Cells[row + 5, 2].Value = Math.Round(fullMonths.Average(i => i.ОбщийДоход), 2);
 
-                    worksheet.Cells[row + 7, 1].Value = "Среднее количество заказов:";
-                    worksheet.Cells[row + 7, 2].Value = Math.Round(fullMonths.Average(i => i.КоличествоЗаказов), 2);
+                    worksheet.Cells[row + 6, 1].Value = "Минимальный доход:";
+                    worksheet.Cells[row + 6, 2].Value = fullMonths.Min(i => i.ОбщийДоход);
+
+                    // количество заказов
+                    worksheet.Cells[row + 7, 1].Value = "Макс. заказов:";
+                    worksheet.Cells[row + 7, 2].Value = fullMonths.Max(i => i.КоличествоЗаказов);
+
+                    worksheet.Cells[row + 8, 1].Value = "Среднее кол-во заказов:";
+                    worksheet.Cells[row + 8, 2].Value = Math.Round(fullMonths.Average(i => i.КоличествоЗаказов), 2);
+
+                    worksheet.Cells[row + 9, 1].Value = "Мин. заказов:";
+                    worksheet.Cells[row + 9, 2].Value = fullMonths.Min(i => i.КоличествоЗаказов);
 
                     worksheet.Cells.AutoFitColumns();
 

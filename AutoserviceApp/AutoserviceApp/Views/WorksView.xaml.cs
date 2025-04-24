@@ -20,6 +20,7 @@ namespace AutoserviceApp.Views
         private readonly MasterRepository _masterRepository;
         private readonly WorkTypeRepository _workTypeRepository;
         private readonly ComplaintRepository _complaintRepository;
+        private readonly DBProceduresAndFunctionsRepository _DBProceduresAndFunctionsRepository;
 
         private OrderWithInfo _selectedOrder;
         private WorkWithInfo _selectedWork;
@@ -36,6 +37,7 @@ namespace AutoserviceApp.Views
             _masterRepository = new MasterRepository(_context);
             _workTypeRepository = new WorkTypeRepository(_context);
             _complaintRepository = new ComplaintRepository(_context);
+            _DBProceduresAndFunctionsRepository = new DBProceduresAndFunctionsRepository(_context);
         }
 
         private void WorksView_OnLoad(object sender, RoutedEventArgs e)
@@ -65,9 +67,19 @@ namespace AutoserviceApp.Views
         }
         private void LoadMasters()
         {
-            var masters = _masterRepository.GetAll();
+            var masters = _masterRepository.GetAll()
+                .Select(c => new
+                {
+                    c.Код,
+                    DisplayText = $"{c.Фамилия} {c.Имя} ({c.Телефон})"
+                })
+                .ToList();
+
             MasterDropdown.ItemsSource = masters;
+            MasterDropdown.DisplayMemberPath = "DisplayText";
+            MasterDropdown.SelectedValuePath = "Код";
         }
+
         private void LoadWorkTypes()
         {
             var workTypes = _workTypeRepository.GetAll();
@@ -128,12 +140,19 @@ namespace AutoserviceApp.Views
         private void AddWork_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedOrder == null) return;
+            
             if (MasterDropdown.SelectedValue == null || WorkTypeDropdown.SelectedValue == null)
             {
                 MessageBox.Show("Выберите мастера и вид работы!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
+            if (!decimal.TryParse(WorkCostTextBox.Text, out decimal price) || price < 0)
+            {
+                MessageBox.Show("Ошибка: Введите корректную стоимость (> 0) в поле 'Стоимость'.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+
+            }
             var newWork = new Work
             {
                 КодЗаказа = _selectedOrder.Код,
@@ -249,6 +268,35 @@ namespace AutoserviceApp.Views
                 }
             }
         }
+
+        /* - - - - - */
+
+        private void MergeAllDetailsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedOrder == null)
+            {
+                MessageBox.Show("Ошибка: Заказ не был выбран! Пожалуйста, выберите заказ.", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var result = MessageBox.Show(
+                "Внимание! В результате данной операции дубликаты деталей Во Всех Работах по данному заказу будут объединены в одну запись по каждой детали.\n" +
+                "В Каждой работе количество деталей будет просуммировано, повторяющиеся записи будут удалены.\n\n" +
+                "Вы уверены, что хотите продолжить?",
+                "Подтверждение",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            int updatedCount = _DBProceduresAndFunctionsRepository.MergeWorkDetailsByOrderId(_selectedOrder.Код);
+            
+            RefreshData();
+            MessageBox.Show($"Объединено дубликатов: {updatedCount}", "Результат", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+
 
         /* - - - - - */
 

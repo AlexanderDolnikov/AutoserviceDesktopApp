@@ -17,6 +17,7 @@ namespace AutoserviceApp.Views
 
         private readonly WorkDetailRepository _workDetailRepository;
         private readonly DetailRepository _detailRepository;
+        private readonly DBProceduresAndFunctionsRepository _DBProceduresAndFunctionsRepository;
 
         private OrderWithInfo _selectedOrder;
         private WorkWithInfo _selectedWork;
@@ -30,6 +31,7 @@ namespace AutoserviceApp.Views
 
             _workDetailRepository = new WorkDetailRepository(_context);
             _detailRepository = new DetailRepository(_context);
+            _DBProceduresAndFunctionsRepository = new DBProceduresAndFunctionsRepository(_context);
         }
         private void WorkDetailsView_OnLoad(object sender, RoutedEventArgs e)
         {
@@ -105,6 +107,12 @@ namespace AutoserviceApp.Views
         {
             if (_selectedWork == null || DetailDropdown.SelectedValue == null) return;
 
+            if (!int.TryParse(WorkQuantityTextBox.Text, out int quantity) || quantity <= 0)
+            {
+                MessageBox.Show("Ошибка: Введите корректное целое число (> 0) в поле 'Количество'.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var newWorkDetail = new WorkDetail
             {
                 КодРаботы = _selectedWork.Код,
@@ -120,6 +128,12 @@ namespace AutoserviceApp.Views
 
         private void EditWorkDetail_Click(object sender, RoutedEventArgs e)
         {
+            if (!int.TryParse(WorkQuantityTextBox.Text, out int quantity) || quantity <= 0)
+            {
+                MessageBox.Show("Ошибка: Введите корректное целое число (> 0) в поле 'Количество'.", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             if (WorkDetailsListBox.SelectedItem is WorkDetailsWithInfo selectedDetail)
             {
                 WorkDetail updatedDetail = new WorkDetail
@@ -147,6 +161,34 @@ namespace AutoserviceApp.Views
                 SetFocusOnFirstInput();
             }
         }
+
+        /* - - - - - */
+
+        private void MergeAllDetailsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedWork == null)
+            {
+                MessageBox.Show("Ошибка: работа не выбрана. Сначала выберите работу", "Внимание", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var result = MessageBox.Show(
+                "Внимание! В результате данной операции дубликаты деталей в данной работе будут объединены в одну запись по каждой детали.\n" +
+                "Количество деталей будет просуммировано, повторяющиеся записи будут удалены.\n\n" +
+                "Вы уверены, что хотите продолжить?",
+                "Подтверждение",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result != MessageBoxResult.Yes)
+                return;
+
+            int updatedCount = _DBProceduresAndFunctionsRepository.MergeWorkDetailsByWorkId(_selectedWork.Код);
+            
+            RefreshData();
+            MessageBox.Show($"Объединено дубликатов: {updatedCount}", "Результат", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
 
         /* - - - - - */
         private void BackToWorks_Click(object sender = null, RoutedEventArgs e = null)

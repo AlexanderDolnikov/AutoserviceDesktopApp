@@ -49,7 +49,7 @@
                     <TextBlock Text="Действия:" Width="120" FontWeight="Bold" Foreground="Black"/>
                 </StackPanel>
             </Border>
-            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="435" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="375" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
                 <ListBox x:Name="DetailsListBox" Background="#2c4055" SelectionMode="Single"
                          SelectionChanged="DetailsListBox_SelectionChanged" Margin="5, 0, 0, 0"
                          MinWidth="350">

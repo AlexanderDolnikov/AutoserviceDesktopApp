@@ -33,9 +33,9 @@
             <TextBlock Text="Добро пожаловать в приложение по &#x0a;управлению Автосервисом!&#x0a;&#x0a;&#x0a;Пожалуйста, войдите в аккаунт:" FontSize="14" Margin="0, 0, 0, 8"/>
 
             <TextBlock Text="Логин:" Margin="0, 3, 0, 3"/>
-            <TextBox x:Name="LoginInput" Padding="1" Margin="0, 0, 0, 5"/>
+            <TextBox x:Name="LoginInput" Padding="1" Margin="0, 0, 0, 5" Text="worker6"/>
             <TextBlock Text="Пароль:" Margin="0, 12, 0, 3"/>
-            <PasswordBox x:Name="PasswordInput" KeyDown="PasswordInput_KeyDown" Padding="2"/>
+            <PasswordBox x:Name="PasswordInput" KeyDown="PasswordInput_KeyDown" Padding="2" Password="1236"/>
 
             <Button Content="Войти" Click="Login_Click" Style="{StaticResource LoginButton}"/>
         </StackPanel>

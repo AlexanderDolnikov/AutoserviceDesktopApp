@@ -71,10 +71,24 @@ namespace AutoserviceApp.Views
                 Название = WorkTypeNameTextBox.Text.Trim()
             };
 
-            _workTypeRepository.Add(newWorkType);
-            LoadWorkTypes();
+            try
+            {
+                _workTypeRepository.Add(newWorkType);
+                LoadWorkTypes();
 
-            SetFocusOnFirstInput();
+                SetFocusOnFirstInput();
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.StartsWith("Violation of UNIQUE KEY constraint 'UQ__ВидРабот"))
+                {
+                    MessageBox.Show($"Ошибка: Вид работы с таким названием уже существует!");
+                }
+                else
+                {
+                    MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }            
         }
 
         private void EditWorkType_Click(object sender, RoutedEventArgs e)
